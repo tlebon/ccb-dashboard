@@ -46,6 +46,7 @@
 	"dependencies": {
 		"cheerio": "^1.0.0",
 		"ical.js": "^2.1.0",
-		"node-html-parser": "^7.0.1"
+		"node-html-parser": "^7.0.1",
+		"svelte-qrcode": "^1.0.1"
 	}
 }
