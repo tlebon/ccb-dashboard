@@ -30,13 +30,16 @@
   <div class="text-gray-500 opacity-60 text-2xl text-center">No more show images</div>
 {:else}
   <div class="w-full flex flex-col items-center">
-    <div class="w-full h-64 md:h-80 flex items-center justify-center overflow-hidden rounded-xl bg-gray-800">
-      <img
-        src={carouselShows[current].imageUrl}
-        alt={carouselShows[current].title}
-        class="object-cover w-full h-full transition-all duration-700"
-        style="max-height: 100%"
-      />
+    <div class="w-full h-72 bg-gray-900 flex items-center justify-center overflow-hidden rounded-2xl">
+      {#if carouselShows[current].imageUrl}
+        <img
+          src={carouselShows[current].imageUrl}
+          alt={carouselShows[current].title}
+          class="w-full h-full object-cover"
+        />
+      {:else}
+        <div class="text-white text-xl">No Image</div>
+      {/if}
     </div>
     <div class="mt-4 text-center">
       <div class="text-2xl font-bold text-blue-300 mb-1">{carouselShows[current].title}</div>
