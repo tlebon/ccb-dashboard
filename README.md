@@ -13,10 +13,10 @@ A digital dashboard for Comedy Cafe Berlin, displaying upcoming shows and classe
 ## Screenshots
 
 ### This Week View
-![This Week View](screenshots/this-week.jpg)
+![This Week View](screenshots/this-week.png)
 
 ### Next Week View
-![Next Week View](screenshots/next-week.jpg)
+![Next Week View](screenshots/next-week.png)
 
 ---
 
