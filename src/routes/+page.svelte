@@ -1,75 +1,28 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { fetchShowsFromICal, type Show } from '$lib/utils/icalParser';
-  import Countdown from '$lib/components/Countdown.svelte';
-  import ShowCarousel from '$lib/components/ShowCarousel.svelte';
-  import QrCode from 'svelte-qrcode';
-  import BrandingColumn from '$lib/components/BrandingColumn.svelte';
-  import ShowsColumn from '$lib/components/ShowsColumn.svelte';
-  import ImagesColumn from '$lib/components/ImagesColumn.svelte';
+  import ThisWeek from './this-week/+page.svelte';
+  import NextWeek from './next-week/+page.svelte';
+  import { onMount, onDestroy } from 'svelte';
+  import { fade } from 'svelte/transition';
 
-  let shows: Show[] = [];
-  let loading = true;
-  let error: string | null = null;
-  let logoError = false;
+  let showNextWeek = false;
+  let interval: ReturnType<typeof setInterval>;
 
-  onMount(async () => {
-    try {
-      shows = await fetchShowsFromICal();
-    } catch (e) {
-      error = e instanceof Error ? e.message : 'Failed to load shows';
-    } finally {
-      loading = false;
-    }
+  // Set your desired rotation time (e.g., 30 seconds)
+  const ROTATE_MS = 30000;
+
+  onMount(() => {
+    interval = setInterval(() => {
+      showNextWeek = !showNextWeek;
+    }, ROTATE_MS);
   });
 
-  // Group shows by day, but only for today + next 4 days
-  function groupShowsByDayLimited(shows: Show[]) {
-    const groups: Record<string, Show[]> = {};
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    for (const show of shows) {
-      const date = new Date(show.start);
-      date.setHours(0, 0, 0, 0);
-      const diffDays = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays >= 0 && diffDays < 5) {
-        const dayKey = date.toLocaleDateString(undefined, {
-          weekday: 'long', month: 'long', day: 'numeric'
-        });
-        if (!groups[dayKey]) groups[dayKey] = [];
-        groups[dayKey].push(show);
-      }
-    }
-    return groups;
-  }
-
-  $: groupedShows = groupShowsByDayLimited(shows);
-
-  // Find the next show
-  $: now = new Date();
-  $: nextShow = shows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0];
-
-  $: dayCount = Object.keys(groupedShows).length;
-  $: dayHeadingClass = dayCount < 5 ? 'text-5xl' : 'text-4xl';
-  $: timeClass = dayCount < 5 ? 'text-4xl' : 'text-3xl';
-  $: titleClass = dayCount < 5 ? 'text-2xl' : 'text-xl';
+  onDestroy(() => {
+    clearInterval(interval);
+  });
 </script>
 
-<div class="min-h-screen bg-black text-white px-2 py-4 flex flex-col">
-  <main class="flex-1 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-    <!-- First Column: Info/Branding -->
-    <BrandingColumn />
-    <!-- Second Column: Upcoming Shows Grouped by Day (limited) -->
-    <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} />
-    <!-- Third Column: Next show and carousel -->
-    <ImagesColumn {nextShow} {shows} nextShowId={nextShow?.id} />
-  </main>
-</div>
-
-<style>
-  :global(body) {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background: #000;
-  }
-</style>
+{#if showNextWeek}
+  <div transition:fade><NextWeek /></div>
+{:else}
+  <div transition:fade><ThisWeek /></div>
+{/if}

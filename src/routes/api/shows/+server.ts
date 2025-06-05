@@ -16,9 +16,9 @@ const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
 export const GET: RequestHandler = async () => {
     try {
-        // Check cache
         const now = Date.now();
         if (cachedIcalData && cacheTimestamp && now - cacheTimestamp < CACHE_DURATION_MS) {
+            console.log('Returning cached iCal data');
             return new Response(cachedIcalData, {
                 headers: {
                     'Content-Type': 'text/calendar',
@@ -28,23 +28,24 @@ export const GET: RequestHandler = async () => {
         }
         // Convert webcal:// to https://
         const icalUrl = 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
-        
-        const response = await fetch(icalUrl);
+        console.log('Fetching iCal feed:', icalUrl);
+        const response = await fetch(icalUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            }
+        });
         if (!response.ok) {
+            console.error('Failed to fetch iCal feed:', response.status, response.statusText);
             throw error(response.status, 'Failed to fetch iCal feed');
         }
-        
         const icalData = await response.text();
-        
+        console.log('Fetched iCal feed, length:', icalData.length);
         // Parse the iCal data to get event URLs
         let eventUrls = icalData.split('\n')
             .filter(line => line.startsWith('URL:'))
             .map(line => line.replace('URL:', '').trim());
-
-        // Limit to first 30 events for speed/testing
+        console.log('Found event URLs:', eventUrls.length);
         eventUrls = eventUrls.slice(0, 30);
-
-        // Concurrency limit
         const CONCURRENCY = 4;
         const imageUrls = new Map<string, string>();
         let idx = 0;
@@ -52,6 +53,7 @@ export const GET: RequestHandler = async () => {
             if (idx >= eventUrls.length) return;
             const url = eventUrls[idx++];
             try {
+                console.log('Fetching event page:', url);
                 const eventResponse = await fetchWithTimeout(url, {}, 5000) as Response;
                 if (eventResponse.ok) {
                     const html = await eventResponse.text();
@@ -59,23 +61,21 @@ export const GET: RequestHandler = async () => {
                     const figure = root.querySelector('figure.wp-block-post-featured-image');
                     const img = figure?.querySelector('img');
                     const imageUrl = img?.getAttribute('src');
-                    // console.log('Event URL:', url);
-                    // console.log('Figure found:', !!figure);
-                    // console.log('Img found:', !!img);
-                    // console.log('Image src:', imageUrl);
                     if (imageUrl) {
                         imageUrls.set(url, imageUrl);
+                        console.log('Found image for event:', url, imageUrl);
+                    } else {
+                        console.log('No image found for event:', url);
                     }
+                } else {
+                    console.error('Failed to fetch event page:', url, eventResponse.status, eventResponse.statusText);
                 }
             } catch (e) {
                 console.error('Error processing event page:', url, e);
             }
             await processNext();
         }
-        // Start CONCURRENCY number of parallel fetches
         await Promise.all(Array.from({ length: CONCURRENCY }, processNext));
-
-        // Add image URLs to the iCal data
         let modifiedIcalData = icalData;
         for (const [url, imageUrl] of imageUrls) {
             modifiedIcalData = modifiedIcalData.replace(
@@ -83,9 +83,9 @@ export const GET: RequestHandler = async () => {
                 `URL:${url}\nIMAGE:${imageUrl}`
             );
         }
-        // Update cache
         cachedIcalData = modifiedIcalData;
         cacheTimestamp = Date.now();
+        console.log('Returning new iCal data, length:', modifiedIcalData.length);
         return new Response(modifiedIcalData, {
             headers: {
                 'Content-Type': 'text/calendar',
@@ -93,7 +93,11 @@ export const GET: RequestHandler = async () => {
             }
         });
     } catch (e) {
-        console.error('Error fetching iCal feed:', e);
+        if (e instanceof Error) {
+            console.error('Error fetching iCal feed:', e.message, e.stack);
+        } else {
+            console.error('Error fetching iCal feed:', e);
+        }
         throw error(500, 'Failed to fetch iCal feed');
     }
 }; 
