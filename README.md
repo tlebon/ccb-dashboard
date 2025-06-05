@@ -1,3 +1,25 @@
+# Comedy Cafe Berlin Dashboard
+
+A digital dashboard for Comedy Cafe Berlin, displaying upcoming shows and classes for both the current and next week. Designed for in-venue display screens, this project rotates between "This Week" and "Next Week" views, making it easy for visitors to see what's on at a glance.
+
+## Features
+- **Live schedule**: Pulls show and class data from an iCal feed and displays it grouped by day.
+- **Dual week view**: Rotates automatically between "This Week" and "Next Week" every 30 seconds.
+- **Modern, readable design**: Large, clear typography and QR codes for easy access to tickets and classes.
+- **Color themes**: Blue for the current week, orange for next week.
+- **Responsive**: Looks great on large screens in the venue.
+- **Caching**: Efficient server-side caching for fast updates and low network usage.
+
+## Screenshots
+
+### This Week View
+![This Week View](screenshots/this-week.jpg)
+
+### Next Week View
+![Next Week View](screenshots/next-week.jpg)
+
+---
+
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
