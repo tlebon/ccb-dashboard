@@ -27,7 +27,7 @@ export const GET: RequestHandler = async () => {
             });
         }
         // Convert webcal:// to https://
-        const icalUrl = 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
+        const icalUrl = import.meta.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
         console.log('Fetching iCal feed:', icalUrl);
         const response = await fetch(icalUrl, {
             headers: {
