@@ -45,6 +45,23 @@ export const GET: RequestHandler = async () => {
             .filter(line => line.startsWith('URL:'))
             .map(line => line.replace('URL:', '').trim());
         console.log('Found event URLs:', eventUrls.length);
+
+        // Filter eventUrls to only those within the next 14 days
+        const nowDate = new Date();
+        const twoWeeksFromNow = new Date(nowDate);
+        twoWeeksFromNow.setDate(nowDate.getDate() + 14);
+        // Split iCal into VEVENT blocks
+        const vevents = icalData.split('BEGIN:VEVENT').slice(1);
+        eventUrls = eventUrls.filter((url, i) => {
+            const eventBlock = vevents[i];
+            if (!eventBlock) return false;
+            const dtstartLine = eventBlock.split('\n').find(line => line.startsWith('DTSTART'));
+            if (!dtstartLine) return false;
+            const dtstartStr = dtstartLine.split(':')[1].trim();
+            // Handle both date and datetime DTSTART
+            const eventDate = dtstartStr.length > 8 ? new Date(dtstartStr.replace(/T.*$/, '')) : new Date(dtstartStr);
+            return eventDate >= nowDate && eventDate <= twoWeeksFromNow;
+        });
         eventUrls = eventUrls.slice(0, 30);
         const CONCURRENCY = 4;
         const imageUrls = new Map<string, string>();
