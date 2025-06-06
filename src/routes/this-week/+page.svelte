@@ -53,7 +53,7 @@
 </script>
 
 <div class="min-h-screen bg-black text-white px-2 py-4 flex flex-col">
-  <main class="flex-1 max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+  <main class="flex-1 w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
     <!-- First Column: Info/Branding -->
     <BrandingColumn />
     <!-- Second Column: Upcoming Shows Grouped by Day (limited) -->
