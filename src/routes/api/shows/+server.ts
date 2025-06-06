@@ -63,6 +63,7 @@ export const GET: RequestHandler = async () => {
             return eventDate >= nowDate && eventDate <= twoWeeksFromNow;
         });
         eventUrls = eventUrls.slice(0, 30);
+        console.log('Filtered event URLs for image scraping:', eventUrls.length, eventUrls);
         const CONCURRENCY = 4;
         const imageUrls = new Map<string, string>();
         let idx = 0;
