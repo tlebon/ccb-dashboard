@@ -67,7 +67,7 @@
 </script>
 
 <div class="min-h-screen bg-black text-white px-2 py-4 flex flex-col">
-  <main class="flex-1 w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
     <!-- Reverse order: ImagesColumn, ShowsColumn, BrandingColumn -->
     <ImagesColumn {nextShow} shows={nextWeekShows} nextShowId={nextShow?.id} upFirst={true} theme="orange" />
     <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} theme="orange" />
