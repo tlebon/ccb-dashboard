@@ -49,12 +49,22 @@ export const GET: RequestHandler = async () => {
         const CONCURRENCY = 4;
         const imageUrls = new Map<string, string>();
         let idx = 0;
+        const eventProxyBase = import.meta.env.VITE_PROXY_EVENT_URL;
         async function processNext() {
             if (idx >= eventUrls.length) return;
             const url = eventUrls[idx++];
             try {
-                console.log('Fetching event page:', url);
-                const eventResponse = await fetchWithTimeout(url, {}, 5000) as Response;
+                let eventResponse: Response;
+                if (eventProxyBase) {
+                    // Use proxy for event page fetches in production
+                    const proxyUrl = `${eventProxyBase}?url=${encodeURIComponent(url)}`;
+                    console.log('Fetching event page via proxy:', proxyUrl);
+                    eventResponse = await fetchWithTimeout(proxyUrl, {}, 5000) as Response;
+                } else {
+                    // Fetch directly in local dev
+                    console.log('Fetching event page directly:', url);
+                    eventResponse = await fetchWithTimeout(url, {}, 5000) as Response;
+                }
                 if (eventResponse.ok) {
                     const html = await eventResponse.text();
                     const root = parse(html);
