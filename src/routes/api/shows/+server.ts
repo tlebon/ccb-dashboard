@@ -40,25 +40,12 @@ export const GET: RequestHandler = async () => {
         }
         const icalData = await response.text();
         console.log('Fetched iCal feed, length:', icalData.length);
-        // Parse VEVENT blocks and build a map of URL -> eventDate
-        const vevents = icalData.split('BEGIN:VEVENT').slice(1);
-        const urlToDate = new Map();
-        for (const block of vevents) {
-            const urlLine = block.split('\n').find(line => line.startsWith('URL:'));
-            const dtstartLine = block.split('\n').find(line => line.startsWith('DTSTART'));
-            if (urlLine && dtstartLine) {
-                const url = urlLine.replace('URL:', '').trim();
-                const dtstartStr = dtstartLine.split(':')[1].trim();
-                const eventDate = dtstartStr.length > 8 ? new Date(dtstartStr.replace(/T.*$/, '')) : new Date(dtstartStr);
-                urlToDate.set(url, eventDate);
-            }
-        }
-        const nowDate = new Date();
-        const twoWeeksFromNow = new Date(nowDate);
-        twoWeeksFromNow.setDate(nowDate.getDate() + 14);
-        const eventUrls = Array.from(urlToDate.entries())
-            .filter(([, eventDate]) => eventDate >= nowDate && eventDate <= twoWeeksFromNow)
-            .map(([url]) => url);
+        // Parse the iCal data to get event URLs
+        let eventUrls = icalData.split('\n')
+            .filter(line => line.startsWith('URL:'))
+            .map(line => line.replace('URL:', '').trim());
+        console.log('Found event URLs:', eventUrls.length);
+        eventUrls = eventUrls.slice(0, 30);
         console.log('Filtered event URLs for image scraping:', eventUrls.length, eventUrls);
         const CONCURRENCY = 4;
         const imageUrls = new Map<string, string>();
