@@ -5,8 +5,8 @@
   export let theme: 'blue' | 'orange' = 'blue';
 </script>
 
-<section class="flex flex-col justify-between items-center h-full px-2 rounded-2xl shadow-2xl 
-  bg-gradient-to-b 
+<section class="flex flex-col justify-between items-center h-full px-2 rounded-2xl shadow-2xl overflow-auto
+  bg-gradient-to-b
   {theme === 'orange' ? 'from-orange-900 via-orange-700 to-orange-500 border-orange-400' : 'from-blue-900 via-blue-700 to-blue-500 border-blue-400'}
   border-4">
   <!-- Top: Logo -->

@@ -27,10 +27,10 @@
 </script>
 
 {#if carouselShows.length === 0}
-  <div class="text-gray-500 opacity-60 text-2xl text-center">No more show images</div>
+  <div class="text-gray-500 opacity-60 text-xl text-center">No more show images</div>
 {:else}
-  <div class="w-full flex flex-col items-center">
-    <div class="w-full h-72 bg-gray-900 flex items-center justify-center overflow-hidden rounded-2xl">
+  <div class="w-full flex flex-col items-center flex-shrink-0">
+    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden rounded-2xl">
       {#if carouselShows[current].imageUrl}
         <img
           src={carouselShows[current].imageUrl}
@@ -41,9 +41,9 @@
         <div class="text-white text-xl">No Image</div>
       {/if}
     </div>
-    <div class="mt-4 text-center">
-      <div class="text-2xl font-bold text-blue-300 mb-1">{carouselShows[current].title}</div>
-      <div class="text-lg text-white/80">
+    <div class="mt-2 w-full px-3">
+      <div class="text-xl font-bold text-blue-300 mb-1">{carouselShows[current].title}</div>
+      <div class="text-base text-white/80">
         {new Date(carouselShows[current].start).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
         {' '}
         <span class="text-orange-400 font-bold">{new Date(carouselShows[current].start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
