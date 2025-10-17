@@ -58,16 +58,17 @@
   }
 
   $: dayCount = Object.keys(groupedShows).length;
-  $: dayHeadingClass = dayCount < 5 ? 'text-5xl' : 'text-4xl';
-  $: timeClass = dayCount < 5 ? 'text-4xl' : 'text-3xl';
-  $: titleClass = 'text-3xl';
+  $: totalShows = nextWeekShows.length;
+  $: dayHeadingClass = totalShows > 15 ? 'text-3xl' : dayCount < 5 ? 'text-4xl' : 'text-3xl';
+  $: timeClass = totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
+  $: titleClass = totalShows > 15 ? 'text-lg' : 'text-2xl';
 
   $: console.log('nextWeekShows', nextWeekShows);
   $: console.log('groupedShows', groupedShows);
 </script>
 
-<div class="min-h-screen bg-black text-white px-2 py-4 flex flex-col">
-  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+<div class="h-screen max-h-screen bg-black text-white flex flex-col overflow-hidden box-border">
+  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-2 items-stretch p-2 min-h-0">
     <!-- Reverse order: ImagesColumn, ShowsColumn, BrandingColumn -->
     <ImagesColumn {nextShow} shows={nextWeekShows} nextShowId={nextShow?.id} upFirst={true} theme="orange" />
     <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} theme="orange" />

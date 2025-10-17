@@ -47,13 +47,21 @@
   $: nextShow = shows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0];
 
   $: dayCount = Object.keys(groupedShows).length;
-  $: dayHeadingClass = dayCount < 5 ? 'text-5xl' : 'text-4xl';
-  $: timeClass = dayCount < 5 ? 'text-4xl' : 'text-3xl';
-  $: titleClass = dayCount < 5 ? 'text-2xl' : 'text-xl';
+  $: totalShows = shows.filter(s => {
+    const date = new Date(s.start);
+    date.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays < 5;
+  }).length;
+  $: dayHeadingClass = totalShows > 15 ? 'text-3xl' : dayCount < 5 ? 'text-4xl' : 'text-3xl';
+  $: timeClass = totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
+  $: titleClass = totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-2xl' : 'text-xl';
 </script>
 
-<div class="min-h-screen bg-black text-white px-2 py-4 flex flex-col">
-  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+<div class="h-screen max-h-screen bg-black text-white flex flex-col overflow-hidden box-border">
+  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-2 items-stretch p-2 min-h-0">
     <!-- First Column: Info/Branding -->
     <BrandingColumn />
     <!-- Second Column: Upcoming Shows Grouped by Day (limited) -->
