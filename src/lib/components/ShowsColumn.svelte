@@ -7,32 +7,56 @@
   export let timeClass: string;
   export let titleClass: string;
   export let theme: 'blue' | 'orange' = 'blue';
+  export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
 </script>
 
-<section class="space-y-2 h-full overflow-auto pr-2">
+<section class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200 relative">
   {#if loading}
-    <p class="text-center text-2xl font-bold">Loading shows...</p>
+    <p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">Loading shows...</p>
   {:else if error}
-    <p class="text-center text-red-400 text-2xl font-bold">Error: {error}</p>
+    <p class="text-center text-red-400 text-xl font-bold" style="font-family: var(--font-display);">Error: {error}</p>
   {:else}
     {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
-      <div>
-        <h2 class={`font-extrabold mb-1 ${theme === 'orange' ? 'text-orange-300' : 'text-blue-300'} drop-shadow ${dayHeadingClass}`} style="letter-spacing:0.05em;">{day}</h2>
-        <hr class={`mb-2 border-t-4 ${theme === 'orange' ? 'border-orange-500' : 'border-blue-500'} opacity-80`} />
-        <ul>
+      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;">
+        <!-- Day heading with brutalist style -->
+        <div class="mb-2 relative">
+          <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
+                      ${theme === 'orange'
+                        ? 'bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]'
+                        : 'bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]'}`}
+              style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+            {day}
+          </h2>
+          <div class={`absolute -bottom-1 left-2 right-2 h-0.5 opacity-50
+                      ${theme === 'orange' ? 'bg-[var(--nw-hot-pink)]' : 'bg-[var(--tw-electric-cyan)]'}`}></div>
+        </div>
+
+        <!-- Shows list -->
+        <ul class="space-y-1.5">
           {#each dayShows as show, j (show.id)}
-            <li>
-              <div class="flex items-center gap-4 px-1 py-0.5">
-                <div class={`font-mono font-extrabold min-w-[110px] text-right drop-shadow ${timeClass} ${theme === 'orange' ? 'text-blue-400' : 'text-orange-400'}`}> 
+            {@const isHighlighted = highlightedShowIds.includes(show.id)}
+            <li class="group">
+              <div class={`flex items-center gap-3 px-2 py-1.5 transition-all duration-200
+                          ${isHighlighted ? 'border-l-8 pl-1' : 'border-l-4'}
+                          ${theme === 'orange'
+                            ? `border-[var(--nw-hot-pink)] ${isHighlighted ? 'bg-[var(--nw-deep-purple)]/30' : ''}`
+                            : `border-[var(--tw-electric-cyan)] ${isHighlighted ? 'bg-[var(--tw-deep-purple)]/40' : ''}`}`}>
+
+                <!-- Time with monospace font -->
+                <div class={`font-bold min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
+                            ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}
+                     style="font-family: var(--font-mono);">
                   {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
+
+                <!-- Show title with display font -->
                 <div class="flex-1">
-                  <div class={`font-bold mb-0.5 ${titleClass}`}>{show.title}</div>
+                  <div class={`font-bold text-white uppercase tracking-wide ${titleClass} leading-tight`}
+                       style="font-family: var(--font-display);">
+                    {show.title}
+                  </div>
                 </div>
               </div>
-              {#if j < dayShows.length - 1}
-                <hr class="border-t border-gray-600 opacity-60 mx-1" />
-              {/if}
             </li>
           {/each}
         </ul>

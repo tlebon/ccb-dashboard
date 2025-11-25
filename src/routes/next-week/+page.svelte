@@ -42,6 +42,9 @@
   $: groupedShows = groupShowsByDay(nextWeekShows);
   $: nextShow = nextWeekShows.length > 0 ? nextWeekShows[0] : undefined;
 
+  // Get all shows with images for highlighting (next show + carousel shows)
+  $: highlightedShowIds = nextWeekShows.filter(s => s.imageUrl).map(s => s.id);
+
   // Group shows by day (no date filtering)
   function groupShowsByDay(shows: Show[]) {
     const groups: Record<string, Show[]> = {};
@@ -59,19 +62,23 @@
 
   $: dayCount = Object.keys(groupedShows).length;
   $: totalShows = nextWeekShows.length;
-  $: dayHeadingClass = totalShows > 15 ? 'text-3xl' : dayCount < 5 ? 'text-4xl' : 'text-3xl';
-  $: timeClass = totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
-  $: titleClass = totalShows > 15 ? 'text-lg' : 'text-2xl';
+  $: dayHeadingClass = totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
+  $: timeClass = totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl';
+  $: titleClass = totalShows > 20 ? 'text-sm' : totalShows > 15 ? 'text-base' : dayCount < 5 ? 'text-xl' : 'text-lg';
 
   $: console.log('nextWeekShows', nextWeekShows);
   $: console.log('groupedShows', groupedShows);
 </script>
 
-<div class="h-screen max-h-screen bg-black text-white flex flex-col overflow-hidden box-border">
-  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-2 items-stretch p-2 min-h-0">
+<div class="h-screen max-h-screen text-white flex flex-col overflow-hidden box-border relative
+            bg-gradient-to-br from-[var(--nw-deep-purple)] via-black to-[var(--nw-burning-orange)]">
+  <!-- Grain texture overlay -->
+  <div class="grain-overlay"></div>
+
+  <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10" style="grid-template-columns: 3.5fr 3.5fr 2.7fr;">
     <!-- Reverse order: ImagesColumn, ShowsColumn, BrandingColumn -->
     <ImagesColumn {nextShow} shows={nextWeekShows} nextShowId={nextShow?.id} upFirst={true} theme="orange" />
-    <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} theme="orange" />
+    <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} theme="orange" />
     <BrandingColumn nextWeek={true} theme="orange" />
   </main>
 </div> 

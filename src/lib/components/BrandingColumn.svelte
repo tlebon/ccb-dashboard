@@ -5,39 +5,76 @@
   export let theme: 'blue' | 'orange' = 'blue';
 </script>
 
-<section class="flex flex-col justify-between items-center h-full px-2 rounded-2xl shadow-2xl overflow-auto
-  bg-gradient-to-b
-  {theme === 'orange' ? 'from-orange-900 via-orange-700 to-orange-500 border-orange-400' : 'from-blue-900 via-blue-700 to-blue-500 border-blue-400'}
-  border-4">
-  <!-- Top: Logo -->
-  <div class="w-full flex flex-col items-center mt-4">
+<section class="flex flex-col justify-between items-center h-full px-4 overflow-hidden relative reveal-left delay-100
+  {theme === 'orange'
+    ? 'bg-gradient-to-br from-[var(--nw-deep-purple)] via-black to-[var(--nw-burning-orange)]'
+    : 'bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-[var(--tw-concrete)]'}
+  brutalist-border
+  {theme === 'orange' ? 'border-[var(--nw-hot-pink)]' : 'border-[var(--tw-electric-cyan)]'}">
+
+  <!-- Grain overlay -->
+  <div class="grain-overlay"></div>
+
+  <!-- Top: Logo & Title -->
+  <div class="w-full flex flex-col items-center mt-4 relative z-10">
     {#if !logoError}
-      <div class="bg-black rounded-full p-2 shadow-lg">
-        <img src="/cropped-CCB-Logos_white_LG.png" alt="Comedy Cafe Berlin Logo" class="w-40 h-40 object-contain" on:error={() => logoError = true} />
+      <div class="bg-black p-2 brutalist-border {theme === 'orange' ? 'border-[var(--nw-burning-orange)]' : 'border-[var(--tw-electric-cyan)]'} reveal-up delay-200">
+        <img src="/cropped-CCB-Logos_white_LG.png" alt="Comedy Cafe Berlin Logo" class="w-20 h-20 object-contain" on:error={() => logoError = true} />
       </div>
     {/if}
-    <div class="text-4xl font-black text-white text-center tracking-widest drop-shadow-lg mt-4">
-      {nextWeek ? 'Next Week at' : 'This Week at'}<br />Comedy Cafe Berlin
-    </div>
-    <div class="text-2xl font-medium text-white leading-relaxed text-center mt-6 mb-2 max-w-md mx-auto">Berlin's first international, alternative comedy stage, school and bar.</div>
-    <div class="text-lg {theme === 'orange' ? 'text-orange-100' : 'text-blue-100'} text-center mt-2 mb-4 max-w-md mx-auto">Open Every Wednesday to Sunday</div>
-  </div>
-  <!-- Middle: QR codes only, side by side -->
-  <div class="w-full flex flex-row items-end justify-center gap-8 flex-1 mt-2">
-    <div class="flex flex-col items-center">
-      <div class="text-white text-lg font-bold mb-2">Scan for shows</div>
-      <div class="w-[160px] h-[160px] flex items-center justify-center">
-        <QrCode value="https://www.comedycafeberlin.com" size={150} color="#fff" background="#1e293b" style="width: 100%; height: 100%;" />
+
+    <div class="mt-3 reveal-up delay-300">
+      <div class="text-sm tracking-[0.3em] uppercase {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
+           style="font-family: var(--font-mono);">
+        {nextWeek ? 'Next Week' : 'This Week'}
       </div>
     </div>
-    <div class="flex flex-col items-center">
-      <div class="text-white text-lg font-bold mb-2">Scan for classes</div>
-      <div class="w-[160px] h-[160px] flex items-center justify-center">
-        <QrCode value="https://training.comedycafeberlin.com" size={150} color="#fff" background="#1e293b" style="width: 100%; height: 100%;" />
+
+    <div class="text-4xl leading-none text-white text-center mt-2 neon-glow reveal-up delay-400
+                {theme === 'orange' ? 'text-[var(--nw-hot-pink)]' : 'text-[var(--tw-electric-cyan)]'}"
+         style="font-family: var(--font-display);">
+      COMEDY<br/>CAFE<br/>BERLIN
+    </div>
+
+    <div class="text-xs leading-relaxed text-center mt-3 mb-1 max-w-xs mx-auto text-white reveal-up delay-500"
+         style="font-family: var(--font-serif);">
+      Berlin's first international, alternative comedy stage, school and bar.
+    </div>
+
+    <div class="text-xs uppercase tracking-widest text-white/70 text-center mt-1 mb-2 reveal-up delay-500"
+         style="font-family: var(--font-mono);">
+      Open Wed—Sun
+    </div>
+  </div>
+
+  <!-- Middle: QR codes -->
+  <div class="w-full flex flex-row items-center justify-center gap-4 flex-1 relative z-10">
+    <div class="flex flex-col items-center reveal-up delay-300">
+      <div class="text-white text-[10px] uppercase tracking-widest mb-1.5 {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
+           style="font-family: var(--font-mono);">
+        → Shows
+      </div>
+      <div class="p-2 bg-white brutalist-border {theme === 'orange' ? 'border-[var(--nw-hot-pink)]' : 'border-[var(--tw-electric-cyan)]'}">
+        <QrCode value="https://www.comedycafeberlin.com" size={100} color="#000" background="#fff" style="width: 100px; height: 100px; display: block;" />
+      </div>
+    </div>
+
+    <div class="flex flex-col items-center reveal-up delay-400">
+      <div class="text-white text-[10px] uppercase tracking-widest mb-1.5 {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
+           style="font-family: var(--font-mono);">
+        → Classes
+      </div>
+      <div class="p-2 bg-white brutalist-border {theme === 'orange' ? 'border-[var(--nw-hot-pink)]' : 'border-[var(--tw-electric-cyan)]'}">
+        <QrCode value="https://training.comedycafeberlin.com" size={100} color="#000" background="#fff" style="width: 100px; height: 100px; display: block;" />
       </div>
     </div>
   </div>
+
   <!-- Bottom: Tagline -->
-  <div class="mb-4 text-2xl {theme === 'orange' ? 'text-orange-100' : 'text-white/80'} font-bold text-center">😂 Improv • 🎤 Standup • 🎭 Sketch</div>
+  <div class="mb-4 text-lg font-bold text-center leading-tight relative z-10 reveal-up delay-500 text-white"
+       style="font-family: var(--font-black);">
+    IMPROV<br/>STANDUP<br/>SKETCH
+  </div>
+
   <slot />
 </section> 
