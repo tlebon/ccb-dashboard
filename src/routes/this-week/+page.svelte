@@ -46,6 +46,9 @@
   $: now = new Date();
   $: nextShow = shows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0];
 
+  // Get all shows with images for highlighting (next show + carousel shows)
+  $: highlightedShowIds = shows.filter(s => s.imageUrl).map(s => s.id);
+
   $: dayCount = Object.keys(groupedShows).length;
   $: totalShows = shows.filter(s => {
     const date = new Date(s.start);
@@ -55,18 +58,22 @@
     const diffDays = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return diffDays >= 0 && diffDays < 5;
   }).length;
-  $: dayHeadingClass = totalShows > 15 ? 'text-3xl' : dayCount < 5 ? 'text-4xl' : 'text-3xl';
-  $: timeClass = totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
-  $: titleClass = totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-2xl' : 'text-xl';
+  $: dayHeadingClass = totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
+  $: timeClass = totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl';
+  $: titleClass = totalShows > 20 ? 'text-sm' : totalShows > 15 ? 'text-base' : dayCount < 5 ? 'text-xl' : 'text-lg';
 </script>
 
-<div class="h-screen max-h-screen bg-black text-white flex flex-col overflow-hidden box-border">
-  <main class="flex-1 w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-2 items-stretch p-2 min-h-0">
+<div class="h-screen max-h-screen text-white flex flex-col overflow-hidden box-border relative
+            bg-gradient-to-br from-[var(--tw-midnight)] via-black to-[var(--tw-deep-purple)]">
+  <!-- Grain texture overlay -->
+  <div class="grain-overlay"></div>
+
+  <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10" style="grid-template-columns: 2.7fr 3.5fr 3.5fr;">
     <!-- First Column: Info/Branding -->
-    <BrandingColumn />
+    <BrandingColumn theme="blue" />
     <!-- Second Column: Upcoming Shows Grouped by Day (limited) -->
-    <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} />
+    <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} theme="blue" />
     <!-- Third Column: Next show and carousel -->
-    <ImagesColumn {nextShow} {shows} nextShowId={nextShow?.id} />
+    <ImagesColumn {nextShow} {shows} nextShowId={nextShow?.id} theme="blue" />
   </main>
 </div> 

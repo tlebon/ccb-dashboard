@@ -4,11 +4,136 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Fonts - Berlin Comedy Brutalism */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@700&family=Archivo+Black&display=swap');
+
+:root {
+	/* This Week Palette - Neon Berlin Night */
+	--tw-electric-cyan: #00ffff;
+	--tw-deep-purple: #1a0033;
+	--tw-neon-pink: #ff006e;
+	--tw-midnight: #0a0015;
+	--tw-concrete: #2d2d3a;
+
+	/* Next Week Palette - Neon Sunset */
+	--nw-burning-orange: #ff6b00;
+	--nw-hot-pink: #ff0080;
+	--nw-neon-yellow: #ffff00;
+	--nw-deep-purple: #2d0056;
+	--nw-electric-magenta: #ff00ff;
+
+	/* Typography scale */
+	--font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+	--font-mono: 'DM Mono', 'Courier New', monospace;
+	--font-serif: 'Libre Baskerville', Georgia, serif;
+	--font-black: 'Archivo Black', 'Impact', sans-serif;
+}
+
 html {
-  font-size: 16px;
+	font-size: 16px;
+	overflow-x: hidden;
 }
 
 body {
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-mono);
+}
+
+/* Textured background pattern */
+@keyframes grain {
+	0%, 100% { transform: translate(0, 0); }
+	10% { transform: translate(-5%, -10%); }
+	30% { transform: translate(3%, -15%); }
+	50% { transform: translate(12%, 9%); }
+	70% { transform: translate(9%, 4%); }
+	90% { transform: translate(-1%, 7%); }
+}
+
+.grain-overlay {
+	position: fixed;
+	top: -50%;
+	left: -50%;
+	right: -50%;
+	bottom: -50%;
+	width: 200%;
+	height: 200vh;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+	pointer-events: none;
+	opacity: 0.4;
+	animation: grain 8s steps(10) infinite;
+	z-index: 1;
+}
+
+/* Staggered reveal animations */
+@keyframes slideInLeft {
+	from {
+		opacity: 0;
+		transform: translateX(-100px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(100px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes slideInUp {
+	from {
+		opacity: 0;
+		transform: translateY(50px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes glitchText {
+	0%, 100% { transform: translate(0); }
+	33% { transform: translate(-2px, 2px); }
+	66% { transform: translate(2px, -2px); }
+}
+
+.reveal-left {
+	animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reveal-right {
+	animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reveal-up {
+	animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+.delay-300 { animation-delay: 0.3s; opacity: 0; }
+.delay-400 { animation-delay: 0.4s; opacity: 0; }
+.delay-500 { animation-delay: 0.5s; opacity: 0; }
+
+/* Neon glow effect */
+.neon-glow {
+	text-shadow:
+		0 0 10px currentColor,
+		0 0 20px currentColor,
+		0 0 30px currentColor,
+		0 0 40px currentColor;
+}
+
+/* Brutalist borders */
+.brutalist-border {
+	border: 4px solid currentColor;
+	box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
 }

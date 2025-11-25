@@ -2,7 +2,8 @@
   import ThisWeek from './this-week/+page.svelte';
   import NextWeek from './next-week/+page.svelte';
   import { onMount, onDestroy } from 'svelte';
-  import { fade } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
+  import { cubicOut } from 'svelte/easing';
 
   let showNextWeek = false;
   let interval: ReturnType<typeof setInterval>;
@@ -21,8 +22,20 @@
   });
 </script>
 
-{#if showNextWeek}
-  <div transition:fade><NextWeek /></div>
-{:else}
-  <div transition:fade><ThisWeek /></div>
-{/if}
+<div class="relative w-full h-screen overflow-hidden">
+  {#if showNextWeek}
+    <div
+      in:fly={{ x: '100%', duration: 800, easing: cubicOut }}
+      out:fly={{ x: '-100%', duration: 800, easing: cubicOut }}
+      class="absolute inset-0">
+      <NextWeek />
+    </div>
+  {:else}
+    <div
+      in:fly={{ x: '100%', duration: 800, easing: cubicOut }}
+      out:fly={{ x: '-100%', duration: 800, easing: cubicOut }}
+      class="absolute inset-0">
+      <ThisWeek />
+    </div>
+  {/if}
+</div>
