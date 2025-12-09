@@ -14,6 +14,14 @@ interface Show {
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+// Format date in local timezone (avoids UTC conversion bug with toISOString)
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function parseTime(timeStr: string): string {
   // Handle formats: "8:00pm", "8:00 PM", "20:00", "8:00 PM - 9:00 PM"
   const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(pm|am)?/i);
@@ -86,7 +94,7 @@ function parseBeeperExport(text: string): Show[] {
 
       if (month !== undefined && day) {
         const date = new Date(currentYear, month, day);
-        currentWeekStart = date.toISOString().split('T')[0];
+        currentWeekStart = formatLocalDate(date);
       }
       continue;
     }
@@ -236,7 +244,7 @@ function parseSimple(text: string): Show[] {
         title = title.replace(/\s*\(\d+€\)$/i, '').trim();
         title = title.replace(/\s*\(at CCB Studios\)$/i, '').trim();
 
-        const dateStr = currentDate.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(currentDate);
 
         shows.push({
           date: dateStr,

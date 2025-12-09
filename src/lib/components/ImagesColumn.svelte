@@ -1,12 +1,22 @@
 <script lang="ts">
   import type { Show } from '$lib/utils/icalParser';
   import { proxyImageUrl } from '$lib/utils/imageProxy';
+  import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
   export let nextShow: Show | undefined;
   export let shows: Show[];
   export let nextShowId: string | undefined;
   export let upFirst: boolean = false;
   export let theme: 'blue' | 'orange' = 'blue';
   import ShowCarousel from './ShowCarousel.svelte';
+
+  // Format show title - add team names for House Show
+  function getDisplayTitle(show: Show): string {
+    if (isHouseShow(show.title)) {
+      const teams = formatHouseShowTeams(show.start);
+      if (teams) return `House Show: ${teams}`;
+    }
+    return show.title;
+  }
 </script>
 
 <section class="flex flex-col items-center justify-start gap-3 w-full h-full overflow-hidden reveal-right delay-200">
@@ -39,7 +49,7 @@
       <div class="p-3 relative z-10">
         <h2 class="text-xl font-black mb-1 uppercase tracking-wide leading-tight text-white group-hover:text-[var(--tw-electric-cyan)]"
             style="font-family: var(--font-display);">
-          {nextShow.title}
+          {getDisplayTitle(nextShow)}
         </h2>
 
         <div class={`text-sm font-bold uppercase tracking-widest

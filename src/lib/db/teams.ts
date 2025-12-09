@@ -65,7 +65,7 @@ export async function getTeamWithMembers(slug: string) {
 export async function getTeamShows(teamId: number, limit = 20) {
 	const result = await db.execute({
 		sql: `
-			SELECT DISTINCT s.*
+			SELECT DISTINCT s.id, s.title, s.slug, s.date, s.time
 			FROM shows s
 			JOIN show_appearances sa ON s.id = sa.show_id
 			WHERE sa.team_id = ?

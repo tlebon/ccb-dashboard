@@ -2,6 +2,7 @@
   import { onDestroy } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
   import { proxyImageUrl } from '$lib/utils/imageProxy';
+  import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
 
@@ -11,6 +12,15 @@
 
   // Filter out the next show
   $: carouselShows = shows.filter(s => s.id !== nextShowId && s.imageUrl);
+
+  // Format show title - add team names for House Show
+  function getDisplayTitle(show: Show): string {
+    if (isHouseShow(show.title)) {
+      const teams = formatHouseShowTeams(show.start);
+      if (teams) return `House Show: ${teams}`;
+    }
+    return show.title;
+  }
 
   let current = 0;
   let interval: any;
@@ -79,7 +89,7 @@
           class="absolute inset-0 w-full">
           <div class="text-xl font-black uppercase tracking-wide mb-1.5 leading-tight text-white group-hover:text-[var(--tw-electric-cyan)]"
                style="font-family: var(--font-display);">
-            {carouselShows[current].title}
+            {getDisplayTitle(carouselShows[current])}
           </div>
           <div class={`text-sm font-bold uppercase tracking-widest
                       ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}

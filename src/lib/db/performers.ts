@@ -59,15 +59,17 @@ export async function getPerformerTeams(performerId: number) {
 	return result.rows;
 }
 
-export async function getPerformerShows(performerId: number, limit = 20) {
+export async function getPerformerShows(performerId: number, limit = 20, upcoming = false) {
+	const dateFilter = upcoming ? 's.date >= date("now")' : 's.date < date("now")';
+	const orderDir = upcoming ? 'ASC' : 'DESC';
 	const result = await db.execute({
 		sql: `
-			SELECT s.*, sa.role, t.name as team_name
+			SELECT s.id, s.title, s.slug, s.date, s.time, sa.role, t.name as team_name, t.slug as team_slug
 			FROM shows s
 			JOIN show_appearances sa ON s.id = sa.show_id
 			LEFT JOIN teams t ON sa.team_id = t.id
-			WHERE sa.performer_id = ?
-			ORDER BY s.date DESC
+			WHERE sa.performer_id = ? AND ${dateFilter}
+			ORDER BY s.date ${orderDir}
 			LIMIT ?
 		`,
 		args: [performerId, limit]

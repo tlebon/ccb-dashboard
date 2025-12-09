@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { proxyImageUrl } from '$lib/utils/imageProxy';
+	import { isHouseShow, getHouseShowTeams, type HouseTeam } from '$lib/utils/houseShowTeams';
 
 	interface Performer {
 		performer_id: number;
@@ -113,6 +114,7 @@
 	};
 
 	$: grouped = show?.lineup ? groupByRole(show.lineup) : {};
+	$: houseTeams = show && isHouseShow(show.title) ? getHouseShowTeams(show.date) : [];
 </script>
 
 <svelte:head>
@@ -186,6 +188,35 @@
 					</header>
 				</div>
 			</div>
+
+			<!-- House Show Teams -->
+			{#if houseTeams.length > 0}
+				<section class="mb-10">
+					<div class="relative mb-6">
+						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
+							style="font-family: var(--font-display);">
+							Tonight's Teams
+						</h2>
+						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+					</div>
+
+					<div class="grid md:grid-cols-2 gap-6">
+						{#each houseTeams as team}
+							<div class="p-4 border-l-4 border-[var(--tw-neon-pink)]/60 bg-white/5">
+								<a href="/teams/{team.slug}" class="text-2xl text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] transition-colors mb-2 block" style="font-family: var(--font-display);">
+									{team.name} →
+								</a>
+								<p class="text-white/80 text-sm mb-3">
+									{team.members.join(', ')}
+								</p>
+								<p class="text-[var(--tw-electric-cyan)] text-xs font-mono uppercase tracking-wider">
+									Coached by {team.coach}
+								</p>
+							</div>
+						{/each}
+					</div>
+				</section>
+			{/if}
 
 			<!-- Description -->
 			{#if show.description}
