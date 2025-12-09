@@ -1,0 +1,105 @@
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import { upsertShow } from '$lib/db';
+import ICAL from 'ical.js';
+
+const ICAL_URL = 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
+
+export const POST: RequestHandler = async ({ request }) => {
+	// Optional: Add a secret key check for security
+	const authHeader = request.headers.get('authorization');
+	const expectedToken = process.env.SYNC_SECRET;
+
+	if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	try {
+		console.log('Fetching iCal feed...');
+		const response = await fetch(ICAL_URL, {
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (compatible; CCB-Dashboard/1.0)'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch iCal: ${response.status}`);
+		}
+
+		let icalData = await response.text();
+
+		// Unfold lines
+		icalData = icalData.replace(/\r?\n[ \t]/g, '');
+
+		const jcalData = ICAL.parse(icalData);
+		const comp = new ICAL.Component(jcalData);
+		const vevents = comp.getAllSubcomponents('vevent');
+
+		// Extract VEVENT blocks for URL parsing
+		const veventBlocks = icalData.split('BEGIN:VEVENT').slice(1).map(block =>
+			'BEGIN:VEVENT' + block.split('END:VEVENT')[0]
+		);
+
+		let synced = 0;
+		let errors = 0;
+
+		for (let i = 0; i < vevents.length; i++) {
+			try {
+				const event = vevents[i];
+				const icalEvent = new ICAL.Event(event);
+				const start = icalEvent.startDate.toJSDate();
+				const veventBlock = veventBlocks[i] || '';
+
+				// Extract URL
+				let url: string | undefined;
+				const urlMatch = veventBlock.match(/URL:(.+)/);
+				if (urlMatch) {
+					url = urlMatch[1].trim();
+				}
+
+				// Format date and time
+				const date = start.toISOString().split('T')[0];
+				const time = start.toLocaleTimeString('en-GB', {
+					hour: '2-digit',
+					minute: '2-digit',
+					hour12: false
+				});
+
+				await upsertShow({
+					title: icalEvent.summary || 'Untitled',
+					date,
+					time,
+					description: icalEvent.description || undefined,
+					source: 'ical',
+					ical_uid: icalEvent.uid,
+					url
+				});
+
+				synced++;
+			} catch (e) {
+				console.error('Error syncing event:', e);
+				errors++;
+			}
+		}
+
+		console.log(`Synced ${synced} shows, ${errors} errors`);
+
+		return json({
+			success: true,
+			synced,
+			errors,
+			total: vevents.length
+		});
+	} catch (error) {
+		console.error('Sync error:', error);
+		return json({ error: 'Sync failed', details: String(error) }, { status: 500 });
+	}
+};
+
+// Also allow GET for easy testing
+export const GET: RequestHandler = async () => {
+	return json({
+		message: 'Use POST to trigger iCal sync',
+		endpoint: '/api/sync/ical'
+	});
+};
