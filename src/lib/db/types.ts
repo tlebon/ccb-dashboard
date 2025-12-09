@@ -26,8 +26,11 @@ export interface Show {
 	title: string;
 	date: string;
 	time: string | null;
+	description: string | null;
 	source: 'ical' | 'beeper' | 'manual';
 	ical_uid: string | null;
+	url: string | null;
+	image_url: string | null;
 	created_at: string;
 }
 
