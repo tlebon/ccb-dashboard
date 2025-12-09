@@ -68,12 +68,12 @@
 <div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
+	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-8">
 		<QuickNav />
 
 		<!-- Header -->
-		<header class="mb-10">
-			<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
+		<header class="mb-6 md:mb-10">
+			<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
 			           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
 			    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
 				Shows
@@ -105,16 +105,16 @@
 						{#each upcomingShows as show (show.id)}
 							<a
 								href="/shows/{show.slug}"
-								class="group flex items-center gap-4 py-3 px-4 border-l-4 border-[var(--nw-neon-yellow)]/40 hover:border-[var(--nw-neon-yellow)] hover:bg-white/5 transition-all"
+								class="group flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3 px-4 border-l-4 border-[var(--nw-neon-yellow)]/40 hover:border-[var(--nw-neon-yellow)] hover:bg-white/5 transition-all"
 							>
-								<div class="min-w-[140px] text-[var(--nw-neon-yellow)] font-mono text-sm">
+								<div class="sm:min-w-[140px] text-[var(--nw-neon-yellow)] font-mono text-xs sm:text-sm">
 									{formatDate(show.date)}
 									{#if show.time}
 										<span class="text-white/40 ml-2">{formatTime(show.time)}</span>
 									{/if}
 								</div>
 								<div class="flex-1">
-									<span class="text-lg uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors"
+									<span class="text-base sm:text-lg uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors"
 									      style="font-family: var(--font-display);">
 										{show.title}
 									</span>
@@ -140,13 +140,13 @@
 						{#each pastShows as show (show.id)}
 							<a
 								href="/shows/{show.slug}"
-								class="group flex items-center gap-4 py-2 px-4 border-l-4 border-[var(--tw-neon-pink)]/20 hover:border-[var(--tw-neon-pink)] hover:bg-white/5 transition-all"
+								class="group flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-4 py-2 px-4 border-l-4 border-[var(--tw-neon-pink)]/20 hover:border-[var(--tw-neon-pink)] hover:bg-white/5 transition-all"
 							>
-								<div class="min-w-[140px] text-white/50 font-mono text-sm">
+								<div class="sm:min-w-[140px] text-white/50 font-mono text-xs sm:text-sm">
 									{formatDate(show.date)}
 								</div>
 								<div class="flex-1">
-									<span class="text-base uppercase text-white/70 group-hover:text-[var(--tw-electric-cyan)] transition-colors"
+									<span class="text-sm sm:text-base uppercase text-white/70 group-hover:text-[var(--tw-electric-cyan)] transition-colors"
 									      style="font-family: var(--font-display);">
 										{show.title}
 									</span>

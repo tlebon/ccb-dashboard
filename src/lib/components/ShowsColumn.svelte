@@ -167,7 +167,7 @@
                             : `border-[var(--tw-electric-cyan)] ${isHighlighted ? 'bg-[var(--tw-deep-purple)]/40' : ''}`}`}>
 
                 <!-- Time with monospace font -->
-                <div class={`font-bold min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
+                <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
                             ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}
                      style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
                   {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
