@@ -8,6 +8,16 @@
   import BrandingColumn from '$lib/components/BrandingColumn.svelte';
   import ShowsColumn from '$lib/components/ShowsColumn.svelte';
   import ImagesColumn from '$lib/components/ImagesColumn.svelte';
+  import MobileHeader from '$lib/components/MobileHeader.svelte';
+  import MobileNav from '$lib/components/MobileNav.svelte';
+
+  // Responsive: detect mobile
+  let isMobile = false;
+  let mobileNavOpen = false;
+
+  function checkMobile() {
+    isMobile = window.innerWidth < 768;
+  }
 
   // Week offset: 0 = this week, 1 = next week, 2 = week after, etc.
   let weekOffset = 0;
@@ -46,6 +56,10 @@
   }
 
   onMount(async () => {
+    // Check mobile on mount and listen for resize
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     try {
       // Fetch enough shows to cover multiple weeks
       shows = await fetchShowsFromDB(60);
@@ -58,6 +72,9 @@
 
   onDestroy(() => {
     if (interval) clearInterval(interval);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', checkMobile);
+    }
   });
 
   // Auto-rotate when in monitor mode (skips empty weeks)
@@ -215,6 +232,9 @@
   $: canGoNext = !loading && findNextWeekWithShows(weekOffset) !== null;
 </script>
 
+<!-- Mobile Navigation Sidebar -->
+<MobileNav bind:open={mobileNavOpen} {theme} on:close={() => mobileNavOpen = false} />
+
 <div class="relative w-full h-screen overflow-hidden bg-black">
   {#key weekOffset}
     <div
@@ -227,38 +247,65 @@
       <!-- Grain texture overlay -->
       <div class="grain-overlay"></div>
 
-      <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10"
-            style="grid-template-columns: {isNextWeekStyle ? '3.5fr 3.5fr 2.7fr' : '2.7fr 3.5fr 3.5fr'};">
-        {#if isNextWeekStyle}
-          <!-- Next week style: Images, Shows, Branding -->
-          <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} />
-          <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
-          <BrandingColumn
+      {#if isMobile}
+        <!-- Mobile Layout -->
+        <MobileHeader
+          {theme}
+          weekLabel={weekRange.label}
+          {canGoPrev}
+          {canGoNext}
+          on:openMenu={() => mobileNavOpen = true}
+          on:prev={prevWeek}
+          on:next={nextWeek}
+        />
+        <main class="flex-1 overflow-hidden px-3 py-3 relative z-10">
+          <ShowsColumn
+            {groupedShows}
+            {loading}
+            {error}
+            dayHeadingClass="text-xl"
+            timeClass="text-base"
+            titleClass="text-sm"
+            {highlightedShowIds}
             {theme}
-            {monitorMode}
-            weekLabel={weekRange.label}
-            {canGoPrev}
-            {canGoNext}
-            on:prev={prevWeek}
-            on:next={nextWeek}
-            on:toggleMonitor={toggleMonitorMode}
+            monitorMode={false}
           />
-        {:else}
-          <!-- This week style: Branding, Shows, Images -->
-          <BrandingColumn
-            {theme}
-            {monitorMode}
-            weekLabel={weekRange.label}
-            {canGoPrev}
-            {canGoNext}
-            on:prev={prevWeek}
-            on:next={nextWeek}
-            on:toggleMonitor={toggleMonitorMode}
-          />
-          <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
-          <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} />
-        {/if}
-      </main>
+        </main>
+      {:else}
+        <!-- Desktop Layout -->
+        <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10"
+              style="grid-template-columns: {isNextWeekStyle ? '3.5fr 3.5fr 2.7fr' : '2.7fr 3.5fr 3.5fr'};">
+          {#if isNextWeekStyle}
+            <!-- Next week style: Images, Shows, Branding -->
+            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} />
+            <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
+            <BrandingColumn
+              {theme}
+              {monitorMode}
+              weekLabel={weekRange.label}
+              {canGoPrev}
+              {canGoNext}
+              on:prev={prevWeek}
+              on:next={nextWeek}
+              on:toggleMonitor={toggleMonitorMode}
+            />
+          {:else}
+            <!-- This week style: Branding, Shows, Images -->
+            <BrandingColumn
+              {theme}
+              {monitorMode}
+              weekLabel={weekRange.label}
+              {canGoPrev}
+              {canGoNext}
+              on:prev={prevWeek}
+              on:next={nextWeek}
+              on:toggleMonitor={toggleMonitorMode}
+            />
+            <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
+            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} />
+          {/if}
+        </main>
+      {/if}
     </div>
   {/key}
 </div>

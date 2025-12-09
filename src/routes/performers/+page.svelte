@@ -45,11 +45,11 @@
 <div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
+	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-8">
 		<!-- Header -->
-		<header class="mb-10">
+		<header class="mb-6 md:mb-10">
 			<QuickNav />
-			<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
+			<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
 			           bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]"
 			    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
 				Performers
