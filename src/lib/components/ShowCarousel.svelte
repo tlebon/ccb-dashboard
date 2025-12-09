@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
+  import { proxyImageUrl } from '$lib/utils/imageProxy';
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
 
@@ -35,9 +36,9 @@
     No more show images
   </div>
 {:else}
-  <div class="w-full h-full flex flex-col items-center">
+  <a href="/shows/{carouselShows[current].id}" class="block w-full h-full flex flex-col items-center group">
     <!-- Carousel Image -->
-    <div class={`w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden brutalist-border relative
+    <div class={`w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden brutalist-border relative group-hover:scale-[1.02] transition-transform origin-top
                 ${theme === 'orange'
                   ? 'bg-[var(--nw-deep-purple)] border-[var(--nw-hot-pink)]'
                   : 'bg-[var(--tw-midnight)] border-[var(--tw-electric-cyan)]'}`}>
@@ -48,7 +49,7 @@
           class="w-full h-full absolute inset-0">
           {#if carouselShows[current].imageUrl}
             <img
-              src={carouselShows[current].imageUrl}
+              src={proxyImageUrl(carouselShows[current].imageUrl)}
               alt={carouselShows[current].title}
               class="w-full h-full object-cover"
             />
@@ -76,7 +77,7 @@
           in:fly={{ x: 100, duration: 600, easing: cubicOut }}
           out:fly={{ x: -100, duration: 600, easing: cubicOut }}
           class="absolute inset-0 w-full">
-          <div class="text-xl font-black uppercase tracking-wide mb-1.5 leading-tight text-white"
+          <div class="text-xl font-black uppercase tracking-wide mb-1.5 leading-tight text-white group-hover:text-[var(--tw-electric-cyan)]"
                style="font-family: var(--font-display);">
             {carouselShows[current].title}
           </div>
@@ -95,5 +96,5 @@
         <div class="text-sm font-bold uppercase tracking-widest">Spacer text</div>
       </div>
     </div>
-  </div>
+  </a>
 {/if} 

@@ -65,7 +65,7 @@
   $: totalShows = nextWeekShows.length;
   $: dayHeadingClass = totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
   $: timeClass = totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl';
-  $: titleClass = totalShows > 20 ? 'text-sm' : totalShows > 15 ? 'text-base' : dayCount < 5 ? 'text-xl' : 'text-lg';
+  $: titleClass = totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg';
 
   $: console.log('nextWeekShows', nextWeekShows);
   $: console.log('groupedShows', groupedShows);

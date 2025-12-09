@@ -46,14 +46,14 @@
                 <!-- Time with monospace font -->
                 <div class={`font-bold min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
                             ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}
-                     style="font-family: var(--font-mono);">
+                     style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
                   {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
 
                 <!-- Show title with display font -->
                 <div class="flex-1">
-                  <div class={`font-bold text-white uppercase tracking-wide ${titleClass} leading-tight group-hover:text-[var(--tw-electric-cyan)]`}
-                       style="font-family: var(--font-display);">
+                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)]`}
+                       style="font-family: var(--font-display); letter-spacing: 0.08em;">
                     {show.title}
                   </div>
                 </div>

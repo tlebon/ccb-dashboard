@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Show } from '$lib/utils/icalParser';
+  import { proxyImageUrl } from '$lib/utils/imageProxy';
   export let nextShow: Show | undefined;
   export let shows: Show[];
   export let nextShowId: string | undefined;
@@ -10,7 +11,8 @@
 
 <section class="flex flex-col items-center justify-start gap-3 w-full h-full overflow-hidden reveal-right delay-200">
   {#if nextShow}
-    <div class={`w-full overflow-hidden brutalist-border flex-shrink-0 relative reveal-up delay-300
+    <a href="/shows/{nextShow.id}"
+       class={`block w-full overflow-hidden brutalist-border flex-shrink-0 relative reveal-up delay-300 hover:scale-[1.02] transition-transform
                 ${theme === 'orange'
                   ? 'bg-gradient-to-br from-[var(--nw-deep-purple)] to-black border-[var(--nw-hot-pink)]'
                   : 'bg-gradient-to-br from-[var(--tw-midnight)] to-[var(--tw-deep-purple)] border-[var(--tw-electric-cyan)]'}`}>
@@ -18,7 +20,7 @@
       <!-- Featured Image -->
       <div class="w-full flex-1 flex items-center justify-center overflow-hidden relative">
         {#if nextShow.imageUrl}
-          <img src={nextShow.imageUrl} alt={nextShow.title} class="w-full h-full object-cover" />
+          <img src={proxyImageUrl(nextShow.imageUrl)} alt={nextShow.title} class="w-full h-full object-cover" />
         {:else}
           <div class="text-white text-xl" style="font-family: var(--font-display);">No Image</div>
         {/if}
@@ -35,7 +37,7 @@
 
       <!-- Show details -->
       <div class="p-3 relative z-10">
-        <h2 class="text-xl font-black mb-1 uppercase tracking-wide leading-tight text-white"
+        <h2 class="text-xl font-black mb-1 uppercase tracking-wide leading-tight text-white group-hover:text-[var(--tw-electric-cyan)]"
             style="font-family: var(--font-display);">
           {nextShow.title}
         </h2>
@@ -48,7 +50,7 @@
           {new Date(nextShow.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
-    </div>
+    </a>
   {/if}
 
   <!-- Carousel -->
