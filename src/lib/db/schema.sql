@@ -41,8 +41,11 @@ CREATE TABLE IF NOT EXISTS shows (
     title TEXT NOT NULL,
     date TEXT NOT NULL,
     time TEXT,
+    description TEXT,
     source TEXT CHECK(source IN ('ical', 'beeper', 'manual')) DEFAULT 'manual',
     ical_uid TEXT UNIQUE,
+    url TEXT,
+    image_url TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );
 

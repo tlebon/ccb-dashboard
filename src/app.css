@@ -1,11 +1,11 @@
+/* Custom Fonts - Berlin Comedy Brutalism */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@700&family=Archivo+Black&display=swap');
+
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Custom Fonts - Berlin Comedy Brutalism */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@700&family=Archivo+Black&display=swap');
 
 :root {
 	/* This Week Palette - Neon Berlin Night */

@@ -7,6 +7,7 @@ export interface Show {
   end: Date;
   description?: string;
   location?: string;
+  url?: string;
   imageUrl?: string;
 }
 
@@ -34,9 +35,16 @@ export async function fetchShowsFromICal(): Promise<Show[]> {
       const start = icalEvent.startDate.toJSDate();
       const end = icalEvent.endDate.toJSDate();
 
-      // Extract image URL from the unfolded VEVENT block
-      let imageUrl: string | undefined;
+      // Extract URL and image URL from the unfolded VEVENT block
       const veventBlock = veventBlocks[i] || '';
+
+      let url: string | undefined;
+      const urlMatch = veventBlock.match(/URL:(.+)/);
+      if (urlMatch) {
+        url = urlMatch[1].trim();
+      }
+
+      let imageUrl: string | undefined;
       const imageMatch = veventBlock.match(/IMAGE:(.+)/);
       if (imageMatch) {
         imageUrl = imageMatch[1].trim();
@@ -49,6 +57,7 @@ export async function fetchShowsFromICal(): Promise<Show[]> {
         end,
         description: icalEvent.description || '',
         location: icalEvent.location || '',
+        url,
         imageUrl
       };
     });
