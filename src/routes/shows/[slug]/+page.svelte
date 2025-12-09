@@ -3,6 +3,8 @@
 	import { page } from '$app/stores';
 	import { proxyImageUrl } from '$lib/utils/imageProxy';
 	import { isHouseShow, getHouseShowTeams, type HouseTeam } from '$lib/utils/houseShowTeams';
+	import { safeLinkifyText } from '$lib/utils/linkify';
+	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface Performer {
 		performer_id: number;
@@ -11,6 +13,11 @@
 		role: string;
 		team_name: string | null;
 		team_slug: string | null;
+	}
+
+	interface TeamInfo {
+		name: string;
+		slug: string;
 	}
 
 	interface Show {
@@ -24,6 +31,7 @@
 		url: string | null;
 		image_url: string | null;
 		lineup?: Performer[];
+		teams?: TeamInfo[];
 	}
 
 	interface SeriesData {
@@ -105,6 +113,36 @@
 		return groups;
 	}
 
+	interface TeamGroup {
+		team_name: string | null;
+		team_slug: string | null;
+		performers: Performer[];
+	}
+
+	function groupByTeam(performers: Performer[]): TeamGroup[] {
+		const teamMap = new Map<string, TeamGroup>();
+		const noTeam: Performer[] = [];
+
+		for (const p of performers) {
+			if (p.team_name) {
+				const key = p.team_slug || p.team_name;
+				if (!teamMap.has(key)) {
+					teamMap.set(key, { team_name: p.team_name, team_slug: p.team_slug, performers: [] });
+				}
+				teamMap.get(key)!.performers.push(p);
+			} else {
+				noTeam.push(p);
+			}
+		}
+
+		// Teams first, then individual performers without teams
+		const result: TeamGroup[] = [...teamMap.values()];
+		if (noTeam.length > 0) {
+			result.push({ team_name: null, team_slug: null, performers: noTeam });
+		}
+		return result;
+	}
+
 	const roleOrder = ['host', 'performer', 'guest', 'coach'];
 	const roleLabels: Record<string, string> = {
 		host: 'Hosted by',
@@ -115,6 +153,23 @@
 
 	$: grouped = show?.lineup ? groupByRole(show.lineup) : {};
 	$: houseTeams = show && isHouseShow(show.title) ? getHouseShowTeams(show.date) : [];
+
+	// Split series shows into upcoming and past
+	$: today = new Date().toISOString().split('T')[0];
+	// Upcoming: soonest first (ascending)
+	$: upcomingSeriesShows = (series?.shows.filter(s => s.date >= today) || []).sort((a, b) => a.date.localeCompare(b.date));
+	// Past: most recent first (descending) - already sorted this way from API
+	$: pastSeriesShows = series?.shows.filter(s => s.date < today) || [];
+
+	// Pagination for past series shows
+	const PAST_PAGE_SIZE = 20;
+	let pastShowsVisible = PAST_PAGE_SIZE;
+	$: visiblePastShows = pastSeriesShows.slice(0, pastShowsVisible);
+	$: hasMorePast = pastShowsVisible < pastSeriesShows.length;
+
+	function loadMorePast() {
+		pastShowsVisible += PAST_PAGE_SIZE;
+	}
 </script>
 
 <svelte:head>
@@ -125,11 +180,7 @@
 	<div class="grain-overlay"></div>
 
 	<div class="relative z-10 max-w-4xl mx-auto px-6 py-8">
-		<button
-			on:click={() => history.back()}
-			class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
-			← Back
-		</button>
+		<QuickNav />
 
 		{#if loading}
 			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
@@ -229,7 +280,7 @@
 						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
 					</div>
 					<div class="text-white/80 max-w-3xl whitespace-pre-line leading-relaxed">
-						{show.description}
+						{@html safeLinkifyText(show.description)}
 					</div>
 				</section>
 			{/if}
@@ -252,24 +303,54 @@
 									<h3 class="text-sm font-mono uppercase tracking-wider text-white/50 mb-3">
 										{roleLabels[role] || role}
 									</h3>
-									<div class="divide-y divide-white/10">
-										{#each grouped[role] as performer}
-											<div class="flex items-center gap-4 py-3 px-3 border-l-4 border-[var(--tw-neon-pink)]/40 hover:bg-white/5 transition-all">
-												<a
-													href="/performers/{performer.performer_slug}"
-													class="text-xl uppercase text-white hover:text-[var(--tw-electric-cyan)] transition-colors"
-													style="font-family: var(--font-display);">
-													{performer.performer_name}
+									{#each groupByTeam(grouped[role]) as teamGroup}
+										{#if teamGroup.team_name}
+											<!-- Team with members -->
+											<div class="mb-4 p-4 border-l-4 border-[var(--tw-neon-pink)]/40 bg-white/5">
+												<a href="/teams/{teamGroup.team_slug}"
+												   class="text-lg uppercase text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)] transition-colors mb-3 block"
+												   style="font-family: var(--font-display);">
+													{teamGroup.team_name}
 												</a>
-												{#if performer.team_name}
-													<a href="/teams/{performer.team_slug}"
-													   class="text-sm font-mono text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)]">
-														{performer.team_name}
-													</a>
-												{/if}
+												<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+													{#each teamGroup.performers as performer}
+														<a
+															href="/performers/{performer.performer_slug}"
+															class="group flex flex-col items-center gap-2 hover:bg-white/5 p-3 rounded transition-colors text-center"
+														>
+															<!-- Placeholder for future performer image -->
+															<div class="w-16 h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-xl text-[var(--tw-neon-pink)] font-mono">
+																{performer.performer_name.charAt(0)}
+															</div>
+															<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-sm uppercase leading-tight"
+															      style="font-family: var(--font-display);">
+																{performer.performer_name}
+															</span>
+														</a>
+													{/each}
+												</div>
 											</div>
-										{/each}
-									</div>
+										{:else}
+											<!-- Individual performers without team -->
+											<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+												{#each teamGroup.performers as performer}
+													<a
+														href="/performers/{performer.performer_slug}"
+														class="group flex flex-col items-center gap-2 hover:bg-white/5 p-3 rounded transition-colors text-center"
+													>
+														<!-- Placeholder for future performer image -->
+														<div class="w-16 h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-xl text-[var(--tw-electric-cyan)] font-mono">
+															{performer.performer_name.charAt(0)}
+														</div>
+														<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-sm uppercase leading-tight"
+														      style="font-family: var(--font-display);">
+															{performer.performer_name}
+														</span>
+													</a>
+												{/each}
+											</div>
+										{/if}
+									{/each}
 								</div>
 							{/if}
 						{/each}
@@ -292,39 +373,97 @@
 				<div class="mt-6 text-lg font-mono">
 					<span class="text-[var(--tw-neon-pink)] text-3xl" style="font-family: var(--font-display);">{series.count}</span>
 					<span class="text-white/60 ml-2">shows tracked</span>
+					<span class="text-white/40 ml-4">({upcomingSeriesShows.length} upcoming · {pastSeriesShows.length} past)</span>
 				</div>
 			</header>
 
-			<!-- Shows List -->
+			<!-- Upcoming Shows -->
+			{#if upcomingSeriesShows.length > 0}
+				<section class="mb-10">
+					<div class="relative mb-6">
+						<h2 class="text-2xl uppercase tracking-wider text-[var(--nw-neon-yellow)]"
+						    style="font-family: var(--font-display);">
+							Upcoming
+						</h2>
+						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"></div>
+					</div>
+
+					<div class="divide-y divide-white/10">
+						{#each upcomingSeriesShows as seriesShow}
+							<a
+								href="/shows/{seriesShow.slug}"
+								class="group flex flex-wrap items-center gap-x-4 gap-y-1 py-3 px-3 border-l-4 border-[var(--nw-neon-yellow)]/40 hover:border-[var(--nw-neon-yellow)] hover:bg-white/5 transition-all"
+							>
+								<span class="text-[var(--nw-neon-yellow)] font-mono min-w-[120px]">
+									{formatShortDate(seriesShow.date)}
+								</span>
+								{#if seriesShow.time}
+									<span class="text-[var(--tw-electric-cyan)] font-mono">
+										{formatTime(seriesShow.time)}
+									</span>
+								{/if}
+								{#if seriesShow.teams && seriesShow.teams.length > 0}
+									<span class="text-[var(--nw-burning-orange)] font-mono text-sm">
+										{seriesShow.teams.map(t => t.name).join(' & ')}
+									</span>
+								{/if}
+								<span class="ml-auto text-white/40 text-sm font-mono group-hover:text-[var(--tw-electric-cyan)]">
+									View →
+								</span>
+							</a>
+						{/each}
+					</div>
+				</section>
+			{/if}
+
+			<!-- Past Shows -->
 			<section>
 				<div class="relative mb-6">
-					<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
+					<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-neon-pink)]"
 					    style="font-family: var(--font-display);">
-						All Shows
+						Past Shows
 					</h2>
 					<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"></div>
 				</div>
 
-				<div class="divide-y divide-white/10">
-					{#each series.shows as seriesShow}
-						<a
-							href="/shows/{seriesShow.slug}"
-							class="group flex items-center gap-4 py-3 px-3 border-l-4 border-[var(--tw-neon-pink)]/30 hover:bg-white/5 transition-all"
-						>
-							<span class="text-[var(--nw-neon-yellow)] font-mono min-w-[120px]">
-								{formatShortDate(seriesShow.date)}
-							</span>
-							{#if seriesShow.time}
-								<span class="text-[var(--tw-electric-cyan)] font-mono">
-									{formatTime(seriesShow.time)}
+				{#if visiblePastShows.length > 0}
+					<div class="divide-y divide-white/10">
+						{#each visiblePastShows as seriesShow}
+							<a
+								href="/shows/{seriesShow.slug}"
+								class="group flex flex-wrap items-center gap-x-4 gap-y-1 py-2 px-3 border-l-4 border-[var(--tw-neon-pink)]/20 hover:border-[var(--tw-neon-pink)] hover:bg-white/5 transition-all"
+							>
+								<span class="text-white/50 font-mono min-w-[120px]">
+									{formatShortDate(seriesShow.date)}
 								</span>
-							{/if}
-							<span class="ml-auto text-white/40 text-sm font-mono group-hover:text-[var(--tw-electric-cyan)]">
-								View →
-							</span>
-						</a>
-					{/each}
-				</div>
+								{#if seriesShow.time}
+									<span class="text-white/30 font-mono">
+										{formatTime(seriesShow.time)}
+									</span>
+								{/if}
+								{#if seriesShow.teams && seriesShow.teams.length > 0}
+									<span class="text-white/40 font-mono text-sm">
+										{seriesShow.teams.map(t => t.name).join(' & ')}
+									</span>
+								{/if}
+								<span class="ml-auto text-white/30 text-sm font-mono group-hover:text-[var(--tw-electric-cyan)]">
+									View →
+								</span>
+							</a>
+						{/each}
+					</div>
+
+					{#if hasMorePast}
+						<button
+							on:click={loadMorePast}
+							class="mt-6 px-6 py-3 bg-[var(--tw-deep-purple)] text-[var(--tw-electric-cyan)] uppercase tracking-wider font-mono hover:bg-[var(--tw-neon-pink)] hover:text-white transition-colors"
+						>
+							Load More ({pastSeriesShows.length - pastShowsVisible} remaining)
+						</button>
+					{/if}
+				{:else}
+					<p class="text-white/40 py-4 font-mono">No past shows yet</p>
+				{/if}
 			</section>
 		{/if}
 	</div>

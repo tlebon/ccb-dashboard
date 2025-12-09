@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
+  import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
+
   export let groupedShows: Record<string, Show[]>;
   export let loading: boolean;
   export let error: string | null;
@@ -8,9 +11,129 @@
   export let titleClass: string;
   export let theme: 'blue' | 'orange' = 'blue';
   export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
+  export let monitorMode: boolean = false;
+
+  let scrollContainer: HTMLElement;
+  let scrollDirection: 'down' | 'up' = 'down';
+  let animationFrame: number;
+  let pauseTimeout: ReturnType<typeof setTimeout>;
+  let hasOverflow = false;
+  let scrollProgress = 0; // 0 = top, 1 = bottom
+  let isScrolling = false; // Guard to prevent re-initialization
+
+  const SCROLL_SPEED = 1.5; // pixels per frame (~90px/sec at 60fps)
+  const PAUSE_DURATION = 2000; // pause at top/bottom in ms
+
+  function checkOverflow() {
+    if (scrollContainer) {
+      hasOverflow = scrollContainer.scrollHeight > scrollContainer.clientHeight;
+      updateScrollProgress();
+    }
+  }
+
+  function updateScrollProgress() {
+    if (scrollContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const maxScroll = scrollHeight - clientHeight;
+      scrollProgress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+    }
+  }
+
+  function handleScroll() {
+    updateScrollProgress();
+  }
+
+  function autoScroll() {
+    if (!scrollContainer || !monitorMode) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+    const maxScroll = scrollHeight - clientHeight;
+
+    // No need to scroll if content fits
+    if (maxScroll <= 0) return;
+
+    if (scrollDirection === 'down') {
+      if (scrollTop >= maxScroll - 1) {
+        // Reached bottom, pause then scroll up
+        scrollDirection = 'up';
+        pauseTimeout = setTimeout(() => {
+          animationFrame = requestAnimationFrame(autoScroll);
+        }, PAUSE_DURATION);
+        return;
+      }
+      scrollContainer.scrollTop = scrollTop + SCROLL_SPEED;
+    } else {
+      if (scrollTop <= 1) {
+        // Reached top, pause then scroll down
+        scrollDirection = 'down';
+        pauseTimeout = setTimeout(() => {
+          animationFrame = requestAnimationFrame(autoScroll);
+        }, PAUSE_DURATION);
+        return;
+      }
+      scrollContainer.scrollTop = scrollTop - SCROLL_SPEED;
+    }
+
+    animationFrame = requestAnimationFrame(autoScroll);
+  }
+
+  function startAutoScroll() {
+    if (isScrolling) return; // Already scrolling
+
+    if (scrollContainer) {
+      const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+      if (maxScroll <= 0) return;
+
+      isScrolling = true;
+      scrollContainer.scrollTop = 0;
+      scrollDirection = 'down';
+      pauseTimeout = setTimeout(() => {
+        animationFrame = requestAnimationFrame(autoScroll);
+      }, PAUSE_DURATION);
+    }
+  }
+
+  function stopAutoScroll() {
+    isScrolling = false;
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    if (pauseTimeout) clearTimeout(pauseTimeout);
+  }
+
+  // Track previous monitor mode to detect actual changes
+  let prevMonitorMode = false;
+  $: if (monitorMode !== prevMonitorMode) {
+    prevMonitorMode = monitorMode;
+    if (monitorMode && scrollContainer) {
+      startAutoScroll();
+    } else {
+      stopAutoScroll();
+    }
+  }
+
+  // Check overflow when content changes
+  $: if (groupedShows && scrollContainer) {
+    setTimeout(checkOverflow, 100);
+  }
+
+  onMount(() => {
+    setTimeout(checkOverflow, 500);
+  });
+
+  onDestroy(() => {
+    stopAutoScroll();
+  });
 </script>
 
-<section class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200 relative">
+<div class="relative h-full overflow-hidden">
+  <!-- Subtle gradient fade when more content below -->
+  {#if hasOverflow && !monitorMode && scrollProgress < 0.95}
+    <div
+      class="absolute bottom-0 left-0 right-2 h-12 pointer-events-none z-10
+             bg-gradient-to-t {theme === 'orange' ? 'from-black/60' : 'from-[var(--tw-deep-purple)]/60'} to-transparent">
+    </div>
+  {/if}
+
+  <section bind:this={scrollContainer} on:scroll={handleScroll} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200">
   {#if loading}
     <p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">Loading shows...</p>
   {:else if error}
@@ -56,6 +179,14 @@
                        style="font-family: var(--font-display); letter-spacing: 0.08em;">
                     {show.title}
                   </div>
+                  {#if isHouseShow(show.title)}
+                    {@const teams = formatHouseShowTeams(show.start)}
+                    {#if teams}
+                      <div class="text-sm mt-0.5 font-mono tracking-wide {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
+                        {teams}
+                      </div>
+                    {/if}
+                  {/if}
                 </div>
               </a>
             </li>
@@ -64,4 +195,5 @@
       </div>
     {/each}
   {/if}
-</section> 
+  </section>
+</div>

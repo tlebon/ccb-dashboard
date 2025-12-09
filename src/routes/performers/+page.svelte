@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import PerformerSearch from '$lib/components/PerformerSearch.svelte';
+	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface Performer {
 		id: number;
@@ -47,11 +48,7 @@
 	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
 		<!-- Header -->
 		<header class="mb-10">
-			<button
-				on:click={() => history.back()}
-				class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-4 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
-				← Back
-			</button>
+			<QuickNav />
 			<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
 			           bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]"
 			    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">

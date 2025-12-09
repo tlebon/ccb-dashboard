@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { getHouseTeamBySlug } from '$lib/utils/houseShowTeams';
+	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface Performer {
 		id: number;
@@ -27,8 +29,14 @@
 		coach: Performer | null;
 	}
 
+	interface UpcomingHouseShow {
+		date: string;
+		title: string;
+	}
+
 	let team: Team | null = null;
 	let shows: Show[] = [];
+	let upcomingHouseShows: UpcomingHouseShow[] = [];
 	let loading = true;
 	let error: string | null = null;
 
@@ -51,6 +59,7 @@
 			const data = await res.json();
 			team = data.team;
 			shows = data.shows;
+			upcomingHouseShows = data.upcomingHouseShows || [];
 		} catch (e) {
 			error = 'Failed to load team';
 		} finally {
@@ -68,7 +77,8 @@
 
 	// Separate upcoming and past shows
 	$: today = new Date().toISOString().split('T')[0];
-	$: upcomingShows = shows.filter(s => s.date >= today);
+	// For house teams, filter out House Shows from upcomingShows to avoid duplication with upcomingHouseShows section
+	$: upcomingShows = shows.filter(s => s.date >= today && !(team?.type === 'house' && s.title === 'House Show'));
 	$: pastShows = shows.filter(s => s.date < today);
 
 	const typeLabels: Record<string, string> = {
@@ -76,6 +86,15 @@
 		indie: 'Indie Team',
 		other: 'Team'
 	};
+
+	// House team info for displaying schedule pattern
+	$: isHouse = team?.type === 'house';
+	$: houseTeamInfo = isHouse ? getHouseTeamBySlug(slug) : null;
+
+	function formatHouseShowDate(dateStr: string) {
+		const date = new Date(dateStr);
+		return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+	}
 </script>
 
 <svelte:head>
@@ -86,11 +105,7 @@
 	<div class="grain-overlay"></div>
 
 	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
-		<button
-			on:click={() => history.back()}
-			class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
-			← Back
-		</button>
+		<QuickNav />
 
 		{#if loading}
 			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
@@ -181,6 +196,39 @@
 
 				<!-- Shows Section -->
 				<section>
+					<!-- Upcoming House Shows (from database) -->
+					{#if isHouse && upcomingHouseShows.length > 0}
+						<div class="relative mb-6">
+							<h2 class="text-2xl uppercase tracking-wider text-[var(--nw-neon-yellow)]"
+							    style="font-family: var(--font-display);">
+								Upcoming House Shows
+							</h2>
+							<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"></div>
+						</div>
+
+						<div class="divide-y divide-white/10 mb-10">
+							{#each upcomingHouseShows as show}
+								<div class="flex flex-col gap-1 py-3 px-3 border-l-4 border-[var(--nw-neon-yellow)]/40">
+									<span class="text-[var(--nw-neon-yellow)] font-mono">
+										{formatHouseShowDate(show.date)}
+									</span>
+									<span class="text-lg uppercase text-white" style="font-family: var(--font-display);">
+										House Show
+									</span>
+								</div>
+							{/each}
+						</div>
+
+						{#if houseTeamInfo}
+							<p class="text-white/50 text-sm font-mono mb-8">
+								{team?.name} performs on {houseTeamInfo.weeks.map(w => {
+									const ordinals = ['', '1st', '2nd', '3rd', '4th', '5th'];
+									return ordinals[w];
+								}).join(' & ')} Fridays of each month
+							</p>
+						{/if}
+					{/if}
+
 					<!-- Upcoming Shows -->
 					{#if upcomingShows.length > 0}
 						<div class="relative mb-6">

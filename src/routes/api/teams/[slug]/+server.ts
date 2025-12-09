@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getTeamWithMembers, getTeamShows } from '$lib/db';
+import { getTeamWithMembers, getTeamShows, db } from '$lib/db';
+import { isHouseTeam, getHouseTeamBySlug, getFridayOfMonth } from '$lib/utils/houseShowTeams';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { slug } = params;
@@ -14,9 +15,35 @@ export const GET: RequestHandler = async ({ params }) => {
 
 		const shows = await getTeamShows(team.id, 50);
 
+		// For house teams, get upcoming House Shows from the database
+		// and filter to ones where this team performs
+		let upcomingHouseShows: { date: string; title: string }[] = [];
+
+		if (isHouseTeam(slug)) {
+			const houseTeam = getHouseTeamBySlug(slug);
+			if (houseTeam) {
+				const today = new Date().toISOString().split('T')[0];
+				const result = await db.execute({
+					sql: `SELECT date, title FROM shows
+					      WHERE title = 'House Show' AND date >= ?
+					      ORDER BY date LIMIT 20`,
+					args: [today]
+				});
+
+				// Filter to dates where this team performs based on Friday-of-month
+				upcomingHouseShows = (result.rows as unknown as { date: string; title: string }[])
+					.filter(show => {
+						const fridayOfMonth = getFridayOfMonth(new Date(show.date));
+						return houseTeam.weeks.includes(fridayOfMonth);
+					})
+					.slice(0, 5);
+			}
+		}
+
 		return json({
 			team,
-			shows
+			shows,
+			upcomingHouseShows
 		});
 	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e) {

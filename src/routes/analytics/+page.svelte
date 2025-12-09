@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface AnalyticsData {
 		stats: {
@@ -12,28 +13,46 @@
 			showsWithLineup: number;
 			monthsTracked: number;
 		};
-		topShows: { title: string; count: number }[];
+		topShows: { title: string; slug: string; count: number }[];
 		dayDistribution: { day: string; count: number }[];
 		monthlyActivity: { month: string; count: number }[];
 		topPerformers: { id: number; name: string; slug: string; showCount: number; teams: string[] }[];
 		topTeams: { id: number; name: string; slug: string; showCount: number; memberCount: number }[];
-		jamHosts: { name: string; count: number }[];
+		availableYears: string[];
 	}
 
 	let data = $state<AnalyticsData | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let activeTab = $state<'shows' | 'hosts' | 'performers' | 'timeline'>('shows');
+	let activeTab = $state<'shows' | 'performers' | 'timeline'>('shows');
+	let selectedYear = $state<string>('all');
 
-	onMount(async () => {
+	// Pagination for top shows
+	const SHOWS_PAGE_SIZE = 15;
+	let showsVisible = $state(SHOWS_PAGE_SIZE);
+
+	async function loadData(year: string) {
+		loading = true;
 		try {
-			const res = await fetch('/api/analytics');
+			const url = year === 'all' ? '/api/analytics' : `/api/analytics?year=${year}`;
+			const res = await fetch(url);
 			if (!res.ok) throw new Error('Failed to load analytics');
 			data = await res.json();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load analytics';
 		} finally {
 			loading = false;
+		}
+	}
+
+	onMount(() => {
+		loadData(selectedYear);
+	});
+
+	// Reload when year changes
+	$effect(() => {
+		if (selectedYear) {
+			loadData(selectedYear);
 		}
 	});
 
@@ -43,6 +62,14 @@
 	const maxTeamCount = $derived(data?.topTeams[0]?.showCount || 1);
 	const maxDayCount = $derived(Math.max(...(data?.dayDistribution.map(d => d.count) || [1])));
 	const maxMonthCount = $derived(Math.max(...(data?.monthlyActivity.map(m => m.count) || [1])));
+
+	// Paginated shows
+	const visibleShows = $derived(data?.topShows.slice(0, showsVisible) || []);
+	const hasMoreShows = $derived((data?.topShows.length || 0) > showsVisible);
+
+	function loadMoreShows() {
+		showsVisible += SHOWS_PAGE_SIZE;
+	}
 
 	// Order days correctly
 	const dayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -57,12 +84,7 @@
 	<div class="grain-overlay"></div>
 
 	<div class="relative z-10 max-w-7xl mx-auto">
-		<!-- Back button -->
-		<button
-			onclick={() => history.back()}
-			class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
-			← Back
-		</button>
+		<QuickNav />
 
 		<!-- Header -->
 		<header class="mb-12">
@@ -110,36 +132,49 @@
 				</div>
 			</div>
 
-			<!-- Tab Navigation -->
-			<div class="flex gap-2 mb-8 flex-wrap">
-				<button
-					class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-					       {activeTab === 'shows' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-					style="font-family: var(--font-display);"
-					onclick={() => activeTab = 'shows'}>
-					Top Shows
-				</button>
-				<button
-					class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-					       {activeTab === 'hosts' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-					style="font-family: var(--font-display);"
-					onclick={() => activeTab = 'hosts'}>
-					Jam Hosts
-				</button>
-				<button
-					class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-					       {activeTab === 'performers' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-					style="font-family: var(--font-display);"
-					onclick={() => activeTab = 'performers'}>
-					Performers
-				</button>
-				<button
-					class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-					       {activeTab === 'timeline' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-					style="font-family: var(--font-display);"
-					onclick={() => activeTab = 'timeline'}>
-					Timeline
-				</button>
+			<!-- Year Filter & Tab Navigation -->
+			<div class="flex flex-wrap items-center gap-4 mb-8">
+				<!-- Year Filter -->
+				<div class="flex items-center gap-2">
+					<span class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Year:</span>
+					<select
+						bind:value={selectedYear}
+						class="px-4 py-3 bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] text-lg uppercase tracking-wider border-2 border-[var(--tw-electric-cyan)]/30 focus:border-[var(--tw-neon-pink)] outline-none cursor-pointer"
+						style="font-family: var(--font-display);"
+					>
+						<option value="all">All Time</option>
+						{#if data?.availableYears}
+							{#each data.availableYears as year}
+								<option value={year}>{year}</option>
+							{/each}
+						{/if}
+					</select>
+				</div>
+
+				<!-- Tab Navigation -->
+				<div class="flex gap-2 flex-wrap">
+					<button
+						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
+						       {activeTab === 'shows' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
+						style="font-family: var(--font-display);"
+						onclick={() => activeTab = 'shows'}>
+						Top Shows
+					</button>
+					<button
+						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
+						       {activeTab === 'performers' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
+						style="font-family: var(--font-display);"
+						onclick={() => activeTab = 'performers'}>
+						Performers
+					</button>
+					<button
+						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
+						       {activeTab === 'timeline' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
+						style="font-family: var(--font-display);"
+						onclick={() => activeTab = 'timeline'}>
+						Timeline
+					</button>
+				</div>
 			</div>
 
 			<!-- Tab Content -->
@@ -149,9 +184,9 @@
 					<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
 						<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">MOST FREQUENT SHOWS</h2>
 						<div class="space-y-3">
-							{#each data.topShows as show, i}
+							{#each visibleShows as show, i}
 								{@const width = (show.count / maxShowCount) * 100}
-								<div class="group">
+								<a href="/shows/{show.slug}" class="block group">
 									<div class="flex justify-between items-center mb-1">
 										<span class="text-sm truncate pr-4 group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
 											{i + 1}. {show.title}
@@ -164,9 +199,17 @@
 											style="width: {width}%">
 										</div>
 									</div>
-								</div>
+								</a>
 							{/each}
 						</div>
+						{#if hasMoreShows}
+							<button
+								onclick={loadMoreShows}
+								class="mt-6 w-full py-3 bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] uppercase tracking-wider font-mono hover:bg-[var(--tw-neon-pink)] hover:text-[var(--tw-midnight)] transition-colors"
+							>
+								Load More ({(data?.topShows.length || 0) - showsVisible} remaining)
+							</button>
+						{/if}
 					</div>
 
 					<!-- Day Distribution -->
@@ -187,40 +230,6 @@
 							{/each}
 						</div>
 					</div>
-				</div>
-			{/if}
-
-			{#if activeTab === 'hosts'}
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">JAM HOST LEADERBOARD</h2>
-					<p class="text-sm opacity-70 mb-6" style="font-family: var(--font-mono);">
-						Teams that have hosted the CCB Improv Jam
-					</p>
-					{#if data.jamHosts.length > 0}
-						<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-							{#each data.jamHosts as host, i}
-								<div class="flex items-center gap-4 p-4 bg-[var(--tw-concrete)] hover:bg-[var(--tw-midnight)] transition-colors group">
-									<div class="text-4xl w-12 text-center
-									           {i === 0 ? 'text-[var(--nw-neon-yellow)]' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-amber-600' : 'text-[var(--tw-concrete)]'}"
-									     style="font-family: var(--font-display);">
-										{i + 1}
-									</div>
-									<div class="flex-1">
-										<div class="text-lg group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
-											{host.name}
-										</div>
-										<div class="text-sm opacity-50" style="font-family: var(--font-mono);">
-											{host.count} {host.count === 1 ? 'time' : 'times'}
-										</div>
-									</div>
-								</div>
-							{/each}
-						</div>
-					{:else}
-						<p class="text-center opacity-50 py-8" style="font-family: var(--font-mono);">
-							No jam host data available yet
-						</p>
-					{/if}
 				</div>
 			{/if}
 
@@ -272,7 +281,7 @@
 						<div class="space-y-3 max-h-[600px] overflow-y-auto">
 							{#each data.topTeams as team, i}
 								{@const width = (team.showCount / maxTeamCount) * 100}
-								<div class="group">
+								<a href="/teams/{team.slug}" class="block group">
 									<div class="flex justify-between items-center mb-1">
 										<span class="text-sm truncate pr-4 group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
 											{i + 1}. {team.name}
@@ -288,7 +297,7 @@
 									<div class="text-xs opacity-50 mt-1" style="font-family: var(--font-mono);">
 										{team.memberCount} members
 									</div>
-								</div>
+								</a>
 							{/each}
 						</div>
 						{#if data.topTeams.length === 0}
@@ -328,9 +337,15 @@
 				</div>
 			{/if}
 
-			<!-- Footer -->
-			<footer class="mt-12 text-center text-sm opacity-50" style="font-family: var(--font-mono);">
-				Data sourced from CCB Calendar and Community Lineups
+			<!-- Footer / Disclaimer -->
+			<footer class="mt-12 text-center space-y-2">
+				<p class="text-sm opacity-50" style="font-family: var(--font-mono);">
+					Data sourced from CCB Calendar and Community Lineups
+				</p>
+				<p class="text-xs opacity-40" style="font-family: var(--font-mono);">
+					Note: This data may contain inaccuracies. Performer appearances are based on scheduled lineups
+					and may not reflect actual performances. If you spot an error, let us know!
+				</p>
 			</footer>
 		{/if}
 	</div>
