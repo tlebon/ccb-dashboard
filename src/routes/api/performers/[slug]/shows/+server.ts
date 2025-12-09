@@ -13,11 +13,15 @@ export const GET: RequestHandler = async ({ params, url }) => {
 			throw error(404, 'Performer not found');
 		}
 
-		const shows = await getPerformerShows(performer.id, limit);
+		const [upcomingShows, pastShows] = await Promise.all([
+			getPerformerShows(performer.id, limit, true),
+			getPerformerShows(performer.id, limit, false)
+		]);
 
 		return json({
 			performer: { id: performer.id, name: performer.name, slug: performer.slug },
-			shows
+			upcomingShows,
+			pastShows
 		});
 	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e) {

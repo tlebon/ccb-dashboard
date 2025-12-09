@@ -1,10 +1,9 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getTeamWithMembers, getTeamBySlug, getTeamShows } from '$lib/db';
+import { getTeamWithMembers, getTeamShows } from '$lib/db';
 
-export const GET: RequestHandler = async ({ params, url }) => {
+export const GET: RequestHandler = async ({ params }) => {
 	const { slug } = params;
-	const includeShows = url.searchParams.get('shows') === 'true';
 
 	try {
 		const team = await getTeamWithMembers(slug);
@@ -13,13 +12,10 @@ export const GET: RequestHandler = async ({ params, url }) => {
 			throw error(404, 'Team not found');
 		}
 
-		let shows = null;
-		if (includeShows) {
-			shows = await getTeamShows(team.id);
-		}
+		const shows = await getTeamShows(team.id, 50);
 
 		return json({
-			...team,
+			team,
 			shows
 		});
 	} catch (e) {
