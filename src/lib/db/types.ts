@@ -24,6 +24,7 @@ export interface TeamMember {
 export interface Show {
 	id: number;
 	title: string;
+	slug: string | null;
 	date: string;
 	time: string | null;
 	description: string | null;

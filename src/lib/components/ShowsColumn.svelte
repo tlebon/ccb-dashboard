@@ -36,7 +36,8 @@
           {#each dayShows as show, j (show.id)}
             {@const isHighlighted = highlightedShowIds.includes(show.id)}
             <li class="group">
-              <div class={`flex items-center gap-3 px-2 py-1.5 transition-all duration-200
+              <a href="/shows/{show.id}"
+                 class={`flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer hover:bg-white/5
                           ${isHighlighted ? 'border-l-8 pl-1' : 'border-l-4'}
                           ${theme === 'orange'
                             ? `border-[var(--nw-hot-pink)] ${isHighlighted ? 'bg-[var(--nw-deep-purple)]/30' : ''}`
@@ -51,12 +52,12 @@
 
                 <!-- Show title with display font -->
                 <div class="flex-1">
-                  <div class={`font-bold text-white uppercase tracking-wide ${titleClass} leading-tight`}
+                  <div class={`font-bold text-white uppercase tracking-wide ${titleClass} leading-tight group-hover:text-[var(--tw-electric-cyan)]`}
                        style="font-family: var(--font-display);">
                     {show.title}
                   </div>
                 </div>
-              </div>
+              </a>
             </li>
           {/each}
         </ul>

@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { parse } from 'node-html-parser';
+import { upsertShow } from '$lib/db';
+import ICAL from 'ical.js';
 
 function fetchWithTimeout(resource: string, options: Record<string, unknown> = {}, timeout = 5000) {
   return Promise.race([
@@ -13,6 +15,69 @@ function fetchWithTimeout(resource: string, options: Record<string, unknown> = {
 let cachedIcalData: string | null = null;
 let cacheTimestamp: number | null = null;
 const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
+async function syncToDatabase(icalData: string, imageUrls: Map<string, string>) {
+    try {
+        // Unfold lines for proper parsing
+        const unfoldedData = icalData.replace(/\r?\n[ \t]/g, '');
+
+        const jcalData = ICAL.parse(unfoldedData);
+        const comp = new ICAL.Component(jcalData);
+        const vevents = comp.getAllSubcomponents('vevent');
+
+        // Extract VEVENT blocks for URL parsing
+        const veventBlocks = unfoldedData.split('BEGIN:VEVENT').slice(1).map(block =>
+            'BEGIN:VEVENT' + block.split('END:VEVENT')[0]
+        );
+
+        let synced = 0;
+        for (let i = 0; i < vevents.length; i++) {
+            try {
+                const event = vevents[i];
+                const icalEvent = new ICAL.Event(event);
+                const start = icalEvent.startDate.toJSDate();
+                const veventBlock = veventBlocks[i] || '';
+
+                // Extract URL
+                let url: string | undefined;
+                const urlMatch = veventBlock.match(/URL:(.+)/);
+                if (urlMatch) {
+                    url = urlMatch[1].trim();
+                }
+
+                // Get image URL if we have it
+                const imageUrl = url ? imageUrls.get(url) : undefined;
+
+                // Format date and time
+                const date = start.toISOString().split('T')[0];
+                const time = start.toLocaleTimeString('en-GB', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+
+                await upsertShow({
+                    title: icalEvent.summary || 'Untitled',
+                    date,
+                    time,
+                    description: icalEvent.description || undefined,
+                    source: 'ical',
+                    ical_uid: icalEvent.uid,
+                    url,
+                    image_url: imageUrl
+                });
+
+                synced++;
+            } catch (e) {
+                console.error('Error syncing event to DB:', e);
+            }
+        }
+
+        console.log(`Background sync: saved ${synced} shows to database`);
+    } catch (e) {
+        console.error('Error in syncToDatabase:', e);
+    }
+}
 
 export const GET: RequestHandler = async () => {
     try {
@@ -97,6 +162,10 @@ export const GET: RequestHandler = async () => {
         cachedIcalData = modifiedIcalData;
         cacheTimestamp = Date.now();
         console.log('Returning new iCal data, length:', modifiedIcalData.length);
+
+        // Save shows to database (non-blocking)
+        syncToDatabase(icalData, imageUrls).catch(e => console.error('Background DB sync failed:', e));
+
         return new Response(modifiedIcalData, {
             headers: {
                 'Content-Type': 'text/calendar',

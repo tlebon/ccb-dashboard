@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fetchShowsFromICal, type Show } from '$lib/utils/icalParser';
+  import { fetchShowsFromDB, type Show } from '$lib/utils/icalParser';
   import BrandingColumn from '$lib/components/BrandingColumn.svelte';
   import ShowsColumn from '$lib/components/ShowsColumn.svelte';
   import ImagesColumn from '$lib/components/ImagesColumn.svelte';
@@ -12,7 +12,8 @@
 
   onMount(async () => {
     try {
-      shows = await fetchShowsFromICal();
+      // Fetch from database - shows are synced via background job
+      shows = await fetchShowsFromDB(7);
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load shows';
     } finally {
