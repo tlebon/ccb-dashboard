@@ -1,6 +1,23 @@
 import { db } from './client';
 import type { Show } from './types';
 
+// Generate a slug from date and title
+export function generateShowSlug(date: string, title: string): string {
+	const titleSlug = title
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+	return `${date}-${titleSlug}`;
+}
+
+// Extract title slug (without date prefix) for series matching
+export function getTitleSlug(title: string): string {
+	return title
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
 export async function getShowById(id: number): Promise<Show | null> {
 	const result = await db.execute({
 		sql: 'SELECT * FROM shows WHERE id = ?',
@@ -83,6 +100,44 @@ export async function getShowsByTitle(title: string): Promise<Show[]> {
 	return result.rows as unknown as Show[];
 }
 
+export async function getShowBySlug(slug: string): Promise<Show | null> {
+	const result = await db.execute({
+		sql: 'SELECT * FROM shows WHERE slug = ?',
+		args: [slug]
+	});
+	return (result.rows[0] as unknown as Show) || null;
+}
+
+// Get all shows matching a title slug (for series view)
+// e.g., "blumpkin-abbey" returns all Blumpkin Abbey shows
+export async function getShowsByTitleSlug(titleSlug: string): Promise<Show[]> {
+	// Match shows where the slug ends with the title slug pattern
+	const result = await db.execute({
+		sql: `SELECT * FROM shows WHERE slug LIKE ? ORDER BY date DESC`,
+		args: [`%-${titleSlug}`]
+	});
+	return result.rows as unknown as Show[];
+}
+
+export async function getShowWithLineupBySlug(slug: string) {
+	const show = await getShowBySlug(slug);
+	if (!show) return null;
+
+	const lineup = await db.execute({
+		sql: `
+			SELECT sa.*, p.name as performer_name, p.slug as performer_slug, t.name as team_name, t.slug as team_slug
+			FROM show_appearances sa
+			JOIN performers p ON sa.performer_id = p.id
+			LEFT JOIN teams t ON sa.team_id = t.id
+			WHERE sa.show_id = ?
+			ORDER BY sa.role, p.name
+		`,
+		args: [show.id]
+	});
+
+	return { ...show, lineup: lineup.rows };
+}
+
 export async function upsertShow(show: {
 	title: string;
 	date: string;
@@ -93,6 +148,9 @@ export async function upsertShow(show: {
 	url?: string;
 	image_url?: string;
 }): Promise<number> {
+	// Generate slug from date and title
+	const slug = generateShowSlug(show.date, show.title);
+
 	if (show.ical_uid) {
 		// Try to update existing by ical_uid
 		const existing = await db.execute({
@@ -101,16 +159,16 @@ export async function upsertShow(show: {
 		});
 		if (existing.rows.length > 0) {
 			await db.execute({
-				sql: 'UPDATE shows SET title = ?, date = ?, time = ?, description = ?, url = ?, image_url = ? WHERE ical_uid = ?',
-				args: [show.title, show.date, show.time || null, show.description || null, show.url || null, show.image_url || null, show.ical_uid]
+				sql: 'UPDATE shows SET title = ?, date = ?, time = ?, description = ?, url = ?, image_url = ?, slug = ? WHERE ical_uid = ?',
+				args: [show.title, show.date, show.time || null, show.description || null, show.url || null, show.image_url || null, slug, show.ical_uid]
 			});
 			return existing.rows[0].id as number;
 		}
 	}
 
 	const result = await db.execute({
-		sql: 'INSERT INTO shows (title, date, time, description, source, ical_uid, url, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-		args: [show.title, show.date, show.time || null, show.description || null, show.source, show.ical_uid || null, show.url || null, show.image_url || null]
+		sql: 'INSERT INTO shows (title, date, time, description, source, ical_uid, url, image_url, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		args: [show.title, show.date, show.time || null, show.description || null, show.source, show.ical_uid || null, show.url || null, show.image_url || null, slug]
 	});
 	return Number(result.lastInsertRowid);
 }

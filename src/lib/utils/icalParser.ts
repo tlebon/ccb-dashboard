@@ -9,6 +9,28 @@ export interface Show {
   location?: string;
   url?: string;
   imageUrl?: string;
+  source?: string;
+}
+
+// Fetch shows from database (preferred method - no live scraping)
+export async function fetchShowsFromDB(days = 14): Promise<Show[]> {
+  try {
+    const response = await fetch(`/api/shows/upcoming?days=${days}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch shows from database');
+    }
+    const data = await response.json();
+
+    // Convert date strings back to Date objects
+    return data.shows.map((show: Show & { start: string; end: string }) => ({
+      ...show,
+      start: new Date(show.start),
+      end: new Date(show.end)
+    }));
+  } catch (error) {
+    console.error('Error fetching shows from DB:', error);
+    throw error;
+  }
 }
 
 // Helper to fetch and parse iCal feed
