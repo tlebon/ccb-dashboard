@@ -79,9 +79,11 @@
 	<div class="grain-overlay"></div>
 
 	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
-		<a href="/performers" class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider">
-			← Performers
-		</a>
+		<button
+			on:click={() => history.back()}
+			class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
+			← Back
+		</button>
 
 		{#if loading}
 			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">

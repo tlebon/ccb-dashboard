@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { proxyImageUrl } from '$lib/utils/imageProxy';
 
 	interface Performer {
 		performer_id: number;
@@ -31,17 +32,24 @@
 		count: number;
 	}
 
+	interface SeriesInfo {
+		slug: string;
+		count: number;
+	}
+
 	let viewType: 'show' | 'series' | null = null;
 	let show: Show | null = null;
 	let series: SeriesData | null = null;
+	let seriesInfo: SeriesInfo | null = null;
 	let loading = true;
 	let error: string | null = null;
 
 	$: slug = $page.params.slug;
 
-	onMount(async () => {
-		await loadData();
-	});
+	// Reload data when slug changes (reactive)
+	$: if (slug) {
+		loadData();
+	}
 
 	async function loadData() {
 		loading = true;
@@ -58,8 +66,10 @@
 			viewType = data.type;
 			if (data.type === 'show') {
 				show = data.data;
+				seriesInfo = data.series || null;
 			} else {
 				series = data.data;
+				seriesInfo = null;
 			}
 		} catch (e) {
 			error = 'Failed to load show';
@@ -113,9 +123,11 @@
 	<div class="grain-overlay"></div>
 
 	<div class="relative z-10 max-w-4xl mx-auto px-6 py-8">
-		<a href="/" class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider">
-			← Dashboard
-		</a>
+		<button
+			on:click={() => history.back()}
+			class="text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] text-sm mb-6 inline-block font-mono uppercase tracking-wider cursor-pointer bg-transparent border-none">
+			← Back
+		</button>
 
 		{#if loading}
 			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
@@ -132,7 +144,7 @@
 				{#if show.image_url}
 					<div class="md:col-span-1">
 						<img
-							src={show.image_url}
+							src={proxyImageUrl(show.image_url)}
 							alt={show.title}
 							class="w-full rounded-lg shadow-2xl border-2 border-[var(--tw-neon-pink)]/30"
 						/>
@@ -157,12 +169,20 @@
 								</span>
 							{/if}
 						</div>
-						{#if show.url}
-							<a href={show.url} target="_blank" rel="noopener noreferrer"
-							   class="inline-block mt-4 text-[var(--tw-electric-cyan)] hover:text-[var(--tw-neon-pink)] font-mono text-sm">
-								View on CCB Website →
-							</a>
-						{/if}
+						<div class="flex flex-wrap gap-4 mt-4">
+							{#if show.url}
+								<a href={show.url} target="_blank" rel="noopener noreferrer"
+								   class="text-[var(--tw-electric-cyan)] hover:text-[var(--tw-neon-pink)] font-mono text-sm">
+									View on CCB Website →
+								</a>
+							{/if}
+							{#if seriesInfo}
+								<a href="/shows/{seriesInfo.slug}"
+								   class="text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)] font-mono text-sm">
+									View all {seriesInfo.count} shows →
+								</a>
+							{/if}
+						</div>
 					</header>
 				</div>
 			</div>

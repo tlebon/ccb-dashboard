@@ -16,7 +16,17 @@ export const GET: RequestHandler = async ({ params }) => {
 			if (!show) {
 				throw error(404, 'Show not found');
 			}
-			return json({ type: 'show', data: show });
+
+			// Extract series slug (remove date prefix) and get series count
+			const seriesSlug = slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+			const seriesShows = await getShowsByTitleSlug(seriesSlug);
+			const seriesCount = seriesShows.length;
+
+			return json({
+				type: 'show',
+				data: show,
+				series: seriesCount > 1 ? { slug: seriesSlug, count: seriesCount } : null
+			});
 		} else {
 			// Series view - get all shows with this title
 			const shows = await getShowsByTitleSlug(slug);
