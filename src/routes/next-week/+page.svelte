@@ -80,6 +80,6 @@
     <!-- Reverse order: ImagesColumn, ShowsColumn, BrandingColumn -->
     <ImagesColumn {nextShow} shows={nextWeekShows} nextShowId={nextShow?.id} upFirst={true} theme="orange" />
     <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} theme="orange" />
-    <BrandingColumn nextWeek={true} theme="orange" />
+    <BrandingColumn theme="orange" weekLabel="Next Week" />
   </main>
 </div> 

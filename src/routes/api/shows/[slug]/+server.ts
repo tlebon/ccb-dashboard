@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getShowWithLineupBySlug, getShowsByTitleSlug } from '$lib/db';
+import { db } from '$lib/db/client';
 
 // Pattern to detect date-prefixed slugs (YYYY-MM-DD-...)
 const DATE_SLUG_PATTERN = /^\d{4}-\d{2}-\d{2}-.+$/;
@@ -37,12 +38,41 @@ export const GET: RequestHandler = async ({ params }) => {
 			// Get the title from the first show (they should all have the same title)
 			const title = shows[0].title;
 
+			// Get team appearances for all shows in this series
+			const showIds = shows.map(s => s.id);
+			const teamsResult = await db.execute(`
+				SELECT DISTINCT sa.show_id, t.name as team_name, t.slug as team_slug
+				FROM show_appearances sa
+				JOIN teams t ON sa.team_id = t.id
+				WHERE sa.show_id IN (${showIds.join(',')})
+				ORDER BY t.name
+			`);
+
+			// Group teams by show_id
+			const teamsByShow = new Map<number, Array<{ name: string; slug: string }>>();
+			for (const row of teamsResult.rows) {
+				const showId = Number(row.show_id);
+				if (!teamsByShow.has(showId)) {
+					teamsByShow.set(showId, []);
+				}
+				teamsByShow.get(showId)!.push({
+					name: String(row.team_name),
+					slug: String(row.team_slug)
+				});
+			}
+
+			// Add teams to each show
+			const showsWithTeams = shows.map(show => ({
+				...show,
+				teams: teamsByShow.get(show.id) || []
+			}));
+
 			return json({
 				type: 'series',
 				data: {
 					title,
 					slug,
-					shows,
+					shows: showsWithTeams,
 					count: shows.length
 				}
 			});

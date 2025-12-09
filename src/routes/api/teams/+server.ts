@@ -18,11 +18,21 @@ export const GET: RequestHandler = async ({ url }) => {
 			return json({ teams });
 		}
 
-		// Get all teams with member counts
+		const today = new Date().toISOString().split('T')[0];
+
+		// Get all teams with member counts and next upcoming show
 		const result = await db.execute(`
 			SELECT t.*,
 				(SELECT COUNT(*) FROM team_members tm WHERE tm.team_id = t.id AND tm.is_former = 0) as member_count,
-				(SELECT COUNT(DISTINCT sa.show_id) FROM show_appearances sa WHERE sa.team_id = t.id) as show_count
+				(SELECT COUNT(DISTINCT sa.show_id) FROM show_appearances sa WHERE sa.team_id = t.id) as show_count,
+				(SELECT s.date FROM shows s
+				 JOIN show_appearances sa ON s.id = sa.show_id
+				 WHERE sa.team_id = t.id AND s.date >= '${today}'
+				 ORDER BY s.date ASC LIMIT 1) as next_show_date,
+				(SELECT s.slug FROM shows s
+				 JOIN show_appearances sa ON s.id = sa.show_id
+				 WHERE sa.team_id = t.id AND s.date >= '${today}'
+				 ORDER BY s.date ASC LIMIT 1) as next_show_slug
 			FROM teams t
 			ORDER BY t.type, t.name
 		`);

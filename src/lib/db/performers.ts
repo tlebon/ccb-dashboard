@@ -48,13 +48,14 @@ export async function getPerformerWithStats(slug: string): Promise<PerformerWith
 export async function getPerformerTeams(performerId: number) {
 	const result = await db.execute({
 		sql: `
-			SELECT t.*, tm.is_former
+			SELECT t.*, tm.is_former,
+				(SELECT COUNT(*) FROM show_appearances sa WHERE sa.performer_id = ? AND sa.team_id = t.id) as show_count
 			FROM teams t
 			JOIN team_members tm ON t.id = tm.team_id
 			WHERE tm.performer_id = ?
-			ORDER BY tm.is_former, t.name
+			ORDER BY tm.is_former, show_count DESC, t.name
 		`,
-		args: [performerId]
+		args: [performerId, performerId]
 	});
 	return result.rows;
 }
