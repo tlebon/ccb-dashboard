@@ -1,0 +1,228 @@
+{
+  "showLineups": [
+    {
+      "date": "2025-12-06",
+      "show": "The Shakedown",
+      "type": "team",
+      "teamName": "The Shakedown",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-12-06",
+      "show": "Full Fat Bear Milk",
+      "type": "team",
+      "teamName": "Full Fat Bear Milk",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-12-04",
+      "show": "Dackel",
+      "type": "team",
+      "teamName": "Dackel",
+      "note": "German improv + Frei Erfunden jam",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-12-03",
+      "show": "Smorgasbord",
+      "type": "rotating",
+      "performers": [],
+      "note": "Free improv night + Improvlicious jam",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-29",
+      "show": "Fuster Clucks",
+      "type": "rotating",
+      "performers": [],
+      "note": "Sketch comedy with guest performers",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-29",
+      "show": "The Confession",
+      "type": "rotating",
+      "performers": ["Billy Mason Wood", "Simone O'Donovan", "Kathy MacLeod", "Jared Lorenzo", "Amanda King", "Eli Wenzel-Fisher"],
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-28",
+      "show": "House Show",
+      "type": "rotating",
+      "performers": [],
+      "note": "House teams old & new + Fünfdollar",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-26",
+      "show": "There's One in Every Class",
+      "type": "rotating",
+      "performers": ["Connor Belshaw", "Billy Mason Wood", "Harry Ritchie", "Holly", "Lari", "Michele Guido", "Richie Murphy", "Zoe Langer"],
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-22",
+      "show": "Reunion",
+      "type": "rotating",
+      "performers": [],
+      "note": "Cast with image attached",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-20",
+      "show": "Truth Night",
+      "type": "rotating",
+      "performers": ["Zoe Langer", "Simone O'Donovan"],
+      "teamGuests": ["Milk Maidens"],
+      "hostTeam": "All In Therapy",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-20",
+      "show": "Action Jackson",
+      "type": "team",
+      "teamName": "Action Jackson",
+      "note": "Steindór Jónsson's last show with the team",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-19",
+      "show": "Improvised Stand Up",
+      "type": "rotating",
+      "performers": ["Adrian John Doonan", "Josh Telson", "Kieran Humphries", "Grace", "Caroline Clifford", "Antonia Bär"],
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-18",
+      "show": "Tales Held Dear",
+      "type": "team",
+      "teamName": "Tales Held Dear",
+      "performers": ["Taylor LaMontagne", "Sam Caravaglia"],
+      "note": "Guest performers",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-15",
+      "show": "Too Many Cooks",
+      "type": "rotating",
+      "hosts": ["Josh Telson", "Matilde Keizer"],
+      "performers": ["Sarah Eager", "Steindór Jónsson", "Lucrezia"],
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-14",
+      "show": "Indie Night",
+      "type": "rotating",
+      "teams": ["Body Massage"],
+      "performers": ["Holly", "Jason Porter"],
+      "duoName": "Current Friends",
+      "note": "Body Massage + Current Friends",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-14",
+      "show": "Stand Up",
+      "type": "rotating",
+      "performers": ["Rocio Ciganda", "Laura Kenny"],
+      "note": "Hour-long stand-up set",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-12",
+      "show": "Health Plan",
+      "type": "team",
+      "teamName": "Health Plan",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-12",
+      "show": "Turtle Logic",
+      "type": "team",
+      "teamName": "Turtle Logic",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-07",
+      "show": "Kringel",
+      "type": "rotating",
+      "teams": ["Dackel"],
+      "performers": ["Ingrid Wenzel", "Kevin Zhou", "GeorgFK", "Deschna Afram", "Josh Telson"],
+      "note": "Dackel + mixer team",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-03",
+      "show": "Kringel",
+      "type": "rotating",
+      "teams": ["Dackel"],
+      "performers": ["Ingrid Wenzel", "Kevin Zhou", "GeorgFK", "Deschna Afram", "Josh Telson"],
+      "note": "German improv at CCB",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-11-01",
+      "show": "Full Fat Bear Milk",
+      "type": "team",
+      "teamName": "Full Fat Bear Milk",
+      "note": "Halloween Special: Weremilk: Full-Moon",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-31",
+      "show": "House Show",
+      "type": "rotating",
+      "performers": [],
+      "note": "House Show @ 8, Fünfdollar, then Smoke Break + friends @ The Hedge",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-25",
+      "show": "Class of 1985",
+      "type": "rotating",
+      "performers": ["Laura Kenny", "Steindór Jónsson", "Eli Wenzel-Fisher", "Jason Porter", "Chris Davis", "Amanda King"],
+      "note": "80s themed improv - all performers born in 1985",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-24",
+      "show": "Tales Held Dear",
+      "type": "team",
+      "teamName": "Tales Held Dear",
+      "performers": ["Kieran Humphries", "Adam Ferreira"],
+      "note": "Fundraiser for Sameer Project (Gaza aid) - guest performers",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-24",
+      "show": "Full Fat Bear Milk",
+      "type": "team",
+      "teamName": "Full Fat Bear Milk",
+      "performers": ["Steindór Jónsson"],
+      "note": "Steindór & Eli 40th birthday shows - Steindór guesting",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-24",
+      "show": "Action Jackson",
+      "type": "team",
+      "teamName": "Action Jackson",
+      "performers": ["Eli Wenzel-Fisher"],
+      "note": "Eli & Steindór 40th birthday show - Eli guesting, his mom did monologues",
+      "source": "self-promotions"
+    },
+    {
+      "date": "2025-10-09",
+      "show": "Health Plan",
+      "type": "team",
+      "teamName": "Health Plan",
+      "note": "Fundraiser for Medical Aid for Palestinians",
+      "source": "self-promotions"
+    }
+  ],
+  "metadata": {
+    "source": "CCB Self Promotions WhatsApp chat",
+    "lastUpdated": "2025-12-08",
+    "dateRange": "2025-10-09 to 2025-12-06",
+    "note": "Rotating shows have per-date lineups; team shows use stable rosters from teams.json"
+  }
+}

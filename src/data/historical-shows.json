@@ -1,0 +1,3200 @@
+[
+  {
+    "date": "2024-08-27",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2024-08-27",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "The Reunion: Love is Blind"
+  },
+  {
+    "date": "2024-08-28",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Turtle Logic"
+  },
+  {
+    "date": "2024-08-28",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Night Lunch"
+  },
+  {
+    "date": "2024-08-29",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2024-08-29",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Sketch Bomb!"
+  },
+  {
+    "date": "2024-08-29",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2024-08-30",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Finals)"
+  },
+  {
+    "date": "2024-08-31",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-10-08",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2024-10-08",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "The Salon"
+  },
+  {
+    "date": "2024-10-09",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2024-10-09",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2024-10-10",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-10-10",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2024-10-11",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2024-10-11",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2024-10-12",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Wet Teeth"
+  },
+  {
+    "date": "2024-11-05",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "20% Berlin Presents: The News Quiz"
+  },
+  {
+    "date": "2024-11-05",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2024-11-06",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel"
+  },
+  {
+    "date": "2024-11-06",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden – Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2024-11-07",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-11-07",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB – Improvised Comedy"
+  },
+  {
+    "date": "2024-11-08",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2024-11-08",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Laughing Matter"
+  },
+  {
+    "date": "2024-11-09",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Hot Olive"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Exit Stage Left"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "The Salon"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Drive Time with Roadkill"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "It's That Time of the Month"
+  },
+  {
+    "date": "2024-11-10",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Reunion: Love is Blind"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Mum's Gone to Iceland & Bloodthirsty"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Fun Time Stand Up Hour"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Too Many Cooks"
+  },
+  {
+    "date": "2024-11-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "Sketch Bomb"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Angel: Albatross"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain (LGBTQIA+ Ensemble Improv)"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Creepy Boys"
+  },
+  {
+    "date": "2024-11-25",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Confession: An Improv Show Worth Repenting For"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Dentist's Chair by Wet Teeth"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Kringeli: Improv Comedy auf Deutsch"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Shakedown - Musical Improv"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Frei erfunden - Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "GLB - Improvised Comedy"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2024-12-01",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show II"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "The Salon"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Teacher's Pet: Holiday Special"
+  },
+  {
+    "date": "2024-12-08",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Miracle on Roseggerstraße: A Holiday Variety Spectacular"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Drive Time with Roadkill"
+  },
+  {
+    "date": "2024-12-16",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Group Stage)"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "HAIRCUT"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-01-05",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "2-Prov Roulette"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Semi-Finals)"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Young & Dumb"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Drive Time with Roadkill"
+  },
+  {
+    "date": "2025-01-12",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Dennis Racket & Oof!"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Problemdackel"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown (Musical Improv)"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Two-prov Nite"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Fun Time Stand Up Hour"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Sketch Bomb"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-01-26",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Dice Harder"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel (Improv Comedy auf Deutsch)"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Piss Baby"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden (Improv Comedy und Jam auf Deutsch)"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB (Improvised Comedy)"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "LEGALISE KISSING IN BERLIN"
+  },
+  {
+    "date": "2025-02-02",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Laughing Matter: Int. Day of Women in Science"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "HAIRCUT"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Partner-prov"
+  },
+  {
+    "date": "2025-02-09",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Young & Dumb"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Drive Time with Roadkill"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Four Eyes - Storytelling & Improv"
+  },
+  {
+    "date": "2025-02-16",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown (Musical Improv)"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "Student Shows!"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Glue Factory (presented by Funfdollar)"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-02-23",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Berlin New Stand Up (CCB Showcase)"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel (Improv Comedy auf Deutsch)"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Truthpaste"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden (Improv Comedy und Jam auf Deutsch)"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB (Improvised Comedy)"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The Confession: An Improv Show Worth Repenting For"
+  },
+  {
+    "date": "2025-03-02",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Deconstruction (Presented by Health Plan)"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Yarn (Comedy Storytelling)"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "HAIRCUT"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-03-09",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Booking Committee Show"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Pissbaby"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson (Just Noah & Matilde)"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The Reunion: Real Housewives"
+  },
+  {
+    "date": "2025-03-16",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "History Flakes - Live"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Dackel, hopefully"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "2-Prov Roulette"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Glue Factory (presented by Funfdollar)"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Drunk Classics: Little Shop of Horrors"
+  },
+  {
+    "date": "2025-03-23",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Áine Gallagher: For the Love of Milseáin"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel (Improv Comedy auf Deutsch)"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown (Musical Improv)"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Health Plan"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden (Improv Comedy und Jam auf Deutsch)"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB (Improvised Comedy)"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-03-30",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Tambourine Solo"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Freddi Gralle: Swipe Therapy"
+  },
+  {
+    "date": "2025-04-06",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "matthew liam healy improvises an hour of stand-up comedy"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Laughing Matter"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The 420 Show with Feelin' Dank (No jam this week!)"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Dennis Racket Deconstructs..."
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Drive Time (with Roadkill)"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-04-13",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Micky Overman: Hold On"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Turtle Logic"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Glue Factory (presented by Fünfdollar)"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Micky Overman: Hold On"
+  },
+  {
+    "date": "2025-04-20",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Four Eyes (Storytelling & Improv)"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown (Musical Improv)"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Tales Held Dear"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden (Improv Comedy und Jam auf Deutsch)"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-04-27",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "18:30",
+    "title": "Student Shows (Adv Truth)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "THURSDAY",
+    "time": "18:30",
+    "title": "Student Show (Level 2 - Long Form Fundamentals)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "FRIDAY",
+    "time": "18:30",
+    "title": "Student Show (Developing a Sketch Show)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SATURDAY",
+    "time": "18:45",
+    "title": "Student Show (Level 3 - Long Form Techniques)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SUNDAY",
+    "time": "18:45",
+    "title": "Student Shows (Adv Forms - Twoprov)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "19:45",
+    "title": "Student Shows (Intro to Sketch)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Jamali Maddix: Aston"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "Student Shows (Level 2 - Long Form Fundamentals)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:00",
+    "title": "Student Shows (Level 5 - Long Form Performance)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SUNDAY",
+    "time": "21:15",
+    "title": "Student Shows (Level 4 - Long Form Scenework)"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-05-04",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "There's One In Every Class"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Brothers Telson"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Themprov"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-05-11",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Young & Dumb"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Action Jackson"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Cuter Than Hedgehogs"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Glue Factory (presented by Fünfdollar)"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The Reunion: Love is Blind"
+  },
+  {
+    "date": "2025-05-18",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Das Improv Festival Benefit Show"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "Sketch Bomb"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Bear Milk"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Fun Time Stand Up Hour"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "2-Prov Roulette"
+  },
+  {
+    "date": "2025-05-25",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Wandering Barman"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Wednesday",
+    "time": "19:00",
+    "title": "Booking Committee Elections and Community Meeting"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel (Improv Comedy auf Deutsch)"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Haircut"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden (Improv Comedy und Jam auf Deutsch)"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-06-02",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-06-10",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-06-10",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-06-11",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-06-11",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-06-12",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-06-12",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-06-13",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-06-13",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The TV Show"
+  },
+  {
+    "date": "2025-06-14",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Group Chat"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Yarn (Comedy Storytelling)"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Wet Teeth"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Night at the Spa"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-06-15",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Laughing Matter"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Destiny's Stepchild"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain – LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Glue Factory (presented by Fünfdollar)"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "The Reunion: Jersey Shore"
+  },
+  {
+    "date": "2025-06-22",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "18:30",
+    "title": "Student Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "SUNDAY",
+    "time": "18:45",
+    "title": "Student Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "19:45",
+    "title": "Student Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Kringel - Improv Comedy auf Deutsch"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Shakedown - Musical Improv"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "Student Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:00",
+    "title": "Student Show"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Frei erfunden - Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "GLB - Improvised Comedy"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-06-29",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Theo Mason Wood: LEGALISE KISSING"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-07-06",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-07-15",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "18:30",
+    "title": "Roisin Brehony and Lucy Green: Macbeth"
+  },
+  {
+    "date": "2025-07-15",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "Maya Upchurch Is \"Controversial\""
+  },
+  {
+    "date": "2025-07-15",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Josh Glanc: New Songs and Shtick"
+  },
+  {
+    "date": "2025-07-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "18:30",
+    "title": "Frankie Thompson: Horrible Things"
+  },
+  {
+    "date": "2025-07-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Joz Norris: You Wait. Time Passes"
+  },
+  {
+    "date": "2025-07-16",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Macrodose: They'll Live"
+  },
+  {
+    "date": "2025-07-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "18:30",
+    "title": "Will Owen: Britain's Next Gay Person"
+  },
+  {
+    "date": "2025-07-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "Ahir Shah: WIP"
+  },
+  {
+    "date": "2025-07-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Sean Morley: Backchannl"
+  },
+  {
+    "date": "2025-07-17",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-07-18",
+    "dayOfWeek": "SATURDAY",
+    "time": "18:30",
+    "title": "Olga Koch Comes From Money"
+  },
+  {
+    "date": "2025-07-18",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Kamah Bob: Miss Fortunate"
+  },
+  {
+    "date": "2025-07-18",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Siblings: Dreamweavers"
+  },
+  {
+    "date": "2025-07-18",
+    "dayOfWeek": "SATURDAY",
+    "time": "23:00",
+    "title": "Leftovers Night"
+  },
+  {
+    "date": "2025-07-19",
+    "dayOfWeek": "SUNDAY",
+    "time": "18:30",
+    "title": "History Flakes: Live at Berlin Fringe"
+  },
+  {
+    "date": "2025-07-19",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "Christopher Hall: Showboating (WIP)"
+  },
+  {
+    "date": "2025-07-19",
+    "dayOfWeek": "SUNDAY",
+    "time": "21:30",
+    "title": "Graham and Steen"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Confession: An Improv Show Worth Repenting For"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Dennis Racket"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "There's One In Every Class"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Glue Factory presented by Fünfdollar"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "The Reunion: Real Housewives"
+  },
+  {
+    "date": "2025-07-20",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-07-29",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "Dennis Hacket Deconstructs......"
+  },
+  {
+    "date": "2025-07-29",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "The Dentist's Chair by Wet Teeth"
+  },
+  {
+    "date": "2025-07-30",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-07-30",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain – LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-07-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "*House Show Special Edition!* Finale of Pizza Studio! Premiere of Capiche!"
+  },
+  {
+    "date": "2025-07-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-07-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-08-01",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Shakedown – Musical Improv"
+  },
+  {
+    "date": "2025-08-01",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-08-02",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Soft Dog Shoulders"
+  },
+  {
+    "date": "2025-08-05",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Indie Improv Show (Milk Maidens & Truthpaste)"
+  },
+  {
+    "date": "2025-08-05",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-08-06",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Kringel"
+  },
+  {
+    "date": "2025-08-06",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Frei erfunden – Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2025-08-07",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-08-07",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-08-07",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Wheel of Truth"
+  },
+  {
+    "date": "2025-08-08",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Group Stage)"
+  },
+  {
+    "date": "2025-08-09",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Smoke Break"
+  },
+  {
+    "date": "2025-08-12",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-08-12",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-08-13",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-08-13",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-08-14",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-08-14",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-08-14",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "No Joke"
+  },
+  {
+    "date": "2025-08-15",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Semi-Finals)"
+  },
+  {
+    "date": "2025-08-16",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Noibas"
+  },
+  {
+    "date": "2025-08-19",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-08-19",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Bloodthirsty"
+  },
+  {
+    "date": "2025-08-20",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-08-20",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-08-21",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-08-21",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Glue Factory presented by Fünfdollar"
+  },
+  {
+    "date": "2025-08-21",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-08-22",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The CCB Cage Match (Finals)"
+  },
+  {
+    "date": "2025-08-23",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "All-in Therapy"
+  },
+  {
+    "date": "2025-08-26",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-08-26",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Team Jam"
+  },
+  {
+    "date": "2025-08-27",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-08-27",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain – LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-08-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-08-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "Crimes of the Heart: The Ghosts of Neukölln"
+  },
+  {
+    "date": "2025-08-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Indulge Me!"
+  },
+  {
+    "date": "2025-08-29",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-08-29",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "The Reunion: Survivor"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The indie Improv Show"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Kringel"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Helen Bauer: Bless Her"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam (host TBD)"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Improvilicious Jam"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Frei erfunden - Improv Comedy (German)"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "GLB - Improvised Comedy"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2025-08-31",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-09-09",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan & Deconstruction"
+  },
+  {
+    "date": "2025-09-09",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-09-10",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-09-10",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-09-11",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-09-11",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-09-11",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Reflections"
+  },
+  {
+    "date": "2025-09-12",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-09-12",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Laughing Matter"
+  },
+  {
+    "date": "2025-09-13",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Truth Paste"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "The Indie Improv Show (with Haircut and Shredder)"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Shakedown - Musical Improv"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Themprov"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Slackers"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain (LGBTQIA+ Ensemble Improv)"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Glue Factory presented by Fünfdollar"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-09-21",
+    "dayOfWeek": "SATURDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "20:00",
+    "title": "piffle!"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "Harold Night"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "The Weird Show"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "WEDNESDAY",
+    "time": "21:30",
+    "title": "Daniel Stern's Bald Spot"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Retro Game Slam"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Wandering Barman"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Good Luck, Barbara!"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "THURSDAY",
+    "time": "23:00",
+    "title": "Joke Time!"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Queen's Court"
+  },
+  {
+    "date": "2025-09-28",
+    "dayOfWeek": "SATURDAY",
+    "time": "23:00",
+    "title": "10 Year Anniversary Party"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "THURSDAY",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "FRIDAY",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "SATURDAY",
+    "time": "20:00",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "SUNDAY",
+    "time": "20:00",
+    "title": "The CCB Improv Jam"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "THURSDAY",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "FRIDAY",
+    "time": "21:30",
+    "title": "The Glue Factory presented by Fünfdollar"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "SATURDAY",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-10-26",
+    "dayOfWeek": "FRIDAY",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Wheel of Truth"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown - Musical Improv"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Wet Teeth"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvylicious Jam"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden - Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB - Improvised Comedy"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Blumpkin Abbey"
+  },
+  {
+    "date": "2025-11-02",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Sunday",
+    "time": "13:30",
+    "title": "Der kleine Impro-Jam auf Deutsch"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "It's That Time of the Month!"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Truth Paste"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Too Many Cooks - A Comedy Cooking Show"
+  },
+  {
+    "date": "2025-11-10",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Laura Kenny and Rocio Ciganda Stand Up Show"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Thursday",
+    "time": "18:30",
+    "title": "Caroline Stand Up Student Show"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Friday",
+    "time": "18:30",
+    "title": "Student Show - Level 1 - Intro to Improv"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Improvised Stand-Up Show"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Truth Night"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "IGNORAMUS"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Ivana's Birthday Team"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Team Jam"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Action Jackson"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Tales Held Dear"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The Reunion: Love is Blind"
+  },
+  {
+    "date": "2025-11-16",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The (Hidden) Talent Show"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "The Indie Improv Show"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Teacher's Pet"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Fuster Clucks - Sketch Comedy"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Haircut"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "There's One in Every Class"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Daisy Chain - LGBTQIA+ Ensemble Improv"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "The Glue Factory presented by Fünfdollar"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "The Confession: An Improv Show Worth Repenting For"
+  },
+  {
+    "date": "2025-11-23",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Sunday",
+    "time": "18:30",
+    "title": "Student Show - Level 1 & 2 Musical Improv"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Smörgåsbord: A Bit Show Show"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Kringel"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "The Shakedown - Musical Improv"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Brace! Brace!"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Improvisious Jam"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "Frei erfunden - Improv Comedy und Jam auf Deutsch"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "GLB - Improvised Comedy"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Full Fat Bear Milk"
+  },
+  {
+    "date": "2025-11-30",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Forms Night"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Sunday",
+    "time": "13:30",
+    "title": "Der kleine Impro-Jam auf Deutsch (@ CCB Studios)"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Wednesday",
+    "time": "20:00",
+    "title": "Health Plan: A Deconstruction"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Thursday",
+    "time": "20:00",
+    "title": "Smash Cut Presents: The Improvised Movie"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Friday",
+    "time": "20:00",
+    "title": "House Show"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Saturday",
+    "time": "20:00",
+    "title": "Sketch Bomb"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Sunday",
+    "time": "20:00",
+    "title": "The CCB Improv Jam",
+    "hostedBy": "Marge"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Wednesday",
+    "time": "21:30",
+    "title": "Turtle Logic: The Aquarium"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Thursday",
+    "time": "21:30",
+    "title": "The Hedge"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Friday",
+    "time": "21:30",
+    "title": "Miracle on Roseggerstraße: A Holiday Variety Spectacular"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Saturday",
+    "time": "21:30",
+    "title": "Witch Hunt"
+  },
+  {
+    "date": "2025-12-07",
+    "dayOfWeek": "Friday",
+    "time": "23:00",
+    "title": "Bah Humbug - An Unholiday Show"
+  }
+]

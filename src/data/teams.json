@@ -1,0 +1,506 @@
+{
+  "teams": [
+    {
+      "name": "Action Jackson",
+      "members": ["Antonia Bär", "Amanda King", "Steindór Jónsson", "Caroline Clifford", "Matilde Keizer", "Trevor Silverstein", "Noah Telson"],
+      "type": "house"
+    },
+    {
+      "name": "All-In Therapy",
+      "members": ["Cristian Mitroi", "Sanja Bjelica", "Julie Millaud", "Maria Purtscher", "Stephen Lee", "Tobias Wermuth"],
+      "type": "indie"
+    },
+    {
+      "name": "Alpha Energy",
+      "members": ["Antonia Bär", "Eli Wenzel-Fisher"],
+      "type": "duo"
+    },
+    {
+      "name": "Full Fat Bear Milk",
+      "aliases": ["Bear Milk"],
+      "members": ["Alice Schmid", "Bernd Grether", "Billy Mason Wood", "Eli Wenzel-Fisher", "Ivana Verle", "Kevin Napier", "Lisa Gelbhardt", "Richard Killiam"],
+      "coach": "Noah Telson",
+      "type": "house"
+    },
+    {
+      "name": "Big Spin",
+      "members": ["Eli Wenzel-Fisher", "Steindór Jónsson"],
+      "type": "duo"
+    },
+    {
+      "name": "Body Massage",
+      "members": ["Billy Mason Wood", "Eli Wenzel-Fisher", "Harry Ritchie", "Simone O'Donovan", "Zoe Langer"],
+      "type": "indie"
+    },
+    {
+      "name": "Brace! Brace!",
+      "members": ["Anita Waltho", "Georgia Riungu", "Jared Lorenzo", "Julia Lang", "Kathy MacLeod", "Keshia Fredua-Mensah", "Pip Roper", "Simone O'Donovan", "Tina Marie Serra", "Zoe Langer"],
+      "coach": "Noah Telson",
+      "type": "house",
+      "houseNumber": 5
+    },
+    {
+      "name": "Brothers Telson",
+      "members": ["Josh Telson", "Noah Telson"],
+      "type": "duo"
+    },
+    {
+      "name": "Capiche",
+      "members": ["Adam Ferreira", "Evelyn Ferguson", "Harry Ritchie", "Ilana Ullman", "Jason Porter", "Marie-Laure Gagné", "Sonia Williams", "Terezie Fendrychova", "Tetiana Mulenko", "Vishal Bala"],
+      "coach": "Antonia Bär",
+      "type": "house",
+      "houseNumber": 7
+    },
+    {
+      "name": "Cashgora",
+      "members": ["Matilde Keizer", "Bernd Grether"],
+      "type": "duo"
+    },
+    {
+      "name": "Destiny's Step Child",
+      "members": ["AdibA", "Jared Lorenzo", "Kathy MacLeod", "Keshia Fredua-Mensah", "Kevin Zhou", "Seema Iyer", "Sepi", "Vishal Bala"],
+      "type": "indie",
+      "note": "BIPOC voices improv group"
+    },
+    {
+      "name": "Dog Park",
+      "members": ["Alice Schmid", "Amanda King"],
+      "type": "duo"
+    },
+    {
+      "name": "Forever 41",
+      "members": ["Bernd Grether", "Ivana Verle", "Kevin Napier", "Lisa Gelbhardt", "Richard Killiam"],
+      "type": "indie"
+    },
+    {
+      "name": "Full Spectrum",
+      "members": ["Adrian John Doonan", "Ivana Verle"],
+      "type": "duo"
+    },
+    {
+      "name": "Good & Proper",
+      "members": ["Georgia Riungu", "Pip Roper"],
+      "type": "duo"
+    },
+    {
+      "name": "Group Chat",
+      "members": ["Alice Schmid", "Billy Mason Wood", "Gaston Stabiszewski", "Kevin Napier"],
+      "type": "indie"
+    },
+    {
+      "name": "Haircut",
+      "members": ["Georgia Riungu", "Michelle McCarthy", "Pip Roper", "Theo Mason Wood"],
+      "type": "indie"
+    },
+    {
+      "name": "Health Plan",
+      "members": ["Adrian John Doonan", "Amanda King", "Billy Mason Wood", "Carl Clancy", "Eli Wenzel-Fisher", "Ivana Verle", "Lisa Gelbhardt", "Matilde Keizer", "Michele Guido", "Richie Murphy", "Theresa Robinson", "Trevor Silverstein"],
+      "type": "house"
+    },
+    {
+      "name": "Hot Olive",
+      "members": ["Lisa Frischemeier", "Rocio Ciganda", "Simone O'Donovan", "Sonia Williams"],
+      "type": "indie"
+    },
+    {
+      "name": "HUMAN NIGHTMARE",
+      "members": ["Grant Selland", "Jason Porter", "Rocio Ciganda", "Sonia Williams"],
+      "type": "indie"
+    },
+    {
+      "name": "Instant Crush",
+      "members": ["Evelyn Murphy", "Kathy MacLeod", "Sanja Bjelica"],
+      "type": "indie"
+    },
+    {
+      "name": "Millenium Bug",
+      "members": ["Agnieszka Bryzek", "Grant Selland", "Jason Porter", "Sonia Williams"],
+      "type": "indie"
+    },
+    {
+      "name": "Mum's Gone to Iceland",
+      "members": ["Andrea Björk", "Caroline Clifford", "Emma Aldridge"],
+      "type": "indie"
+    },
+    {
+      "name": "Night Lunch",
+      "members": ["Alice Schmid", "Eli Wenzel-Fisher", "Billy Mason Wood"],
+      "type": "indie"
+    },
+    {
+      "name": "No Worries If Not",
+      "members": ["Amanda King", "Ben Southam", "Carl Clancy"],
+      "type": "indie"
+    },
+    {
+      "name": "People System",
+      "members": ["Antonia Bär", "Carl Clancy", "Eli Wenzel-Fisher", "Emma Aldridge", "Jakob Wagner", "Janina Rook", "Matilde Keizer", "Michele Guido", "Peter Talbot", "Tetiana Mulenko"],
+      "type": "house"
+    },
+    {
+      "name": "Pfand",
+      "members": ["Antonia Bär", "Gaston Stabiszewski", "Jakob Wagner", "Janina Rook", "Matilde Keizer"],
+      "type": "indie"
+    },
+    {
+      "name": "Pizza Studio",
+      "members": ["Alice Schmid", "Bernd Grether", "Billy Mason Wood", "Christian Stein", "Evelyn Murphy", "Ingrid Wenzel", "Johannes Werner", "Maria Purtscher", "Rocio Ciganda", "Sarah Eager", "Duke Paker"],
+      "formerMembers": ["Anna Szaflarski", "Cristian Mitroi", "Ivana Verle", "Ratan Sebastian"],
+      "coach": "Matilde Keizer",
+      "type": "house"
+    },
+    {
+      "name": "Potato Peel",
+      "members": ["Kevin Napier", "Lisa Gelbhardt"],
+      "type": "duo"
+    },
+    {
+      "name": "Roadkill",
+      "members": ["Amanda King", "Amy Jane", "Caroline Clifford"],
+      "type": "indie"
+    },
+    {
+      "name": "Rock Bottom",
+      "members": ["Carl Clancy", "Steindór Jónsson"],
+      "type": "duo"
+    },
+    {
+      "name": "Schleudertrauma",
+      "members": ["Bernd Grether", "Deschna Afram", "GeorgFK", "Keshia Fredua-Mensah", "Kevin Zhou", "Lisa Frischemeier", "Lisa Gelbhardt", "Rocio Ciganda", "Sarah Binder"],
+      "type": "house"
+    },
+    {
+      "name": "Smash Cut",
+      "members": ["Andrea Björk", "Eli Wenzel-Fisher", "Gaston Stabiszewski", "Josh Telson", "Kevin Napier", "Matilde Keizer", "Noah Telson", "Steindór Jónsson"],
+      "type": "indie"
+    },
+    {
+      "name": "Smoke Break",
+      "members": ["Caroline Clifford", "Laura Kenny", "Richard Killiam"],
+      "type": "indie"
+    },
+    {
+      "name": "Some Nerve",
+      "members": ["Amy Jane", "Ben Southam", "Carl Clancy", "Emma Aldridge"],
+      "type": "indie"
+    },
+    {
+      "name": "Spargelzeit",
+      "members": ["Keshia Fredua-Mensah", "Kevin Zhou", "Marie-Laure Gagné", "Sarah Binder"],
+      "type": "indie"
+    },
+    {
+      "name": "Squeegee",
+      "members": ["Eli Wenzel-Fisher", "Zoe Langer"],
+      "type": "duo"
+    },
+    {
+      "name": "The Curmudgeons",
+      "members": ["Caroline Clifford", "Josh Telson"],
+      "type": "duo"
+    },
+    {
+      "name": "The Shakedown",
+      "members": ["Amy Jane", "Anna Birke", "Carl Clancy", "Deschna Afram", "Kieran Humphries", "Renāte Mikucevska", "Richard Killiam"],
+      "type": "musical"
+    },
+    {
+      "name": "Themprov",
+      "members": ["Poppe", "Sonia Williams"],
+      "type": "duo"
+    },
+    {
+      "name": "Thunderclap!",
+      "members": ["Adrian Doonan", "Georg Kammerer", "Julie Millaud", "Konrad Duffy", "Lisa Gelbhardt", "Martina Tranström", "Muaaz Saleem", "Richie Murphy", "Theresa Robinson"],
+      "formerMembers": ["Adam Ferreira", "Belen Caeiro", "Maria Dilling"],
+      "coach": "Caroline Clifford",
+      "type": "house",
+      "houseNumber": 4
+    },
+    {
+      "name": "Turtle Logic",
+      "members": ["Georgia Riungu", "Zoe Langer", "Pip Roper", "Rocio Ciganda", "Laura Kenny", "Simone O'Donovan"],
+      "coach": "Michele Guido",
+      "type": "indie",
+      "note": "2024 CCB Cage Match Tournament Winners"
+    },
+    {
+      "name": "Windows 95",
+      "members": ["Alice Schmid", "Andrew", "Billy Mason Wood", "Kevin Napier"],
+      "type": "indie"
+    },
+    {
+      "name": "Piss Baby",
+      "aliases": ["Pissbaby"],
+      "members": ["Connor Belshaw", "Taylor LaMontagne"],
+      "type": "indie"
+    },
+    {
+      "name": "Truth Paste",
+      "aliases": ["Truthpaste"],
+      "members": ["Harry Haddon", "Lisa Frischemeier", "Poppe", "Sarah Binder"],
+      "type": "indie"
+    },
+    {
+      "name": "Wet Teeth",
+      "members": ["Harry Haddon", "Jared Lorenzo", "Marijne Nieuwerf", "Martina Tranström", "Simone O'Donovan", "Tetiana Mulenko"],
+      "type": "indie",
+      "note": "Hosts 'The Dentist's Chair' show"
+    },
+    {
+      "name": "Dackel",
+      "aliases": ["Dackel, hopefully"],
+      "members": ["Antonia Bär", "Bernd Grether", "Jo Werner", "Keshia Fredua-Mensah", "Lisa Gelbhardt"],
+      "type": "indie",
+      "note": "German-language improv from Berlin Neukölln"
+    },
+    {
+      "name": "Tales Held Dear",
+      "members": ["Carl Clancy", "Tetiana Mulenko", "Marijne Nieuwerf", "Ratan Sebastian", "Jacob Wolf Lefton"],
+      "type": "indie",
+      "note": "D&D-inspired improvised quest format"
+    },
+    {
+      "name": "Fünfdollar",
+      "members": ["Andrew Blumhagen", "Caroline Clifford", "Amanda King", "Kevin Napier", "Andrea Björk", "Gaston Stabiszewski", "Kieran Humphries", "Richard Killiam", "Trevor Silverstein"],
+      "formerMembers": ["Lauren Sedger", "Clementine Satsuma", "Marisa Llamas", "Prabs Pillai", "Nick Hughes", "Janina Rook"],
+      "type": "house",
+      "note": "One of CCB's first Harold teams since 2018, hosts The Glue Factory"
+    },
+    {
+      "name": "Current Friends",
+      "members": ["Jason Porter", "Holly"],
+      "type": "duo"
+    },
+    {
+      "name": "GLB",
+      "aliases": ["Good Luck, Barbara"],
+      "members": ["Amy Jane", "Josh Telson", "Nicole Ratjen", "Noah Telson"],
+      "type": "indie",
+      "note": "Berlin's longest running English-language longform improv team, formed 2013"
+    },
+    {
+      "name": "Handshake",
+      "members": ["AdibA", "Aviya Cohen", "Grant Selland", "Harry Haddon", "Laura Kenny", "Lucrezia Villani", "Poppe", "Seema Iyer", "Theo Mason Wood"],
+      "type": "house"
+    },
+    {
+      "name": "Tambourine Solo",
+      "members": ["Evelyn Ferguson", "Ginette Brenkman", "Vishal Bala"],
+      "type": "indie"
+    },
+    {
+      "name": "Too Much Perspective",
+      "members": ["Julia Lang", "Luke Bovard"],
+      "type": "duo"
+    },
+    {
+      "name": "We're Walking Here",
+      "members": ["Kevin Napier", "Seema Iyer"],
+      "type": "duo"
+    },
+    {
+      "name": "Cuter Than Hedgehogs",
+      "members": ["Antonia Bär", "Matilde Keizer"],
+      "type": "duo",
+      "note": "Hosts at The Hedge"
+    },
+    {
+      "name": "Bloodthirsty",
+      "members": ["Kevin Napier", "Andrew Blumhagen"],
+      "type": "duo",
+      "note": "NYC improvisers reconnected in Berlin"
+    },
+    {
+      "name": "It's That Time of the Month",
+      "members": ["Amanda King", "Andrea Björk", "Antonia Bär", "Caroline Clifford", "Matilde Keizer"],
+      "type": "indie",
+      "note": "Monthly improvised live talk show"
+    },
+    {
+      "name": "Milk Maidens",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Bernd & Christian",
+      "members": ["Bernd Grether", "Christian Stein"],
+      "type": "duo"
+    },
+    {
+      "name": "Bibi & Tina",
+      "members": ["Keshia Fredua-Mensah", "Sarah Binder"],
+      "type": "duo"
+    },
+    {
+      "name": "Blind Date",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Dennis Racket",
+      "members": ["Caroline Clifford", "Kevin Zhou", "Kieran Humphries", "Lucrezia Villani", "Sissi Korizi", "Terezie Fendrychova"],
+      "type": "indie",
+      "note": "Deconstruction format"
+    },
+    {
+      "name": "Ex-Business Partners",
+      "members": ["Jason Porter", "Holly"],
+      "type": "indie"
+    },
+    {
+      "name": "Farmer's Market",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Flüssiges Flanell",
+      "members": ["Ingrid Wenzel", "Jo Werner"],
+      "type": "duo"
+    },
+    {
+      "name": "Frank and Frank",
+      "members": ["Bernd Grether", "Richard Killiam"],
+      "type": "duo"
+    },
+    {
+      "name": "George & Martha",
+      "members": ["Eli Wenzel-Fisher", "Matilde Keizer"],
+      "type": "duo"
+    },
+    {
+      "name": "Ghost Laundry",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "GPS",
+      "members": ["Eli Wenzel-Fisher", "Emma Aldridge", "Jakob Wagner", "Janina Rook"],
+      "type": "indie"
+    },
+    {
+      "name": "Great Grandkids",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Hukuk & Acuka",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Human Resources",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Jinx",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Laughing Matter",
+      "members": ["Anita Waltho", "Anna Birke", "GeorgFK", "Luke Bovard", "Theresa Robinson", "Trevor Silverstein"],
+      "type": "indie"
+    },
+    {
+      "name": "Lisa and Bernd",
+      "members": ["Lisa Gelbhardt", "Bernd Grether"],
+      "type": "duo"
+    },
+    {
+      "name": "Matilde and Trevor",
+      "members": ["Matilde Keizer", "Trevor Silverstein"],
+      "type": "duo"
+    },
+    {
+      "name": "Matilde und Georg",
+      "members": ["GeorgFK", "Matilde Keizer"],
+      "type": "duo"
+    },
+    {
+      "name": "Mr and Mrs Fist",
+      "members": ["Alice Schmid", "Billy Mason Wood"],
+      "type": "duo"
+    },
+    {
+      "name": "Oof!",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Panic Snooze",
+      "members": ["Panda Ortmann"],
+      "type": "indie"
+    },
+    {
+      "name": "SAUNA",
+      "members": [],
+      "type": "indie"
+    },
+    {
+      "name": "Silversteindorstein",
+      "members": ["Steindór Jónsson", "Trevor Silverstein"],
+      "type": "duo"
+    },
+    {
+      "name": "Soft Dog Shoulders",
+      "members": [],
+      "type": "indie",
+      "note": "Mashup of Dog Park and Soft Shoulders"
+    },
+    {
+      "name": "Soft Shoulders",
+      "members": ["Trevor Silverstein"],
+      "type": "indie"
+    },
+    {
+      "name": "Step Friends",
+      "members": ["Lucrezia Villani"],
+      "type": "indie"
+    },
+    {
+      "name": "T.I.T.",
+      "members": ["Ivana Verle", "Theresa Robinson", "Timothy LeBon"],
+      "type": "indie"
+    },
+    {
+      "name": "Terminal Velocity",
+      "members": ["Duke Paker"],
+      "type": "indie"
+    },
+    {
+      "name": "The A Team",
+      "members": ["Adrian John Doonan", "Alice Schmid", "Amanda King", "Amy Jane", "Andrea Björk", "Andrew Blumhagen", "Antonia Bär"],
+      "type": "house"
+    },
+    {
+      "name": "Tickle me gently",
+      "members": ["AdibA"],
+      "type": "indie"
+    },
+    {
+      "name": "Urzeitkrebse",
+      "members": ["GeorgFK", "Lisa Gelbhardt"],
+      "type": "duo"
+    },
+    {
+      "name": "We Are The Problem",
+      "members": ["Deschna Afram", "Maria Purtscher"],
+      "type": "duo"
+    },
+    {
+      "name": "Wermuth Magnum",
+      "members": ["Duke Paker", "Tobias Wermuth"],
+      "type": "duo"
+    }
+  ],
+  "metadata": {
+    "source": "comedycafeberlin.com/teams",
+    "lastUpdated": "2025-12-08",
+    "totalTeamsOnWebsite": 97,
+    "teamsScraped": 93,
+    "teamsWithRosters": 82,
+    "note": "Some teams have incomplete member data - members array empty where website didn't provide roster"
+  }
+}
