@@ -16,7 +16,7 @@
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') close();
+    if (e.key === 'Escape' && open) close();
   }
 
   const links = [
@@ -37,11 +37,12 @@
 
 {#if open}
   <!-- Backdrop -->
-  <button
+  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+  <div
     class="fixed inset-0 bg-black/70 z-40 cursor-default"
     transition:fade={{ duration: 200 }}
     on:click={close}
-    aria-label="Close menu"
+    role="presentation"
   />
 
   <!-- Sidebar -->

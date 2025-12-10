@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
   import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
+  import { proxyImageUrl } from '$lib/utils/imageProxy';
 
   export let groupedShows: Record<string, Show[]>;
   export let loading: boolean;
@@ -193,7 +194,7 @@
                 <!-- Inline thumbnail for mobile -->
                 {#if showInlineImages && show.imageUrl}
                   <div class="w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/50' : 'border-[var(--tw-electric-cyan)]/50'}">
-                    <img src={show.imageUrl} alt="" class="w-full h-full object-cover" />
+                    <img src={proxyImageUrl(show.imageUrl)} alt="" class="w-full h-full object-cover" />
                   </div>
                 {/if}
               </a>
