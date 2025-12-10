@@ -15,7 +15,6 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		console.log('Fetching iCal feed from:', ICAL_URL);
 		const response = await fetch(ICAL_URL);
 
 		if (!response.ok) {
@@ -105,7 +104,6 @@ export const GET: RequestHandler = async ({ request }) => {
 
 	// Reuse POST logic
 	try {
-		console.log('[Cron] Starting daily iCal sync from:', ICAL_URL);
 		const response = await fetch(ICAL_URL);
 
 		if (!response.ok) {
