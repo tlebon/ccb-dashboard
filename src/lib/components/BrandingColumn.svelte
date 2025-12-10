@@ -110,51 +110,69 @@
       </div>
     {:else}
       <!-- Navigation Links for Normal Mode -->
-      <nav class="flex flex-col gap-2 w-full max-w-[200px] reveal-up delay-300">
-        <a href="https://www.comedycafeberlin.com" target="_blank" rel="noopener"
-           class="flex items-center gap-2 px-3 py-2 border-l-4 transition-all hover:bg-white/5
-                  {theme === 'orange' ? 'border-[var(--nw-hot-pink)] text-[var(--nw-neon-yellow)] hover:text-white' : 'border-[var(--tw-electric-cyan)] text-[var(--tw-electric-cyan)] hover:text-white'}"
-           style="font-family: var(--font-mono);">
-          <span class="text-xs uppercase tracking-wider">→ CCB Website</span>
-        </a>
+      <nav class="flex flex-col w-full max-w-[200px] reveal-up delay-300">
+        <!-- Internal Navigation -->
+        <div class="flex flex-col gap-1">
+          <a href="/shows"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+             style="font-family: var(--font-display);">
+            <span class="text-sm opacity-70">▸</span>
+            <span class="text-sm uppercase tracking-wider">Shows</span>
+          </a>
 
-        <a href="https://training.comedycafeberlin.com" target="_blank" rel="noopener"
-           class="flex items-center gap-2 px-3 py-2 border-l-4 transition-all hover:bg-white/5
-                  {theme === 'orange' ? 'border-[var(--nw-hot-pink)] text-[var(--nw-neon-yellow)] hover:text-white' : 'border-[var(--tw-electric-cyan)] text-[var(--tw-electric-cyan)] hover:text-white'}"
-           style="font-family: var(--font-mono);">
-          <span class="text-xs uppercase tracking-wider">→ Classes</span>
-        </a>
+          <a href="/teams"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+             style="font-family: var(--font-display);">
+            <span class="text-sm opacity-70">◆</span>
+            <span class="text-sm uppercase tracking-wider">Teams</span>
+          </a>
 
-        <a href="/performers"
-           class="flex items-center gap-2 px-3 py-2 border-l-4 transition-all hover:bg-white/5
-                  {theme === 'orange' ? 'border-[var(--nw-burning-orange)] text-[var(--nw-neon-yellow)] hover:text-white' : 'border-[var(--tw-neon-pink)] text-[var(--tw-neon-pink)] hover:text-white'}"
-           style="font-family: var(--font-mono);">
-          <span class="text-xs uppercase tracking-wider">→ Performers</span>
-        </a>
+          <a href="/performers"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+             style="font-family: var(--font-display);">
+            <span class="text-sm opacity-70">●</span>
+            <span class="text-sm uppercase tracking-wider">Performers</span>
+          </a>
 
-        <a href="/teams"
-           class="flex items-center gap-2 px-3 py-2 border-l-4 transition-all hover:bg-white/5
-                  {theme === 'orange' ? 'border-[var(--nw-burning-orange)] text-[var(--nw-neon-yellow)] hover:text-white' : 'border-[var(--tw-neon-pink)] text-[var(--tw-neon-pink)] hover:text-white'}"
-           style="font-family: var(--font-mono);">
-          <span class="text-xs uppercase tracking-wider">→ Teams</span>
-        </a>
+          <a href="/analytics"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+             style="font-family: var(--font-display);">
+            <span class="text-sm opacity-70">◎</span>
+            <span class="text-sm uppercase tracking-wider">Analytics</span>
+          </a>
+        </div>
 
-        <a href="/analytics"
-           class="flex items-center gap-2 px-3 py-2 border-l-4 transition-all hover:bg-white/5
-                  {theme === 'orange' ? 'border-[var(--nw-burning-orange)] text-white/60 hover:text-white' : 'border-white/40 text-white/60 hover:text-white'}"
-           style="font-family: var(--font-mono);">
-          <span class="text-xs uppercase tracking-wider">→ Analytics</span>
-        </a>
+        <!-- Divider -->
+        <div class="my-3 border-t {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/30' : 'border-[var(--tw-electric-cyan)]/30'}"></div>
+
+        <!-- External Links -->
+        <div class="flex flex-col gap-1">
+          <a href="https://www.comedycafeberlin.com" target="_blank" rel="noopener"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-hot-pink)]/70 hover:text-[var(--nw-hot-pink)] hover:bg-[var(--nw-hot-pink)]/10' : 'text-[var(--tw-neon-pink)]/70 hover:text-[var(--tw-neon-pink)] hover:bg-[var(--tw-neon-pink)]/10'}"
+             style="font-family: var(--font-mono);">
+            <span class="text-xs">↗</span>
+            <span class="text-xs uppercase tracking-wider">CCB Website</span>
+          </a>
+
+          <a href="https://training.comedycafeberlin.com" target="_blank" rel="noopener"
+             class="flex items-center gap-2 px-3 py-2 rounded transition-all {theme === 'orange' ? 'text-[var(--nw-hot-pink)]/70 hover:text-[var(--nw-hot-pink)] hover:bg-[var(--nw-hot-pink)]/10' : 'text-[var(--tw-neon-pink)]/70 hover:text-[var(--tw-neon-pink)] hover:bg-[var(--tw-neon-pink)]/10'}"
+             style="font-family: var(--font-mono);">
+            <span class="text-xs">↗</span>
+            <span class="text-xs uppercase tracking-wider">Classes</span>
+          </a>
+        </div>
       </nav>
     {/if}
   </div>
 
-  <!-- Bottom: Tagline + Monitor Mode Toggle -->
+  <!-- Bottom: Tagline (monitor mode only) + Monitor Mode Toggle -->
   <div class="mb-4 relative z-10 reveal-up delay-500 flex flex-col items-center gap-3">
-    <div class="text-lg font-bold text-center leading-tight text-white"
-         style="font-family: var(--font-black);">
-      IMPROV<br/>STANDUP<br/>SKETCH
-    </div>
+    {#if monitorMode}
+      <div class="text-lg font-bold text-center leading-tight text-white"
+           style="font-family: var(--font-black);">
+        IMPROV<br/>STANDUP<br/>SKETCH
+      </div>
+    {/if}
 
     <!-- Monitor Mode Toggle -->
     <button
