@@ -11,13 +11,7 @@
   import MobileHeader from '$lib/components/MobileHeader.svelte';
   import MobileNav from '$lib/components/MobileNav.svelte';
 
-  // Responsive: detect mobile
-  let isMobile = false;
   let mobileNavOpen = false;
-
-  function checkMobile() {
-    isMobile = window.innerWidth < 768;
-  }
 
   // Swipe gesture handling for mobile
   let touchStartX = 0;
@@ -31,8 +25,6 @@
   }
 
   function handleTouchEnd(e: TouchEvent) {
-    if (!isMobile) return;
-
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
     const deltaX = touchEndX - touchStartX;
@@ -87,10 +79,6 @@
   }
 
   onMount(async () => {
-    // Check mobile on mount and listen for resize
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
     try {
       // Fetch enough shows to cover multiple weeks
       shows = await fetchShowsFromDB(60);
@@ -103,9 +91,6 @@
 
   onDestroy(() => {
     if (interval) clearInterval(interval);
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('resize', checkMobile);
-    }
   });
 
   // Auto-rotate when in monitor mode (skips empty weeks)
@@ -278,71 +263,70 @@
       <!-- Grain texture overlay -->
       <div class="grain-overlay"></div>
 
-      {#if isMobile}
-        <!-- Mobile Layout with swipe support -->
-        <div
-          class="flex flex-col h-full"
-          on:touchstart={handleTouchStart}
-          on:touchend={handleTouchEnd}
-        >
-          <MobileHeader
+      <!-- Mobile Layout with swipe support (visible on small screens) -->
+      <div
+        class="flex flex-col h-full md:hidden"
+        on:touchstart={handleTouchStart}
+        on:touchend={handleTouchEnd}
+      >
+        <MobileHeader
+          {theme}
+          weekLabel={weekRange.label}
+          {canGoPrev}
+          {canGoNext}
+          on:openMenu={() => mobileNavOpen = true}
+          on:prev={prevWeek}
+          on:next={nextWeek}
+        />
+        <main class="flex-1 overflow-hidden px-3 py-3 relative z-10">
+          <ShowsColumn
+            {groupedShows}
+            {loading}
+            {error}
+            dayHeadingClass="text-xl"
+            timeClass="text-base"
+            titleClass="text-sm"
+            {highlightedShowIds}
             {theme}
+            monitorMode={false}
+            showInlineImages={true}
+          />
+        </main>
+      </div>
+
+      <!-- Desktop Layout (visible on md+ screens) -->
+      <main class="hidden md:grid flex-1 w-full mx-auto grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10"
+            style="grid-template-columns: {isNextWeekStyle ? '3.5fr 3.5fr 2.7fr' : '2.7fr 3.5fr 3.5fr'};">
+        {#if isNextWeekStyle}
+          <!-- Next week style: Images, Shows, Branding -->
+          <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} />
+          <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
+          <BrandingColumn
+            {theme}
+            {monitorMode}
             weekLabel={weekRange.label}
             {canGoPrev}
             {canGoNext}
-            on:openMenu={() => mobileNavOpen = true}
             on:prev={prevWeek}
             on:next={nextWeek}
+            on:toggleMonitor={toggleMonitorMode}
           />
-          <main class="flex-1 overflow-hidden px-3 py-3 relative z-10">
-            <ShowsColumn
-              {groupedShows}
-              {loading}
-              {error}
-              dayHeadingClass="text-xl"
-              timeClass="text-base"
-              titleClass="text-sm"
-              {highlightedShowIds}
-              {theme}
-              monitorMode={false}
-            />
-          </main>
-        </div>
-      {:else}
-        <!-- Desktop Layout -->
-        <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10"
-              style="grid-template-columns: {isNextWeekStyle ? '3.5fr 3.5fr 2.7fr' : '2.7fr 3.5fr 3.5fr'};">
-          {#if isNextWeekStyle}
-            <!-- Next week style: Images, Shows, Branding -->
-            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} />
-            <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
-            <BrandingColumn
-              {theme}
-              {monitorMode}
-              weekLabel={weekRange.label}
-              {canGoPrev}
-              {canGoNext}
-              on:prev={prevWeek}
-              on:next={nextWeek}
-              on:toggleMonitor={toggleMonitorMode}
-            />
-          {:else}
-            <!-- This week style: Branding, Shows, Images -->
-            <BrandingColumn
-              {theme}
-              {monitorMode}
-              weekLabel={weekRange.label}
-              {canGoPrev}
-              {canGoNext}
-              on:prev={prevWeek}
-              on:next={nextWeek}
-              on:toggleMonitor={toggleMonitorMode}
-            />
-            <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
-            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} />
-          {/if}
-        </main>
-      {/if}
+        {:else}
+          <!-- This week style: Branding, Shows, Images -->
+          <BrandingColumn
+            {theme}
+            {monitorMode}
+            weekLabel={weekRange.label}
+            {canGoPrev}
+            {canGoNext}
+            on:prev={prevWeek}
+            on:next={nextWeek}
+            on:toggleMonitor={toggleMonitorMode}
+          />
+          <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} />
+          <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} />
+        {/if}
+      </main>
     </div>
   {/key}
 </div>

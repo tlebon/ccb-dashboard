@@ -20,15 +20,19 @@ export function getDb(): Client {
 // Note: db is lazily initialized on first access
 export const db = {
 	get execute() {
-		return getDb().execute.bind(getDb());
+		const client = getDb();
+		return client.execute.bind(client);
 	},
 	get batch() {
-		return getDb().batch.bind(getDb());
+		const client = getDb();
+		return client.batch.bind(client);
 	},
 	get transaction() {
-		return getDb().transaction.bind(getDb());
+		const client = getDb();
+		return client.transaction.bind(client);
 	},
 	get close() {
-		return getDb().close.bind(getDb());
+		const client = getDb();
+		return client.close.bind(client);
 	}
 };
