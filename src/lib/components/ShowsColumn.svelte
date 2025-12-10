@@ -12,6 +12,7 @@
   export let theme: 'blue' | 'orange' = 'blue';
   export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
   export let monitorMode: boolean = false;
+  export let showInlineImages: boolean = false; // Show small thumbnails inline (for mobile)
 
   let scrollContainer: HTMLElement;
   let scrollDirection: 'down' | 'up' = 'down';
@@ -174,20 +175,27 @@
                 </div>
 
                 <!-- Show title with display font -->
-                <div class="flex-1">
-                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)]`}
+                <div class="flex-1 min-w-0">
+                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)] break-words`}
                        style="font-family: var(--font-display); letter-spacing: 0.08em;">
                     {show.title}
                   </div>
                   {#if isHouseShow(show.title)}
                     {@const teams = formatHouseShowTeams(show.start)}
                     {#if teams}
-                      <div class="text-sm mt-0.5 font-mono tracking-wide {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
+                      <div class="text-sm mt-0.5 font-mono tracking-wide break-words {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
                         {teams}
                       </div>
                     {/if}
                   {/if}
                 </div>
+
+                <!-- Inline thumbnail for mobile -->
+                {#if showInlineImages && show.imageUrl}
+                  <div class="w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/50' : 'border-[var(--tw-electric-cyan)]/50'}">
+                    <img src={show.imageUrl} alt="" class="w-full h-full object-cover" />
+                  </div>
+                {/if}
               </a>
             </li>
           {/each}
