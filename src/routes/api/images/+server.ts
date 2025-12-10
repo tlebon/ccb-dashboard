@@ -36,7 +36,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		});
 
 		if (!response.ok) {
-			return new Response('Failed to fetch image', { status: response.status });
+			console.error(`Image proxy failed: ${response.status} ${response.statusText} for ${imageUrl}`);
+			return new Response(`Failed to fetch image: ${response.status}`, { status: response.status });
 		}
 
 		const contentType = response.headers.get('content-type') || 'image/jpeg';
