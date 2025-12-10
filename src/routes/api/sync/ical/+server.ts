@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { upsertShow } from '$lib/db';
 import ICAL from 'ical.js';
 
-const ICAL_URL = process.env.PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
+const getIcalUrl = () => import.meta.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
 
 export const POST: RequestHandler = async ({ request }) => {
 	// Optional: Add a secret key check for security
@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		const response = await fetch(ICAL_URL);
+		const response = await fetch(getIcalUrl());
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch iCal: ${response.status}`);
@@ -104,7 +104,7 @@ export const GET: RequestHandler = async ({ request }) => {
 
 	// Reuse POST logic
 	try {
-		const response = await fetch(ICAL_URL);
+		const response = await fetch(getIcalUrl());
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch iCal: ${response.status}`);
