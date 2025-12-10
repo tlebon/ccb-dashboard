@@ -3,14 +3,7 @@ import type { RequestHandler } from './$types';
 import { upsertShow } from '$lib/db';
 import ICAL from 'ical.js';
 
-const ICAL_URL = 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
-
-const FETCH_HEADERS = {
-	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-	'Accept': 'text/calendar,text/plain,*/*',
-	'Accept-Language': 'en-US,en;q=0.9',
-	'Referer': 'https://www.comedycafeberlin.com/',
-};
+const ICAL_URL = process.env.PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
 
 export const POST: RequestHandler = async ({ request }) => {
 	// Optional: Add a secret key check for security
@@ -22,10 +15,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		console.log('Fetching iCal feed...');
-		const response = await fetch(ICAL_URL, {
-			headers: FETCH_HEADERS
-		});
+		console.log('Fetching iCal feed from:', ICAL_URL);
+		const response = await fetch(ICAL_URL);
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch iCal: ${response.status}`);
@@ -114,10 +105,8 @@ export const GET: RequestHandler = async ({ request }) => {
 
 	// Reuse POST logic
 	try {
-		console.log('[Cron] Starting daily iCal sync...');
-		const response = await fetch(ICAL_URL, {
-			headers: FETCH_HEADERS
-		});
+		console.log('[Cron] Starting daily iCal sync from:', ICAL_URL);
+		const response = await fetch(ICAL_URL);
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch iCal: ${response.status}`);
