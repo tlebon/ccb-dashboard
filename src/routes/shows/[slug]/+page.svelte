@@ -179,7 +179,7 @@
 <div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-4xl mx-auto px-6 py-8">
+	<div class="relative z-10 max-w-4xl mx-auto px-4 md:px-6 py-4 md:py-8">
 		<QuickNav />
 
 		{#if loading}
@@ -192,14 +192,14 @@
 			</div>
 		{:else if viewType === 'show' && show}
 			<!-- Single Show View -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-10">
 				<!-- Show Image -->
 				{#if show.image_url}
 					<div class="md:col-span-1">
 						<img
 							src={proxyImageUrl(show.image_url)}
 							alt={show.title}
-							class="w-full rounded-lg shadow-2xl border-2 border-[var(--tw-neon-pink)]/30"
+							class="w-full max-w-xs mx-auto md:max-w-none rounded-lg shadow-2xl border-2 border-[var(--tw-neon-pink)]/30"
 						/>
 					</div>
 				{/if}
@@ -207,8 +207,8 @@
 				<!-- Show Info -->
 				<div class={show.image_url ? 'md:col-span-2' : 'md:col-span-3'}>
 					<header>
-						<h1 class="text-4xl md:text-5xl uppercase tracking-wider text-white inline-block px-4 py-2
-								   bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
+						<h1 class="text-2xl sm:text-3xl md:text-5xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
+								   bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)] break-words"
 							style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
 							{show.title}
 						</h1>
@@ -251,16 +251,16 @@
 						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
 					</div>
 
-					<div class="grid md:grid-cols-2 gap-6">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 						{#each houseTeams as team}
-							<div class="p-4 border-l-4 border-[var(--tw-neon-pink)]/60 bg-white/5">
-								<a href="/teams/{team.slug}" class="text-2xl text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] transition-colors mb-2 block" style="font-family: var(--font-display);">
+							<div class="p-3 md:p-4 border-l-4 border-[var(--tw-neon-pink)]/60 bg-white/5 min-w-0">
+								<a href="/teams/{team.slug}" class="text-xl md:text-2xl text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] transition-colors mb-2 block break-words" style="font-family: var(--font-display);">
 									{team.name} →
 								</a>
-								<p class="text-white/80 text-sm mb-3">
+								<p class="text-white/80 text-sm mb-3 break-words">
 									{team.members.join(', ')}
 								</p>
-								<p class="text-[var(--tw-electric-cyan)] text-xs font-mono uppercase tracking-wider">
+								<p class="text-[var(--tw-electric-cyan)] text-xs font-mono uppercase tracking-wider break-words">
 									Coached by {team.coach}
 								</p>
 							</div>
@@ -312,17 +312,17 @@
 												   style="font-family: var(--font-display);">
 													{teamGroup.team_name}
 												</a>
-												<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+												<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
 													{#each teamGroup.performers as performer}
 														<a
 															href="/performers/{performer.performer_slug}"
-															class="group flex flex-col items-center gap-2 hover:bg-white/5 p-3 rounded transition-colors text-center"
+															class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
 														>
 															<!-- Placeholder for future performer image -->
-															<div class="w-16 h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-xl text-[var(--tw-neon-pink)] font-mono">
+															<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-neon-pink)] font-mono flex-shrink-0">
 																{performer.performer_name.charAt(0)}
 															</div>
-															<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-sm uppercase leading-tight"
+															<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
 															      style="font-family: var(--font-display);">
 																{performer.performer_name}
 															</span>
@@ -332,17 +332,17 @@
 											</div>
 										{:else}
 											<!-- Individual performers without team -->
-											<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+											<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
 												{#each teamGroup.performers as performer}
 													<a
 														href="/performers/{performer.performer_slug}"
-														class="group flex flex-col items-center gap-2 hover:bg-white/5 p-3 rounded transition-colors text-center"
+														class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
 													>
 														<!-- Placeholder for future performer image -->
-														<div class="w-16 h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-xl text-[var(--tw-electric-cyan)] font-mono">
+														<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
 															{performer.performer_name.charAt(0)}
 														</div>
-														<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-sm uppercase leading-tight"
+														<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
 														      style="font-family: var(--font-display);">
 															{performer.performer_name}
 														</span>
