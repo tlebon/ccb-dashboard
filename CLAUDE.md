@@ -39,3 +39,23 @@ Only 4 current house teams:
 - Capiche (2nd & 3rd Fridays) - started August 2025, replaced Pizza Studio
 
 Former house teams (retired but still perform): Pizza Studio, People System, Funfdollar
+
+## Environment Variables
+
+Vercel environment variables (set in Vercel dashboard):
+- `TURSO_DATABASE_URL` - Turso database connection URL
+- `TURSO_AUTH_TOKEN` - Turso auth token
+- `VITE_PROXY_ICAL_URL` - Proxy URL for fetching CCB iCal feed (bypasses Cloudflare blocking)
+- `VITE_PROXY_EVENT_URL` - Proxy URL for fetching CCB event pages
+
+The proxy URLs point to a personal proxy server that adds browser headers to avoid Cloudflare 403 errors when fetching from CCB's website.
+
+## Cron Jobs
+
+- `/api/sync/ical` - Syncs shows from CCB's iCal feed, runs daily at 6am UTC (configured in `vercel.json`)
+
+## Cloudflare Blocking
+
+CCB's website (comedycafeberlin.com) is behind Cloudflare which blocks requests from cloud provider IPs (like Vercel). Solutions:
+- **iCal sync**: Uses `VITE_PROXY_ICAL_URL` proxy
+- **Images**: Load directly from CCB (browser fetches work, server-side fetches get blocked)
