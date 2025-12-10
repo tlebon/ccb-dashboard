@@ -11,6 +11,7 @@
 		performer_id: number;
 		performer_name: string;
 		performer_slug: string;
+		performer_image_url: string | null;
 		role: string;
 		team_name: string | null;
 		team_slug: string | null;
@@ -51,6 +52,7 @@
 		id: number;
 		name: string;
 		slug: string;
+		image_url?: string | null;
 	}
 
 	let viewType: 'show' | 'series' | null = null;
@@ -328,9 +330,17 @@
 								href="/performers/{performer.slug}"
 								class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
 							>
-								<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
-									{performer.name.charAt(0)}
-								</div>
+								{#if performer.image_url}
+									<img
+										src={proxyImageUrl(performer.image_url)}
+										alt={performer.name}
+										class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-electric-cyan)]/30"
+									/>
+								{:else}
+									<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
+										{performer.name.charAt(0)}
+									</div>
+								{/if}
 								<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
 								      style="font-family: var(--font-display);">
 									{performer.name}
@@ -374,10 +384,17 @@
 															href="/performers/{performer.performer_slug}"
 															class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
 														>
-															<!-- Placeholder for future performer image -->
-															<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-neon-pink)] font-mono flex-shrink-0">
-																{performer.performer_name.charAt(0)}
-															</div>
+															{#if performer.performer_image_url}
+																<img
+																	src={proxyImageUrl(performer.performer_image_url)}
+																	alt={performer.performer_name}
+																	class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-neon-pink)]/30"
+																/>
+															{:else}
+																<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-neon-pink)] font-mono flex-shrink-0">
+																	{performer.performer_name.charAt(0)}
+																</div>
+															{/if}
 															<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
 															      style="font-family: var(--font-display);">
 																{performer.performer_name}
@@ -394,10 +411,17 @@
 														href="/performers/{performer.performer_slug}"
 														class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
 													>
-														<!-- Placeholder for future performer image -->
-														<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
-															{performer.performer_name.charAt(0)}
-														</div>
+														{#if performer.performer_image_url}
+															<img
+																src={proxyImageUrl(performer.performer_image_url)}
+																alt={performer.performer_name}
+																class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-electric-cyan)]/30"
+															/>
+														{:else}
+															<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
+																{performer.performer_name.charAt(0)}
+															</div>
+														{/if}
 														<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
 														      style="font-family: var(--font-display);">
 															{performer.performer_name}

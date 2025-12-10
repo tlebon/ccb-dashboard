@@ -10,6 +10,9 @@
   export let weekLabel: string = 'This Week';
   export let canGoPrev: boolean = false;
   export let canGoNext: boolean = true;
+  export let weekOffset: number = 0;
+  export let prevWeekLabel: string = '';
+  export let nextWeekLabel: string = '';
 </script>
 
 <section class="flex flex-col justify-between items-center h-full px-4 overflow-hidden relative reveal-left delay-100
@@ -32,44 +35,57 @@
 
     <!-- Week Navigation -->
     <div class="mt-3 reveal-up delay-300 flex items-center gap-2">
-      {#if !monitorMode}
-        <button
-          on:click={() => dispatch('prev')}
-          disabled={!canGoPrev}
-          class="w-8 h-8 flex items-center justify-center transition-all
-                 {canGoPrev
-                   ? (theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20')
-                   : 'text-white/20 cursor-not-allowed'}"
-          style="font-family: var(--font-mono);"
-        >
-          ←
-        </button>
-      {/if}
+      <button
+        on:click={() => dispatch('prev')}
+        disabled={!canGoPrev || monitorMode}
+        title={canGoPrev && !monitorMode ? `← ${prevWeekLabel}` : ''}
+        class="w-8 h-8 flex items-center justify-center transition-all rounded
+               {monitorMode ? 'invisible' : ''}
+               {canGoPrev
+                 ? (theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20')
+                 : 'text-white/20 cursor-not-allowed'}"
+        style="font-family: var(--font-mono);"
+      >
+        ←
+      </button>
 
       <div class="text-sm tracking-[0.3em] uppercase {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
            style="font-family: var(--font-mono);">
         {weekLabel}
       </div>
 
-      {#if !monitorMode}
-        <button
-          on:click={() => dispatch('next')}
-          disabled={!canGoNext}
-          class="w-8 h-8 flex items-center justify-center transition-all
-                 {canGoNext
-                   ? (theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20')
-                   : 'text-white/20 cursor-not-allowed'}"
-          style="font-family: var(--font-mono);"
-        >
-          →
-        </button>
-      {/if}
+      <button
+        on:click={() => dispatch('next')}
+        disabled={!canGoNext || monitorMode}
+        title={canGoNext && !monitorMode ? `→ ${nextWeekLabel}` : ''}
+        class="w-8 h-8 flex items-center justify-center transition-all rounded
+               {monitorMode ? 'invisible' : ''}
+               {canGoNext
+                 ? (theme === 'orange' ? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20' : 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20')
+                 : 'text-white/20 cursor-not-allowed'}"
+        style="font-family: var(--font-mono);"
+      >
+        →
+      </button>
     </div>
+
+    <!-- Today button - always rendered to prevent layout shift, invisible when on current week or in monitor mode -->
+    <button
+      on:click={() => dispatch('today')}
+      class="mt-1 px-2 py-0.5 text-[10px] uppercase tracking-widest transition-all rounded
+             {weekOffset === 0 || monitorMode ? 'invisible' : ''}
+             {theme === 'orange'
+               ? 'text-white/60 hover:text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
+               : 'text-white/60 hover:text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+      style="font-family: var(--font-mono);"
+    >
+      ↩ Today
+    </button>
 
     <div class="text-4xl leading-none text-white text-center mt-2 neon-glow reveal-up delay-400
                 {theme === 'orange' ? 'text-[var(--nw-hot-pink)]' : 'text-[var(--tw-electric-cyan)]'}"
          style="font-family: var(--font-display);">
-      COMEDY<br/>CAFE<br/>BERLIN
+      COMEDY CAFE<br/>BERLIN
     </div>
 
     <div class="text-xs leading-relaxed text-center mt-3 mb-1 max-w-xs mx-auto text-white reveal-up delay-500"

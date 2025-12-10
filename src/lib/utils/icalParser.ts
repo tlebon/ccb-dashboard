@@ -13,9 +13,13 @@ export interface Show {
 }
 
 // Fetch shows from database (preferred method - no live scraping)
-export async function fetchShowsFromDB(days = 14): Promise<Show[]> {
+export async function fetchShowsFromDB(days = 14, pastDays = 0): Promise<Show[]> {
   try {
-    const response = await fetch(`/api/shows/upcoming?days=${days}`);
+    const params = new URLSearchParams({ days: days.toString() });
+    if (pastDays > 0) {
+      params.set('pastDays', pastDays.toString());
+    }
+    const response = await fetch(`/api/shows/upcoming?${params}`);
     if (!response.ok) {
       throw new Error('Failed to fetch shows from database');
     }

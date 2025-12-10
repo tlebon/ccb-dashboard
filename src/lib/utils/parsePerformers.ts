@@ -94,9 +94,9 @@ function normalizeName(name: string): string {
  */
 export function matchPerformers(
 	extractedNames: string[],
-	knownPerformers: Array<{ id: number; name: string; slug: string }>
-): Array<{ id: number; name: string; slug: string }> {
-	const matched: Array<{ id: number; name: string; slug: string }> = [];
+	knownPerformers: Array<{ id: number; name: string; slug: string; image_url?: string | null }>
+): Array<{ id: number; name: string; slug: string; image_url?: string | null }> {
+	const matched: Array<{ id: number; name: string; slug: string; image_url?: string | null }> = [];
 	const matchedIds = new Set<number>();
 
 	for (const extractedName of extractedNames) {
@@ -134,8 +134,8 @@ export function matchPerformers(
  */
 export function parsePerformersFromDescription(
 	description: string,
-	knownPerformers: Array<{ id: number; name: string; slug: string }>
-): Array<{ id: number; name: string; slug: string }> {
+	knownPerformers: Array<{ id: number; name: string; slug: string; image_url?: string | null }>
+): Array<{ id: number; name: string; slug: string; image_url?: string | null }> {
 	const extractedNames = extractNameStrings(description);
 	return matchPerformers(extractedNames, knownPerformers);
 }

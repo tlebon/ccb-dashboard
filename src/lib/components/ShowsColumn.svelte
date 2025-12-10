@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
   import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
   import { proxyImageUrl } from '$lib/utils/imageProxy';
@@ -14,6 +14,9 @@
   export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
   export let monitorMode: boolean = false;
   export let showInlineImages: boolean = false; // Show small thumbnails inline (for mobile)
+  export let pastShowIds: string[] = []; // IDs of shows that have already started (for greying out)
+  export let firstUpcomingShowId: string | null = null; // ID of first upcoming show (for auto-scroll)
+  export let isCurrentWeek: boolean = false; // Only auto-scroll on current week
 
   let scrollContainer: HTMLElement;
   let scrollDirection: 'down' | 'up' = 'down';
@@ -117,6 +120,68 @@
     setTimeout(checkOverflow, 100);
   }
 
+  // Auto-scroll to first upcoming show in manual mode (when past shows are greyed out above)
+  // Only applies to current week - past weeks show all shows from the top
+  let isInitialScroll = true;
+
+  async function scrollToFirstUpcoming() {
+    if (monitorMode || !firstUpcomingShowId || !scrollContainer || !isCurrentWeek) return;
+
+    // Wait for DOM updates
+    await tick();
+
+    // Additional delay to ensure transitions have completed and elements are rendered
+    setTimeout(() => {
+      // Find the day container that contains the first upcoming show
+      // This ensures the day heading is visible, not just the show
+      const dayContainers = scrollContainer.querySelectorAll('[data-day-shows]');
+      let targetElement: HTMLElement | null = null;
+
+      for (const container of dayContainers) {
+        const showIds = container.getAttribute('data-day-shows')?.split(',') || [];
+        if (showIds.includes(firstUpcomingShowId)) {
+          targetElement = container as HTMLElement;
+          break;
+        }
+      }
+
+      if (targetElement && scrollContainer) {
+        // Calculate offset from the element's position relative to container
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = targetElement.getBoundingClientRect();
+        const offset = elementRect.top - containerRect.top;
+
+        // Only scroll if the element is not already near the top
+        if (offset > 10) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollTop + offset,
+            // Use instant scroll on initial load to avoid flicker, smooth for subsequent
+            behavior: isInitialScroll ? 'auto' : 'smooth'
+          });
+        }
+        isInitialScroll = false;
+      }
+    }, isInitialScroll ? 100 : 300); // Shorter delay for initial scroll
+  }
+
+  // Track when we should scroll - once per data load
+  let lastScrolledForShowId: string | null = null;
+
+  // Trigger scroll when data arrives and there are past shows to scroll past
+  // Only on current week - past weeks show all shows from top
+  $: if (
+    firstUpcomingShowId &&
+    pastShowIds.length > 0 &&
+    !monitorMode &&
+    scrollContainer &&
+    !loading &&
+    isCurrentWeek &&
+    firstUpcomingShowId !== lastScrolledForShowId
+  ) {
+    lastScrolledForShowId = firstUpcomingShowId;
+    scrollToFirstUpcoming();
+  }
+
   onMount(() => {
     setTimeout(checkOverflow, 500);
   });
@@ -142,7 +207,8 @@
     <p class="text-center text-red-400 text-xl font-bold" style="font-family: var(--font-display);">Error: {error}</p>
   {:else}
     {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
-      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;">
+      {@const dayShowIds = dayShows.map(s => s.id)}
+      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
         <!-- Day heading with brutalist style -->
         <div class="mb-2 relative">
           <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
@@ -160,31 +226,34 @@
         <ul class="space-y-1.5">
           {#each dayShows as show, j (show.id)}
             {@const isHighlighted = highlightedShowIds.includes(show.id)}
-            <li class="group">
+            {@const isPast = pastShowIds.includes(show.id)}
+            <li class="group" data-show-id="{show.id}">
               <a href="/shows/{show.id}"
-                 class={`flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer hover:bg-white/5
+                 class={`flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer
+                          ${isPast ? 'opacity-40 hover:opacity-70 hover:bg-white/5' : 'hover:bg-white/5'}
                           ${isHighlighted ? 'border-l-8 pl-1' : 'border-l-4'}
                           ${theme === 'orange'
-                            ? `border-[var(--nw-hot-pink)] ${isHighlighted ? 'bg-[var(--nw-deep-purple)]/30' : ''}`
-                            : `border-[var(--tw-electric-cyan)] ${isHighlighted ? 'bg-[var(--tw-deep-purple)]/40' : ''}`}`}>
+                            ? `border-[var(--nw-hot-pink)] ${isPast ? 'border-opacity-30' : ''} ${isHighlighted ? 'bg-[var(--nw-deep-purple)]/30' : ''}`
+                            : `border-[var(--tw-electric-cyan)] ${isPast ? 'border-opacity-30' : ''} ${isHighlighted ? 'bg-[var(--tw-deep-purple)]/40' : ''}`}`}>
 
                 <!-- Time with monospace font -->
-                <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
-                            ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}
+                <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform ${isPast ? '' : 'group-hover:scale-110'} ${timeClass}
+                            ${isPast ? 'text-white/30' : (theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]')}`}
                      style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
                   {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
 
                 <!-- Show title with display font -->
                 <div class="flex-1 min-w-0">
-                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)] break-words`}
+                  <div class={`font-bold uppercase ${titleClass} leading-snug break-words
+                              ${isPast ? 'text-white/40' : 'text-white group-hover:text-[var(--tw-electric-cyan)]'}`}
                        style="font-family: var(--font-display); letter-spacing: 0.08em;">
                     {show.title}
                   </div>
                   {#if isHouseShow(show.title)}
                     {@const teams = formatHouseShowTeams(show.start)}
                     {#if teams}
-                      <div class="text-sm mt-0.5 font-mono tracking-wide break-words {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
+                      <div class="text-sm mt-0.5 font-mono tracking-wide break-words {isPast ? 'text-white/40' : (theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]')}">
                         {teams}
                       </div>
                     {/if}
@@ -193,7 +262,7 @@
 
                 <!-- Inline thumbnail for mobile -->
                 {#if showInlineImages && show.imageUrl}
-                  <div class="w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/50' : 'border-[var(--tw-electric-cyan)]/50'}">
+                  <div class="w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 {isPast ? 'opacity-30' : ''} {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/50' : 'border-[var(--tw-electric-cyan)]/50'}">
                     <img src={proxyImageUrl(show.imageUrl)} alt="" class="w-full h-full object-cover" />
                   </div>
                 {/if}
@@ -203,6 +272,10 @@
         </ul>
       </div>
     {/each}
+    <!-- Spacer to allow scrolling past shows to the top when content is short (current week only) -->
+    {#if pastShowIds.length > 0 && !monitorMode && isCurrentWeek}
+      <div style="height: {Math.min(pastShowIds.length * 60, 400)}px"></div>
+    {/if}
   {/if}
   </section>
 </div>

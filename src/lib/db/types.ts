@@ -2,6 +2,9 @@ export interface Performer {
 	id: number;
 	name: string;
 	slug: string;
+	image_url: string | null;
+	bio: string | null;
+	instagram: string | null;
 	created_at: string;
 }
 

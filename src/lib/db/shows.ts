@@ -64,7 +64,8 @@ export async function getShowWithLineup(showId: number) {
 
 	const lineup = await db.execute({
 		sql: `
-			SELECT sa.*, p.name as performer_name, p.slug as performer_slug, t.name as team_name, t.slug as team_slug
+			SELECT sa.*, p.name as performer_name, p.slug as performer_slug, p.image_url as performer_image_url,
+			       t.name as team_name, t.slug as team_slug
 			FROM show_appearances sa
 			JOIN performers p ON sa.performer_id = p.id
 			LEFT JOIN teams t ON sa.team_id = t.id
@@ -125,7 +126,8 @@ export async function getShowWithLineupBySlug(slug: string) {
 
 	const lineup = await db.execute({
 		sql: `
-			SELECT sa.*, p.name as performer_name, p.slug as performer_slug, t.name as team_name, t.slug as team_slug
+			SELECT sa.*, p.name as performer_name, p.slug as performer_slug, p.image_url as performer_image_url,
+			       t.name as team_name, t.slug as team_slug
 			FROM show_appearances sa
 			JOIN performers p ON sa.performer_id = p.id
 			LEFT JOIN teams t ON sa.team_id = t.id

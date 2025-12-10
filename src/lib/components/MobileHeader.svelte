@@ -5,6 +5,7 @@
   export let weekLabel: string = 'This Week';
   export let canGoPrev: boolean = false;
   export let canGoNext: boolean = true;
+  export let weekOffset: number = 0;
 
   const dispatch = createEventDispatcher();
 </script>
@@ -28,11 +29,23 @@
     <img src="/cropped-CCB-Logos_white_LG.png" alt="CCB" class="w-8 h-8 object-contain" />
   </div>
 
-  <!-- Center: Week Label -->
-  <div class="text-xs tracking-[0.2em] uppercase text-center
-              {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
-       style="font-family: var(--font-mono);">
-    {weekLabel}
+  <!-- Center: Week Label + Today button -->
+  <div class="flex flex-col items-center">
+    <div class="text-xs tracking-[0.2em] uppercase text-center
+                {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}"
+         style="font-family: var(--font-mono);">
+      {weekLabel}
+    </div>
+    {#if weekOffset !== 0}
+      <button
+        on:click={() => dispatch('today')}
+        class="text-[9px] uppercase tracking-wider transition-all
+               {theme === 'orange' ? 'text-white/50 hover:text-[var(--nw-neon-yellow)]' : 'text-white/50 hover:text-[var(--tw-electric-cyan)]'}"
+        style="font-family: var(--font-mono);"
+      >
+        ↩ Today
+      </button>
+    {/if}
   </div>
 
   <!-- Right: Navigation Arrows -->

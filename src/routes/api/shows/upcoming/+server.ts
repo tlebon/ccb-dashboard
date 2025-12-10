@@ -35,11 +35,18 @@ function datesWithinDays(date1: string, date2: string, days: number): boolean {
 export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const daysParam = url.searchParams.get('days');
+		const pastDaysParam = url.searchParams.get('pastDays');
 		const days = daysParam ? parseInt(daysParam, 10) : 14;
+		const pastDays = pastDaysParam ? parseInt(pastDaysParam, 10) : 0;
 
 		// Get current date in YYYY-MM-DD format
 		const today = new Date();
 		const todayStr = today.toISOString().split('T')[0];
+
+		// Calculate start date (can be in the past)
+		const startDate = new Date(today);
+		startDate.setDate(startDate.getDate() - pastDays);
+		const startDateStr = startDate.toISOString().split('T')[0];
 
 		// Calculate end date
 		const endDate = new Date(today);
@@ -54,7 +61,7 @@ export const GET: RequestHandler = async ({ url }) => {
 				WHERE date >= ? AND date <= ?
 				ORDER BY date, time
 			`,
-			args: [todayStr, endDateStr]
+			args: [startDateStr, endDateStr]
 		});
 
 		const allShows = result.rows as unknown as ShowRow[];

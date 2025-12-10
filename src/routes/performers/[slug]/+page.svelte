@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { proxyImageUrl } from '$lib/utils/imageProxy';
 	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface Team {
@@ -26,6 +27,9 @@
 		id: number;
 		name: string;
 		slug: string;
+		image_url: string | null;
+		bio: string | null;
+		instagram: string | null;
 		team_count: number;
 		show_count: number;
 	}
@@ -103,23 +107,41 @@
 				<p class="text-[var(--tw-neon-pink)] text-2xl" style="font-family: var(--font-display);">{error}</p>
 			</div>
 		{:else if performer}
-			<!-- Header -->
+			<!-- Header with Image -->
 			<header class="mb-10">
-				<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
-				           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
-				    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
-					{performer.name}
-				</h1>
-				<div class="flex gap-8 mt-6 text-lg font-mono">
-					<span>
-						<span class="text-[var(--tw-electric-cyan)] text-3xl" style="font-family: var(--font-display);">{performer.team_count}</span>
-						<span class="text-white/60 ml-2">teams</span>
-					</span>
-					<span>
-						<span class="text-[var(--tw-neon-pink)] text-3xl" style="font-family: var(--font-display);">{performer.show_count}</span>
-						<span class="text-white/60 ml-2">tracked shows</span>
-					</span>
+				<div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+					<!-- Performer Image -->
+					{#if performer.image_url}
+						<div class="flex-shrink-0">
+							<img
+								src={proxyImageUrl(performer.image_url)}
+								alt={performer.name}
+								class="w-32 h-32 md:w-40 md:h-40 object-cover rounded-lg shadow-2xl border-2 border-[var(--tw-neon-pink)]/30"
+							/>
+						</div>
+					{/if}
+
+					<div class="flex-1">
+						<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
+						           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
+						    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+							{performer.name}
+						</h1>
+						{#if performer.instagram}
+							<a href="https://instagram.com/{performer.instagram}" target="_blank" rel="noopener noreferrer"
+							   class="mt-4 text-lg font-mono text-[var(--nw-neon-yellow)] hover:text-white transition-colors block">
+								@{performer.instagram}
+							</a>
+						{/if}
+					</div>
 				</div>
+
+				<!-- Bio -->
+				{#if performer.bio}
+					<div class="mt-6 text-white/80 max-w-3xl whitespace-pre-line leading-relaxed">
+						{performer.bio}
+					</div>
+				{/if}
 			</header>
 
 			<!-- Upcoming Shows - Full Width, Most Prominent -->
