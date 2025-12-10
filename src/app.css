@@ -1,5 +1,5 @@
 /* Custom Fonts - Berlin Comedy Brutalism */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@700&family=Archivo+Black&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Libre+Baskerville:wght@700&family=Archivo+Black&display=swap');
 
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
@@ -23,7 +23,7 @@
 	--nw-electric-magenta: #ff00ff;
 
 	/* Typography scale */
-	--font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+	--font-display: 'Oswald', 'Arial Black', sans-serif;
 	--font-mono: 'DM Mono', 'Courier New', monospace;
 	--font-serif: 'Libre Baskerville', Georgia, serif;
 	--font-black: 'Archivo Black', 'Impact', sans-serif;
