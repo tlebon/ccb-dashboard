@@ -1,14 +1,9 @@
 /**
- * Convert a CCB image URL to use our proxy endpoint for caching
- * This reduces load on CCB's servers and caches images at Vercel's edge
+ * Process image URLs for display
+ * Previously proxied through our API, but Cloudflare blocks Vercel IPs
+ * Now returns the original URL directly
  */
 export function proxyImageUrl(url: string | null | undefined): string | null {
 	if (!url) return null;
-
-	// Only proxy CCB images
-	if (!url.includes('comedycafeberlin.com')) {
-		return url;
-	}
-
-	return `/api/images?url=${encodeURIComponent(url)}`;
+	return url;
 }
