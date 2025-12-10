@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 // Cache images for 7 days at CDN edge, 1 day in browser
 const CACHE_CONTROL = 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400';
 
-export const GET: RequestHandler = async ({ url, fetch }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const imageUrl = url.searchParams.get('url');
 
 	if (!imageUrl) {
@@ -26,7 +26,12 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 				'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
 				'Accept-Language': 'en-US,en;q=0.9',
-				'Referer': 'https://comedycafeberlin.com/'
+				'Accept-Encoding': 'gzip, deflate, br',
+				'Referer': 'https://www.comedycafeberlin.com/',
+				'Origin': 'https://www.comedycafeberlin.com',
+				'Sec-Fetch-Dest': 'image',
+				'Sec-Fetch-Mode': 'no-cors',
+				'Sec-Fetch-Site': 'same-origin'
 			}
 		});
 
