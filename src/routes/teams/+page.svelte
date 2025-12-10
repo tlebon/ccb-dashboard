@@ -91,7 +91,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-electric-cyan)]">{team.member_count} members</span>
-									<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -130,7 +129,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-electric-cyan)]">{team.member_count} members</span>
-									<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -169,9 +167,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-neon-pink)]">{team.member_count} members</span>
-									{#if team.show_count > 0}
-										<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
-									{/if}
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -208,9 +203,6 @@
 								</span>
 								<div class="flex gap-3 text-sm font-mono">
 									<span class="text-[var(--tw-neon-pink)]">{team.member_count} members</span>
-									{#if team.show_count > 0}
-										<span class="text-[var(--nw-neon-yellow)]">{team.show_count} shows</span>
-									{/if}
 								</div>
 							</a>
 						{/each}
