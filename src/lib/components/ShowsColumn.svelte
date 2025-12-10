@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import type { Show } from '$lib/utils/icalParser';
   import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
+  import { proxyImageUrl } from '$lib/utils/imageProxy';
 
   export let groupedShows: Record<string, Show[]>;
   export let loading: boolean;
@@ -12,6 +13,7 @@
   export let theme: 'blue' | 'orange' = 'blue';
   export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
   export let monitorMode: boolean = false;
+  export let showInlineImages: boolean = false; // Show small thumbnails inline (for mobile)
 
   let scrollContainer: HTMLElement;
   let scrollDirection: 'down' | 'up' = 'down';
@@ -167,27 +169,34 @@
                             : `border-[var(--tw-electric-cyan)] ${isHighlighted ? 'bg-[var(--tw-deep-purple)]/40' : ''}`}`}>
 
                 <!-- Time with monospace font -->
-                <div class={`font-bold min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
+                <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform group-hover:scale-110 ${timeClass}
                             ${theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]'}`}
                      style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
                   {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
 
                 <!-- Show title with display font -->
-                <div class="flex-1">
-                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)]`}
+                <div class="flex-1 min-w-0">
+                  <div class={`font-bold text-white uppercase ${titleClass} leading-snug group-hover:text-[var(--tw-electric-cyan)] break-words`}
                        style="font-family: var(--font-display); letter-spacing: 0.08em;">
                     {show.title}
                   </div>
                   {#if isHouseShow(show.title)}
                     {@const teams = formatHouseShowTeams(show.start)}
                     {#if teams}
-                      <div class="text-sm mt-0.5 font-mono tracking-wide {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
+                      <div class="text-sm mt-0.5 font-mono tracking-wide break-words {theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-neon-pink)]'}">
                         {teams}
                       </div>
                     {/if}
                   {/if}
                 </div>
+
+                <!-- Inline thumbnail for mobile -->
+                {#if showInlineImages && show.imageUrl}
+                  <div class="w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 {theme === 'orange' ? 'border-[var(--nw-hot-pink)]/50' : 'border-[var(--tw-electric-cyan)]/50'}">
+                    <img src={proxyImageUrl(show.imageUrl)} alt="" class="w-full h-full object-cover" />
+                  </div>
+                {/if}
               </a>
             </li>
           {/each}

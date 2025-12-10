@@ -50,11 +50,11 @@
 <div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
+	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-8">
 		<!-- Header -->
-		<header class="mb-10">
+		<header class="mb-6 md:mb-10">
 			<QuickNav />
-			<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
+			<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
 			           bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]"
 			    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
 				Teams
@@ -91,7 +91,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-electric-cyan)]">{team.member_count} members</span>
-									<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -130,7 +129,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-electric-cyan)]">{team.member_count} members</span>
-									<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -169,9 +167,6 @@
 								</a>
 								<div class="flex flex-wrap gap-x-3 gap-y-1 text-sm font-mono">
 									<span class="text-[var(--tw-neon-pink)]">{team.member_count} members</span>
-									{#if team.show_count > 0}
-										<span class="text-[var(--nw-burning-orange)]">{team.show_count} shows</span>
-									{/if}
 									{#if team.next_show_date}
 										<a href="/shows/{team.next_show_slug}" class="text-[var(--nw-neon-yellow)] hover:text-white">
 											Next: {formatShortDate(team.next_show_date)} →
@@ -208,9 +203,6 @@
 								</span>
 								<div class="flex gap-3 text-sm font-mono">
 									<span class="text-[var(--tw-neon-pink)]">{team.member_count} members</span>
-									{#if team.show_count > 0}
-										<span class="text-[var(--nw-neon-yellow)]">{team.show_count} shows</span>
-									{/if}
 								</div>
 							</a>
 						{/each}

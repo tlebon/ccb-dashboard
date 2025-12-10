@@ -16,9 +16,23 @@ export function getDb(): Client {
 	return _db;
 }
 
-// For backwards compatibility - lazy initialization
-export const db = new Proxy({} as Client, {
-	get(_, prop) {
-		return (getDb() as any)[prop];
+// Export db as a getter - callers should use getDb() or access db directly
+// Note: db is lazily initialized on first access
+export const db = {
+	get execute() {
+		const client = getDb();
+		return client.execute.bind(client);
+	},
+	get batch() {
+		const client = getDb();
+		return client.batch.bind(client);
+	},
+	get transaction() {
+		const client = getDb();
+		return client.transaction.bind(client);
+	},
+	get close() {
+		const client = getDb();
+		return client.close.bind(client);
 	}
-});
+};

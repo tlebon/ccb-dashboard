@@ -21,6 +21,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		const today = new Date().toISOString().split('T')[0];
 
 		// Get all teams with member counts and next upcoming show
+		// Sort by: type, then teams with upcoming shows first (by date), then alphabetically
 		const result = await db.execute(`
 			SELECT t.*,
 				(SELECT COUNT(*) FROM team_members tm WHERE tm.team_id = t.id AND tm.is_former = 0) as member_count,
@@ -34,7 +35,10 @@ export const GET: RequestHandler = async ({ url }) => {
 				 WHERE sa.team_id = t.id AND s.date >= '${today}'
 				 ORDER BY s.date ASC LIMIT 1) as next_show_slug
 			FROM teams t
-			ORDER BY t.type, t.name
+			ORDER BY t.type,
+				CASE WHEN (SELECT s.date FROM shows s JOIN show_appearances sa ON s.id = sa.show_id WHERE sa.team_id = t.id AND s.date >= '${today}' ORDER BY s.date ASC LIMIT 1) IS NOT NULL THEN 0 ELSE 1 END,
+				(SELECT s.date FROM shows s JOIN show_appearances sa ON s.id = sa.show_id WHERE sa.team_id = t.id AND s.date >= '${today}' ORDER BY s.date ASC LIMIT 1),
+				t.name
 		`);
 
 		return json({ teams: result.rows });
