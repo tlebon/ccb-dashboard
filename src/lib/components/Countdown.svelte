@@ -16,7 +16,7 @@
     seconds: 0
   };
 
-  let interval: number;
+  let interval: ReturnType<typeof setInterval>;
 
   function calculateTimeLeft() {
     if (!nextShow) return;

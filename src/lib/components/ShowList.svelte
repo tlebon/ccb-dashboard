@@ -38,17 +38,4 @@
   </div>
 </div>
 
-<style>
-  .show-list-container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .show-item {
-    transition: all 0.2s ease;
-  }
-
-  .show-item:hover {
-    transform: translateX(4px);
-  }
-</style> 
+ 

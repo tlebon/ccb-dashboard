@@ -56,18 +56,4 @@
   </div>
 </div>
 
-<style>
-  .calendar-container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .calendar-day {
-    min-height: 80px;
-    transition: all 0.2s ease;
-  }
-
-  .calendar-day:hover {
-    transform: scale(1.02);
-  }
-</style> 
+ 

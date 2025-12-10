@@ -33,28 +33,4 @@
   {/if}
 </div>
 
-<style>
-  .now-showing-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .show-details {
-    animation: fadeIn 0.5s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style> 
+ 

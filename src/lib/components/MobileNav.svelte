@@ -43,7 +43,7 @@
     transition:fade={{ duration: 200 }}
     on:click={close}
     role="presentation"
-  />
+  ></div>
 
   <!-- Sidebar -->
   <nav
