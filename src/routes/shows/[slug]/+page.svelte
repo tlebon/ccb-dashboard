@@ -4,6 +4,7 @@
 	import { proxyImageUrl } from '$lib/utils/imageProxy';
 	import { isHouseShow, getHouseShowTeams, type HouseTeam } from '$lib/utils/houseShowTeams';
 	import { safeLinkifyText } from '$lib/utils/linkify';
+	import { parsePerformersFromDescription } from '$lib/utils/parsePerformers';
 	import QuickNav from '$lib/components/QuickNav.svelte';
 
 	interface Performer {
@@ -46,12 +47,20 @@
 		count: number;
 	}
 
+	interface ParsedPerformer {
+		id: number;
+		name: string;
+		slug: string;
+	}
+
 	let viewType: 'show' | 'series' | null = null;
 	let show: Show | null = null;
 	let series: SeriesData | null = null;
 	let seriesInfo: SeriesInfo | null = null;
 	let loading = true;
 	let error: string | null = null;
+	let allPerformers: ParsedPerformer[] = [];
+	let parsedPerformers: ParsedPerformer[] = [];
 
 	$: slug = $page.params.slug;
 
@@ -63,19 +72,36 @@
 	async function loadData() {
 		loading = true;
 		error = null;
+		parsedPerformers = [];
 
 		try {
-			const res = await fetch(`/api/shows/${slug}`);
-			if (!res.ok) {
-				error = res.status === 404 ? 'Show not found' : 'Failed to load show';
+			// Fetch show data and all performers in parallel
+			const [showRes, performersRes] = await Promise.all([
+				fetch(`/api/shows/${slug}`),
+				allPerformers.length === 0 ? fetch('/api/performers') : Promise.resolve(null)
+			]);
+
+			if (!showRes.ok) {
+				error = showRes.status === 404 ? 'Show not found' : 'Failed to load show';
 				return;
 			}
-			const data = await res.json();
+			const data = await showRes.json();
+
+			// Load performers list if not already loaded
+			if (performersRes) {
+				const performersData = await performersRes.json();
+				allPerformers = performersData.performers || [];
+			}
 
 			viewType = data.type;
 			if (data.type === 'show') {
 				show = data.data;
 				seriesInfo = data.series || null;
+
+				// Parse performers from description if no lineup exists
+				if (show?.description && (!show.lineup || show.lineup.length === 0)) {
+					parsedPerformers = parsePerformersFromDescription(show.description, allPerformers);
+				}
 			} else {
 				series = data.data;
 				seriesInfo = null;
@@ -281,6 +307,36 @@
 					</div>
 					<div class="text-white/80 max-w-3xl whitespace-pre-line leading-relaxed">
 						{@html safeLinkifyText(show.description)}
+					</div>
+				</section>
+			{/if}
+
+			<!-- Parsed Performers (from description) -->
+			{#if parsedPerformers.length > 0}
+				<section class="mb-10">
+					<div class="relative mb-6">
+						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
+							style="font-family: var(--font-display);">
+							Cast
+						</h2>
+						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+					</div>
+
+					<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+						{#each parsedPerformers as performer}
+							<a
+								href="/performers/{performer.slug}"
+								class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
+							>
+								<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
+									{performer.name.charAt(0)}
+								</div>
+								<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
+								      style="font-family: var(--font-display);">
+									{performer.name}
+								</span>
+							</a>
+						{/each}
 					</div>
 				</section>
 			{/if}

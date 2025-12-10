@@ -5,6 +5,13 @@ import ICAL from 'ical.js';
 
 const ICAL_URL = 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
 
+const FETCH_HEADERS = {
+	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+	'Accept': 'text/calendar,text/plain,*/*',
+	'Accept-Language': 'en-US,en;q=0.9',
+	'Referer': 'https://www.comedycafeberlin.com/',
+};
+
 export const POST: RequestHandler = async ({ request }) => {
 	// Optional: Add a secret key check for security
 	const authHeader = request.headers.get('authorization');
@@ -17,9 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		console.log('Fetching iCal feed...');
 		const response = await fetch(ICAL_URL, {
-			headers: {
-				'User-Agent': 'Mozilla/5.0 (compatible; CCB-Dashboard/1.0)'
-			}
+			headers: FETCH_HEADERS
 		});
 
 		if (!response.ok) {
@@ -109,11 +114,9 @@ export const GET: RequestHandler = async ({ request }) => {
 
 	// Reuse POST logic
 	try {
-		console.log('[Cron] Starting weekly iCal sync...');
+		console.log('[Cron] Starting daily iCal sync...');
 		const response = await fetch(ICAL_URL, {
-			headers: {
-				'User-Agent': 'Mozilla/5.0 (compatible; CCB-Dashboard/1.0)'
-			}
+			headers: FETCH_HEADERS
 		});
 
 		if (!response.ok) {
