@@ -19,6 +19,37 @@
     isMobile = window.innerWidth < 768;
   }
 
+  // Swipe gesture handling for mobile
+  let touchStartX = 0;
+  let touchStartY = 0;
+  const SWIPE_THRESHOLD = 50; // Minimum distance for swipe
+  const SWIPE_ANGLE_THRESHOLD = 30; // Max vertical movement to count as horizontal swipe
+
+  function handleTouchStart(e: TouchEvent) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: TouchEvent) {
+    if (!isMobile) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = Math.abs(touchEndY - touchStartY);
+
+    // Only trigger if horizontal swipe and not too much vertical movement
+    if (Math.abs(deltaX) > SWIPE_THRESHOLD && deltaY < SWIPE_ANGLE_THRESHOLD) {
+      if (deltaX > 0 && canGoPrev) {
+        // Swipe right = previous week
+        prevWeek();
+      } else if (deltaX < 0 && canGoNext) {
+        // Swipe left = next week
+        nextWeek();
+      }
+    }
+  }
+
   // Week offset: 0 = this week, 1 = next week, 2 = week after, etc.
   let weekOffset = 0;
   let monitorMode = false;
@@ -248,29 +279,35 @@
       <div class="grain-overlay"></div>
 
       {#if isMobile}
-        <!-- Mobile Layout -->
-        <MobileHeader
-          {theme}
-          weekLabel={weekRange.label}
-          {canGoPrev}
-          {canGoNext}
-          on:openMenu={() => mobileNavOpen = true}
-          on:prev={prevWeek}
-          on:next={nextWeek}
-        />
-        <main class="flex-1 overflow-hidden px-3 py-3 relative z-10">
-          <ShowsColumn
-            {groupedShows}
-            {loading}
-            {error}
-            dayHeadingClass="text-xl"
-            timeClass="text-base"
-            titleClass="text-sm"
-            {highlightedShowIds}
+        <!-- Mobile Layout with swipe support -->
+        <div
+          class="flex flex-col h-full"
+          on:touchstart={handleTouchStart}
+          on:touchend={handleTouchEnd}
+        >
+          <MobileHeader
             {theme}
-            monitorMode={false}
+            weekLabel={weekRange.label}
+            {canGoPrev}
+            {canGoNext}
+            on:openMenu={() => mobileNavOpen = true}
+            on:prev={prevWeek}
+            on:next={nextWeek}
           />
-        </main>
+          <main class="flex-1 overflow-hidden px-3 py-3 relative z-10">
+            <ShowsColumn
+              {groupedShows}
+              {loading}
+              {error}
+              dayHeadingClass="text-xl"
+              timeClass="text-base"
+              titleClass="text-sm"
+              {highlightedShowIds}
+              {theme}
+              monitorMode={false}
+            />
+          </main>
+        </div>
       {:else}
         <!-- Desktop Layout -->
         <main class="flex-1 w-full mx-auto grid grid-cols-1 gap-3 items-stretch px-3 py-4 min-h-0 relative z-10"
