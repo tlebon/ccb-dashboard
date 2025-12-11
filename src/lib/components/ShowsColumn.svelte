@@ -200,7 +200,7 @@
     </div>
   {/if}
 
-  <section bind:this={scrollContainer} on:scroll={handleScroll} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200">
+  <section bind:this={scrollContainer} onscroll={handleScroll} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200 {isCurrentWeek && pastShowIds.length > 0 && !monitorMode ? 'scroll-snap-y' : ''}">
   {#if loading}
     <p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">Loading shows...</p>
   {:else if error}
@@ -208,7 +208,8 @@
   {:else}
     {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
       {@const dayShowIds = dayShows.map(s => s.id)}
-      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
+      {@const isFirstUpcomingDay = firstUpcomingShowId && dayShowIds.includes(firstUpcomingShowId)}
+      <div class="reveal-up {isCurrentWeek && isFirstUpcomingDay && !monitorMode ? 'scroll-snap-start' : ''}" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
         <!-- Day heading with brutalist style -->
         <div class="mb-2 relative">
           <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
@@ -279,3 +280,12 @@
   {/if}
   </section>
 </div>
+
+<style>
+  .scroll-snap-y {
+    scroll-snap-type: y proximity;
+  }
+  .scroll-snap-start {
+    scroll-snap-align: start;
+  }
+</style>

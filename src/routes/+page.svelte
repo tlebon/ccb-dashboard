@@ -186,11 +186,18 @@
     today.setHours(0, 0, 0, 0);
 
     if (offset === 0) {
-      // This week: today + next 4 days
+      // This week: from Monday of current week through today + 4 days
+      // This ensures shows from earlier in the week are still visible (greyed out)
+      const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+      const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - daysSinceMonday);
+      weekStart.setHours(0, 0, 0, 0);
+
       const endDate = new Date(today);
       endDate.setDate(today.getDate() + 4);
       endDate.setHours(23, 59, 59, 999);
-      return { startDate: today, endDate, label: 'This Week' };
+      return { startDate: weekStart, endDate, label: 'This Week' };
     } else if (offset > 0) {
       // Future weeks: Calculate the Monday of week N
       const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
@@ -238,7 +245,8 @@
   $: weekRange = getWeekRange(weekOffset);
 
   // Current time for past show detection (reactive)
-  $: currentTime = new Date();
+  // TEMP: +24 hours for testing
+  $: currentTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   // Filter and group shows for current week
   $: weekShows = shows.filter(show => {
@@ -264,18 +272,29 @@
 
   $: groupedShows = groupShowsByDay(displayShows, weekOffset === 0);
 
-  function groupShowsByDay(shows: Show[], limitToFiveDays = false) {
+  function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
     const groups: Record<string, Show[]> = {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // For current week, calculate Monday of this week
+    const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+    const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - daysSinceMonday);
+    weekStart.setHours(0, 0, 0, 0);
 
     for (const show of shows) {
       const date = new Date(show.start);
       date.setHours(0, 0, 0, 0);
 
-      if (limitToFiveDays) {
-        const diffDays = Math.floor((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0 || diffDays >= 5) continue;
+      if (isCurrentWeek) {
+        // Include shows from Monday of current week through today + 4 days
+        const endDate = new Date(today);
+        endDate.setDate(today.getDate() + 4);
+        endDate.setHours(23, 59, 59, 999);
+
+        if (date < weekStart || date > endDate) continue;
       }
 
       const dayKey = date.toLocaleDateString(undefined, {
