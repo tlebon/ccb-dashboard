@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import QuickNav from '$lib/components/QuickNav.svelte';
+	import AnalyticsCard from '$lib/components/analytics/AnalyticsCard.svelte';
+	import AnalyticsBarChart from '$lib/components/analytics/AnalyticsBarChart.svelte';
+	import AnalyticsModal from '$lib/components/analytics/AnalyticsModal.svelte';
 
 	interface AnalyticsData {
 		stats: {
@@ -16,6 +19,11 @@
 		topShows: { title: string; slug: string; count: number }[];
 		dayDistribution: { day: string; count: number }[];
 		monthlyActivity: { month: string; count: number }[];
+		showVarietyPerMonth: { month: string; count: number; shows: string[] }[];
+		longestRunningShows: { title: string; slug: string; firstDate: string; lastDate: string; iterations: number }[];
+		multiTeamPerformers: { id: number; name: string; slug: string; teams: string[]; teamCount: number }[];
+		teamPairings: { team1: { id: number; name: string; slug: string }; team2: { id: number; name: string; slug: string }; sharedMembers: number; performers: string[] }[];
+		rookies: { id: number; name: string; slug: string; debutDate: string; showCount: number }[];
 		topPerformers: { id: number; name: string; slug: string; showCount: number; teams: string[] }[];
 		topTeams: { id: number; name: string; slug: string; showCount: number; memberCount: number }[];
 		availableYears: string[];
@@ -24,12 +32,13 @@
 	let data = $state<AnalyticsData | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let activeTab = $state<'shows' | 'performers' | 'timeline'>('shows');
 	let selectedYear = $state<string>('all');
 
-	// Pagination for top shows
-	const SHOWS_PAGE_SIZE = 15;
-	let showsVisible = $state(SHOWS_PAGE_SIZE);
+	// Modal state
+	type ModalType = 'shows' | 'performers' | 'teams' | 'dayDistribution' | 'monthlyActivity' | 'showVariety' | 'longestRunning' | 'teamOverlap' | 'multiTeam' | null;
+	let modalOpen = $state<ModalType>(null);
+
+	const LIST_LIMIT = 10;
 
 	async function loadData(year: string) {
 		loading = true;
@@ -62,291 +71,420 @@
 	const maxTeamCount = $derived(data?.topTeams[0]?.showCount || 1);
 	const maxDayCount = $derived(Math.max(...(data?.dayDistribution.map(d => d.count) || [1])));
 	const maxMonthCount = $derived(Math.max(...(data?.monthlyActivity.map(m => m.count) || [1])));
-
-	// Paginated shows
-	const visibleShows = $derived(data?.topShows.slice(0, showsVisible) || []);
-	const hasMoreShows = $derived((data?.topShows.length || 0) > showsVisible);
-
-	function loadMoreShows() {
-		showsVisible += SHOWS_PAGE_SIZE;
-	}
+	const maxVarietyCount = $derived(Math.max(...(data?.showVarietyPerMonth.map(m => m.count) || [1])));
+	const maxIterations = $derived(data?.longestRunningShows[0]?.iterations || 1);
+	const maxSharedMembers = $derived(data?.teamPairings[0]?.sharedMembers || 1);
+	const maxMultiTeamCount = $derived(data?.multiTeamPerformers[0]?.teamCount || 1);
 
 	// Order days correctly
 	const dayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const orderedDays = $derived(data?.dayDistribution.toSorted((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)) || []);
+
+	// Modal title mapping
+	const modalTitles: Record<Exclude<ModalType, null>, string> = {
+		shows: 'TOP SHOWS',
+		performers: 'TOP PERFORMERS',
+		teams: 'TOP TEAMS',
+		longestRunning: 'LONGEST RUNNING',
+		multiTeam: 'MULTI-TEAM PERFORMERS',
+		teamOverlap: 'TEAM OVERLAP',
+		dayDistribution: 'SHOWS BY DAY',
+		monthlyActivity: 'SHOWS PER MONTH',
+		showVariety: 'SHOW VARIETY'
+	};
 </script>
 
 <svelte:head>
 	<title>Analytics | CCB Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen bg-[var(--tw-midnight)] text-[var(--tw-electric-cyan)] p-8">
+<div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-7xl mx-auto">
+	<!-- Header section -->
+	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 pt-4 md:pt-8">
 		<QuickNav />
 
-		<!-- Header -->
-		<header class="mb-12">
-			<h1 class="text-6xl md:text-8xl tracking-tight text-[var(--tw-neon-pink)] neon-glow mb-4"
-			    style="font-family: var(--font-display);">
-				CCB ANALYTICS
-			</h1>
+		<header class="mb-6 md:mb-8 flex flex-wrap items-end justify-between gap-4">
+			<div>
+				<h1 class="text-4xl md:text-5xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
+				           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
+				    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+						Analytics
+				</h1>
+				{#if data}
+					<p class="mt-2 text-white/60 font-mono text-sm">
+						{data.stats.firstDate} — {data.stats.lastDate}
+					</p>
+				{/if}
+			</div>
+
 			{#if data}
-				<p class="text-lg text-[var(--tw-electric-cyan)] opacity-80" style="font-family: var(--font-mono);">
-					{data.stats.totalShows} shows tracked from {data.stats.firstDate} to {data.stats.lastDate}
-				</p>
+				<select
+					bind:value={selectedYear}
+					class="px-4 py-2 bg-[var(--tw-concrete)] text-[var(--nw-burning-orange)] text-lg uppercase tracking-wider border-2 border-[var(--nw-burning-orange)]/30 focus:border-[var(--nw-hot-pink)] outline-none cursor-pointer"
+					style="font-family: var(--font-display);"
+				>
+					<option value="all">All Time</option>
+					{#each data.availableYears as year}
+						<option value={year}>{year}</option>
+					{/each}
+				</select>
 			{/if}
 		</header>
+	</div>
 
+	<!-- Dashboard content -->
+	<div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pb-4 md:pb-8">
 		{#if loading}
 			<div class="text-center py-20">
-				<p class="text-2xl text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">Loading analytics...</p>
+				<p class="text-2xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">Loading analytics...</p>
 			</div>
 		{:else if error}
 			<div class="text-center py-20">
 				<p class="text-2xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">{error}</p>
 			</div>
 		{:else if data}
-			<!-- Stats Grid -->
-			<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<div class="text-5xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">{data.stats.totalShows}</div>
-					<div class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Total Shows</div>
+			<!-- Stats Row -->
+			<div class="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-6">
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
+					<div class="text-2xl md:text-4xl text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{data.stats.totalShows}</div>
+					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Shows</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<div class="text-5xl text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">{data.stats.uniqueShows}</div>
-					<div class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Unique Shows</div>
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
+					<div class="text-2xl md:text-4xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">{data.stats.uniqueShows}</div>
+					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Unique</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<div class="text-5xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">{data.stats.performerCount}</div>
-					<div class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Performers</div>
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
+					<div class="text-2xl md:text-4xl text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{data.stats.performerCount}</div>
+					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Performers</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<div class="text-5xl text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{data.stats.teamCount}</div>
-					<div class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Teams</div>
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4 hidden md:block">
+					<div class="text-2xl md:text-4xl text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{data.stats.teamCount}</div>
+					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Teams</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<div class="text-5xl text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{data.stats.monthsTracked}</div>
-					<div class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Months Tracked</div>
-				</div>
-			</div>
-
-			<!-- Year Filter & Tab Navigation -->
-			<div class="flex flex-wrap items-center gap-4 mb-8">
-				<!-- Year Filter -->
-				<div class="flex items-center gap-2">
-					<span class="text-sm uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Year:</span>
-					<select
-						bind:value={selectedYear}
-						class="px-4 py-3 bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] text-lg uppercase tracking-wider border-2 border-[var(--tw-electric-cyan)]/30 focus:border-[var(--tw-neon-pink)] outline-none cursor-pointer"
-						style="font-family: var(--font-display);"
-					>
-						<option value="all">All Time</option>
-						{#if data?.availableYears}
-							{#each data.availableYears as year}
-								<option value={year}>{year}</option>
-							{/each}
-						{/if}
-					</select>
-				</div>
-
-				<!-- Tab Navigation -->
-				<div class="flex gap-2 flex-wrap">
-					<button
-						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-						       {activeTab === 'shows' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-						style="font-family: var(--font-display);"
-						onclick={() => activeTab = 'shows'}>
-						Top Shows
-					</button>
-					<button
-						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-						       {activeTab === 'performers' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-						style="font-family: var(--font-display);"
-						onclick={() => activeTab = 'performers'}>
-						Performers
-					</button>
-					<button
-						class="px-6 py-3 text-xl uppercase tracking-wider transition-all
-						       {activeTab === 'timeline' ? 'bg-[var(--tw-neon-pink)] text-[var(--tw-midnight)]' : 'bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-deep-purple)]'}"
-						style="font-family: var(--font-display);"
-						onclick={() => activeTab = 'timeline'}>
-						Timeline
-					</button>
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4 hidden md:block">
+					<div class="text-2xl md:text-4xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">{data.stats.showsWithLineup}</div>
+					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">With Lineup</div>
 				</div>
 			</div>
 
-			<!-- Tab Content -->
-			{#if activeTab === 'shows'}
-				<div class="grid md:grid-cols-2 gap-8">
-					<!-- Top Shows Chart -->
-					<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-						<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">MOST FREQUENT SHOWS</h2>
-						<div class="space-y-3">
-							{#each visibleShows as show, i}
-								{@const width = (show.count / maxShowCount) * 100}
-								<a href="/shows/{show.slug}" class="block group">
-									<div class="flex justify-between items-center mb-1">
-										<span class="text-sm truncate pr-4 group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
-											{i + 1}. {show.title}
-										</span>
-										<span class="text-lg text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">{show.count}</span>
-									</div>
-									<div class="h-2 bg-[var(--tw-concrete)] overflow-hidden">
-										<div
-											class="h-full bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--tw-electric-cyan)] transition-all duration-500"
-											style="width: {width}%">
-										</div>
-									</div>
-								</a>
-							{/each}
-						</div>
-						{#if hasMoreShows}
-							<button
-								onclick={loadMoreShows}
-								class="mt-6 w-full py-3 bg-[var(--tw-concrete)] text-[var(--tw-electric-cyan)] uppercase tracking-wider font-mono hover:bg-[var(--tw-neon-pink)] hover:text-[var(--tw-midnight)] transition-colors"
-							>
-								Load More ({(data?.topShows.length || 0) - showsVisible} remaining)
-							</button>
-						{/if}
-					</div>
+			<!-- Main Dashboard Grid -->
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+				<!-- Top Shows -->
+				<AnalyticsCard
+					title="TOP SHOWS"
+					items={data.topShows}
+					maxValue={maxShowCount}
+					listLimit={LIST_LIMIT}
+					valueKey="count"
+					linkPrefix="/shows/"
+					onViewAll={() => modalOpen = 'shows'}
+				/>
 
-					<!-- Day Distribution -->
-					<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-						<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">SHOWS BY DAY</h2>
-						<div class="flex items-end justify-between gap-4" style="height: 256px;">
-							{#each orderedDays as { day, count }}
-								{@const heightPx = Math.max(20, (count / maxDayCount) * 200)}
-								<div class="flex-1 flex flex-col items-center">
-									<div class="text-xl text-[var(--tw-electric-cyan)] mb-2" style="font-family: var(--font-display);">
-										{count}
-									</div>
-									<div class="w-full bg-gradient-to-t from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]" style="height: {heightPx}px;"></div>
-									<span class="text-xs uppercase tracking-wider opacity-70 mt-2" style="font-family: var(--font-mono);">
-										{day.slice(0, 3)}
-									</span>
-								</div>
-							{/each}
-						</div>
-					</div>
+				<!-- Top Performers -->
+				<AnalyticsCard
+					title="TOP PERFORMERS"
+					items={data.topPerformers}
+					maxValue={maxPerformerCount}
+					listLimit={LIST_LIMIT}
+					valueKey="showCount"
+					gradient="from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]"
+					linkPrefix="/performers/"
+					onViewAll={() => modalOpen = 'performers'}
+				/>
+
+				<!-- Top Teams -->
+				<AnalyticsCard
+					title="TOP TEAMS"
+					items={data.topTeams}
+					maxValue={maxTeamCount}
+					listLimit={LIST_LIMIT}
+					valueKey="showCount"
+					linkPrefix="/teams/"
+					onViewAll={() => modalOpen = 'teams'}
+					renderValue={(item) => String(item.showCount)}
+				/>
+
+				<!-- Longest Running Shows -->
+				<AnalyticsCard
+					title="LONGEST RUNNING"
+					items={data.longestRunningShows}
+					maxValue={maxIterations}
+					listLimit={LIST_LIMIT}
+					valueKey="iterations"
+					gradient="from-[var(--tw-electric-cyan)] to-[var(--nw-neon-yellow)]"
+					linkPrefix="/shows/"
+					onViewAll={() => modalOpen = 'longestRunning'}
+					renderValue={(item) => `#${item.iterations}`}
+				/>
+
+				<!-- Multi-Team Performers -->
+				<AnalyticsCard
+					title="MULTI-TEAM"
+					items={data.multiTeamPerformers}
+					maxValue={maxMultiTeamCount}
+					listLimit={LIST_LIMIT}
+					valueKey="teamCount"
+					gradient="from-[var(--nw-neon-yellow)] to-[var(--nw-burning-orange)]"
+					linkPrefix="/performers/"
+					onViewAll={() => modalOpen = 'multiTeam'}
+				/>
+
+				<!-- Team Overlap -->
+				<AnalyticsCard
+					title="TEAM OVERLAP"
+					items={data.teamPairings}
+					maxValue={maxSharedMembers}
+					listLimit={LIST_LIMIT}
+					valueKey="sharedMembers"
+					gradient="from-[var(--tw-electric-cyan)] to-[var(--nw-hot-pink)]"
+					isTeamOverlap={true}
+					onViewAll={() => modalOpen = 'teamOverlap'}
+				/>
+
+				<!-- Monthly Activity -->
+				<div class="lg:col-span-2">
+					<AnalyticsBarChart
+						title="SHOWS PER MONTH"
+						data={data.monthlyActivity}
+						maxValue={maxMonthCount}
+						height={160}
+						gradient="from-[var(--tw-deep-purple)] via-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]"
+						isMonthly={true}
+						onViewAll={() => modalOpen = 'monthlyActivity'}
+					/>
 				</div>
-			{/if}
 
-			{#if activeTab === 'performers'}
-				<div class="grid md:grid-cols-2 gap-8">
-					<!-- Top Performers -->
-					<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-						<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">TOP PERFORMERS</h2>
-						<p class="text-sm opacity-70 mb-6" style="font-family: var(--font-mono);">
-							By tracked show appearances ({data.stats.showsWithLineup} shows with lineup data)
-						</p>
-						<div class="space-y-3 max-h-[600px] overflow-y-auto">
-							{#each data.topPerformers as performer, i}
-								{@const width = (performer.showCount / maxPerformerCount) * 100}
-								<a href="/performers/{performer.slug}" class="block group">
-									<div class="flex justify-between items-center mb-1">
-										<span class="text-sm truncate pr-4 group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
-											{i + 1}. {performer.name}
-										</span>
-										<span class="text-lg text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">{performer.showCount}</span>
-									</div>
-									<div class="h-2 bg-[var(--tw-concrete)] overflow-hidden">
-										<div
-											class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)] transition-all duration-500"
-											style="width: {width}%">
-										</div>
-									</div>
-									{#if performer.teams.length > 0}
-										<div class="text-xs opacity-50 mt-1" style="font-family: var(--font-mono);">
-											{performer.teams.slice(0, 3).join(', ')}{performer.teams.length > 3 ? ` +${performer.teams.length - 3} more` : ''}
-										</div>
-									{/if}
-								</a>
-							{/each}
-						</div>
-						{#if data.topPerformers.length === 0}
-							<p class="text-center opacity-50 py-8" style="font-family: var(--font-mono);">
-								No performer data available yet
-							</p>
-						{/if}
+				<!-- Rookies -->
+				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-4 md:p-5">
+					<h2 class="text-xl md:text-2xl text-[var(--nw-burning-orange)] mb-4" style="font-family: var(--font-display);">
+						ROOKIES
+					</h2>
+					<div class="space-y-2">
+						{#each data.rookies.slice(0, 5) as rookie}
+							<a href="/performers/{rookie.slug}" class="flex justify-between items-center group">
+								<span class="text-xs truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+									{rookie.name}
+								</span>
+								<span class="text-xs text-white/50 flex-shrink-0" style="font-family: var(--font-mono);">
+									{new Date(rookie.debutDate).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+								</span>
+							</a>
+						{/each}
 					</div>
-
-					<!-- Top Teams by Shows -->
-					<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-						<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">MOST ACTIVE TEAMS</h2>
-						<p class="text-sm opacity-70 mb-6" style="font-family: var(--font-mono);">
-							Teams with the most tracked shows
-						</p>
-						<div class="space-y-3 max-h-[600px] overflow-y-auto">
-							{#each data.topTeams as team, i}
-								{@const width = (team.showCount / maxTeamCount) * 100}
-								<a href="/teams/{team.slug}" class="block group">
-									<div class="flex justify-between items-center mb-1">
-										<span class="text-sm truncate pr-4 group-hover:text-[var(--tw-neon-pink)] transition-colors" style="font-family: var(--font-mono);">
-											{i + 1}. {team.name}
-										</span>
-										<span class="text-lg text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">{team.showCount}</span>
-									</div>
-									<div class="h-2 bg-[var(--tw-concrete)] overflow-hidden">
-										<div
-											class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)] transition-all duration-500"
-											style="width: {width}%">
-										</div>
-									</div>
-									<div class="text-xs opacity-50 mt-1" style="font-family: var(--font-mono);">
-										{team.memberCount} members
-									</div>
-								</a>
-							{/each}
-						</div>
-						{#if data.topTeams.length === 0}
-							<p class="text-center opacity-50 py-8" style="font-family: var(--font-mono);">
-								No team show data available yet
-							</p>
-						{/if}
-					</div>
+					{#if data.rookies.length === 0}
+						<p class="text-xs text-white/50" style="font-family: var(--font-mono);">No new performers in last 3 months</p>
+					{/if}
 				</div>
-			{/if}
 
-			{#if activeTab === 'timeline'}
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-6">
-					<h2 class="text-3xl text-[var(--tw-electric-cyan)] mb-6" style="font-family: var(--font-display);">MONTHLY ACTIVITY</h2>
-					<div class="overflow-x-auto pb-4">
-						<div class="flex items-end gap-2 min-w-max" style="height: 280px; padding-bottom: 40px;">
-							{#each data.monthlyActivity as { month, count }}
-								{@const heightPx = Math.max(20, (count / maxMonthCount) * 200)}
-								{@const [year, m] = month.split('-')}
-								{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', { month: 'short' })}
-								<div class="flex flex-col items-center group">
-									<div class="text-xs text-[var(--tw-electric-cyan)] mb-1 opacity-0 group-hover:opacity-100 transition-opacity" style="font-family: var(--font-mono);">
-										{count}
-									</div>
-									<div
-										class="w-10 bg-gradient-to-t from-[var(--tw-deep-purple)] via-[var(--tw-neon-pink)] to-[var(--tw-electric-cyan)] transition-all hover:opacity-80 cursor-pointer"
-										style="height: {heightPx}px;"
-										title="{monthName} {year}: {count} shows">
-									</div>
-									<div class="mt-2 text-xs opacity-50 whitespace-nowrap" style="font-family: var(--font-mono); transform: rotate(-45deg); transform-origin: top left; width: 50px;">
-										{monthName} '{year.slice(2)}
-									</div>
-								</div>
-							{/each}
-						</div>
-					</div>
+				<!-- Shows by Day -->
+				<AnalyticsBarChart
+					title="BY DAY"
+					data={orderedDays}
+					maxValue={maxDayCount}
+					height={140}
+					gradient="from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]"
+					isDayOfWeek={true}
+					onViewAll={() => modalOpen = 'dayDistribution'}
+				/>
+
+				<!-- Show Variety Per Month -->
+				<div class="lg:col-span-2">
+					<AnalyticsBarChart
+						title="SHOW VARIETY"
+						subtitle="Unique shows per month"
+						data={data.showVarietyPerMonth}
+						maxValue={maxVarietyCount}
+						height={140}
+						gradient="from-[var(--nw-hot-pink)] via-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]"
+						isMonthly={true}
+						onViewAll={() => modalOpen = 'showVariety'}
+					/>
 				</div>
-			{/if}
+			</div>
 
-			<!-- Footer / Disclaimer -->
-			<footer class="mt-12 text-center space-y-2">
-				<p class="text-sm opacity-50" style="font-family: var(--font-mono);">
-					Data sourced from CCB Calendar and Community Lineups
-				</p>
+			<!-- Footer -->
+			<footer class="mt-8 text-center space-y-1">
 				<p class="text-xs opacity-40" style="font-family: var(--font-mono);">
-					Note: This data may contain inaccuracies. Performer appearances are based on scheduled lineups
-					and may not reflect actual performances. If you spot an error, let us know!
+					Data sourced from CCB Calendar · Performer data from {data.stats.showsWithLineup} shows with lineup info
 				</p>
 			</footer>
 		{/if}
 	</div>
 </div>
+
+<!-- Modals -->
+{#if modalOpen && data}
+	<AnalyticsModal
+		title={modalTitles[modalOpen]}
+		open={true}
+		onClose={() => modalOpen = null}
+	>
+		{#if modalOpen === 'shows'}
+			<div class="space-y-2">
+				{#each data.topShows as show, i}
+					{@const width = (show.count / maxShowCount) * 100}
+					<a href="/shows/{show.slug}" class="block group">
+						<div class="flex justify-between items-center mb-0.5">
+							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								{i + 1}. {show.title}
+							</span>
+							<span class="text-sm text-[var(--nw-hot-pink)] flex-shrink-0" style="font-family: var(--font-display);">{show.count}</span>
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else if modalOpen === 'performers'}
+			<div class="space-y-2">
+				{#each data.topPerformers as performer, i}
+					{@const width = (performer.showCount / maxPerformerCount) * 100}
+					<a href="/performers/{performer.slug}" class="block group">
+						<div class="flex justify-between items-center mb-0.5">
+							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								{i + 1}. {performer.name}
+							</span>
+							<span class="text-sm text-[var(--nw-hot-pink)] flex-shrink-0" style="font-family: var(--font-display);">{performer.showCount}</span>
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]" style="width: {width}%"></div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else if modalOpen === 'teams'}
+			<div class="space-y-2">
+				{#each data.topTeams as team, i}
+					{@const width = (team.showCount / maxTeamCount) * 100}
+					<a href="/teams/{team.slug}" class="block group">
+						<div class="flex justify-between items-center mb-0.5">
+							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								{i + 1}. {team.name}
+							</span>
+							<span class="text-sm text-[var(--nw-neon-yellow)] flex-shrink-0" style="font-family: var(--font-display);">{team.showCount}</span>
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else if modalOpen === 'longestRunning'}
+			<div class="space-y-3">
+				{#each data.longestRunningShows as show, i}
+					{@const width = (show.iterations / maxIterations) * 100}
+					<a href="/shows/{show.slug}" class="block group">
+						<div class="flex justify-between items-center mb-0.5">
+							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								{i + 1}. {show.title}
+							</span>
+							<span class="text-sm text-[var(--tw-electric-cyan)] flex-shrink-0" style="font-family: var(--font-display);">#{show.iterations}</span>
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-neon-yellow)]" style="width: {width}%"></div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else if modalOpen === 'multiTeam'}
+			<div class="space-y-3">
+				{#each data.multiTeamPerformers as performer, i}
+					{@const width = (performer.teamCount / maxMultiTeamCount) * 100}
+					<a href="/performers/{performer.slug}" class="block group">
+						<div class="flex justify-between items-center mb-1">
+							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								{i + 1}. {performer.name}
+							</span>
+							<span class="text-sm text-[var(--nw-neon-yellow)] flex-shrink-0" style="font-family: var(--font-display);">{performer.teamCount} teams</span>
+						</div>
+						<div class="text-xs text-white/60 mb-1" style="font-family: var(--font-mono);">
+							{performer.teams.join(', ')}
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--nw-neon-yellow)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						</div>
+					</a>
+				{/each}
+			</div>
+		{:else if modalOpen === 'teamOverlap'}
+			<div class="space-y-4">
+				{#each data.teamPairings as pairing, i}
+					{@const width = (pairing.sharedMembers / maxSharedMembers) * 100}
+					<div class="group">
+						<div class="flex justify-between items-center mb-1">
+							<div class="flex items-center gap-2 text-sm truncate pr-2">
+								<a href="/teams/{pairing.team1.slug}" class="text-[var(--tw-electric-cyan)] hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+									{pairing.team1.name}
+								</a>
+								<span class="text-white/40">∩</span>
+								<a href="/teams/{pairing.team2.slug}" class="text-[var(--tw-electric-cyan)] hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+									{pairing.team2.name}
+								</a>
+							</div>
+							<span class="text-sm text-[var(--tw-electric-cyan)] flex-shrink-0" style="font-family: var(--font-display);">{pairing.sharedMembers} shared</span>
+						</div>
+						<div class="text-xs text-white/60 mb-1" style="font-family: var(--font-mono);">
+							{pairing.performers.join(', ')}
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-hot-pink)]" style="width: {width}%"></div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{:else if modalOpen === 'dayDistribution'}
+			<div class="space-y-3">
+				{#each orderedDays as { day, count }}
+					{@const width = (count / maxDayCount) * 100}
+					<div>
+						<div class="flex justify-between items-center mb-1">
+							<span class="text-sm text-white" style="font-family: var(--font-mono);">{day}</span>
+							<span class="text-sm text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{count} shows</span>
+						</div>
+						<div class="h-2 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]" style="width: {width}%"></div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{:else if modalOpen === 'monthlyActivity'}
+			<div class="space-y-2">
+				{#each data.monthlyActivity as { month, count }}
+					{@const width = (count / maxMonthCount) * 100}
+					{@const [year, m] = month.split('-')}
+					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', { month: 'long' })}
+					<div>
+						<div class="flex justify-between items-center mb-0.5">
+							<span class="text-sm text-white" style="font-family: var(--font-mono);">{monthName} {year}</span>
+							<span class="text-sm text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{count}</span>
+						</div>
+						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+							<div class="h-full bg-gradient-to-r from-[var(--tw-deep-purple)] via-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{:else if modalOpen === 'showVariety'}
+			<div class="space-y-4">
+				{#each data.showVarietyPerMonth as { month, count, shows }}
+					{@const [year, m] = month.split('-')}
+					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', { month: 'long' })}
+					<div class="border-l-2 border-[var(--nw-burning-orange)] pl-3">
+						<div class="flex justify-between items-center mb-1">
+							<span class="text-sm text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{monthName} {year}</span>
+							<span class="text-xs text-white/50" style="font-family: var(--font-mono);">{count} unique shows</span>
+						</div>
+						<div class="text-xs text-white/80 space-y-0.5" style="font-family: var(--font-mono);">
+							{#each shows as show}
+								<div>• {show}</div>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</AnalyticsModal>
+{/if}

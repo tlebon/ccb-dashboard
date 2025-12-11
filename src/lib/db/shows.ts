@@ -110,12 +110,15 @@ export async function getShowBySlug(slug: string): Promise<Show | null> {
 }
 
 // Get all shows matching a title slug (for series view)
-// e.g., "blumpkin-abbey" returns all Blumpkin Abbey shows
+// e.g., "health-plan" returns all Health Plan shows (including "Health Plan: A Deconstruction")
+// Uses a starts-with match on the title portion (after date prefix)
 export async function getShowsByTitleSlug(titleSlug: string): Promise<Show[]> {
-	// Match shows where the slug ends with the title slug pattern
+	// Match shows where the title slug portion starts with the search term
+	// This handles cases like "health-plan" matching "health-plan-a-deconstruction"
+	// The pattern is: YYYY-MM-DD-{titleSlug}...
 	const result = await db.execute({
 		sql: `SELECT * FROM shows WHERE slug LIKE ? ORDER BY date DESC`,
-		args: [`%-${titleSlug}`]
+		args: [`%-${titleSlug}%`]
 	});
 	return result.rows as unknown as Show[];
 }

@@ -1,0 +1,54 @@
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		title: string;
+		open: boolean;
+		onClose: () => void;
+		children: Snippet;
+	}
+
+	let { title, open, onClose, children }: Props = $props();
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') onClose();
+	}
+</script>
+
+{#if open}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center p-4"
+		onclick={onClose}
+		onkeydown={handleKeydown}
+		role="dialog"
+		tabindex="-1"
+	>
+		<!-- Backdrop -->
+		<div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+		<!-- Modal Content -->
+		<div
+			class="relative w-full max-w-2xl max-h-[80vh] overflow-hidden brutalist-border bg-[var(--tw-deep-purple)]"
+			onclick={(e) => e.stopPropagation()}
+			role="document"
+		>
+			<!-- Header -->
+			<div class="flex items-center justify-between p-4 border-b-2 border-[var(--nw-burning-orange)]/30">
+				<h2 class="text-2xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">
+					{title}
+				</h2>
+				<button
+					onclick={onClose}
+					class="text-white/50 hover:text-white text-2xl leading-none px-2"
+				>
+					×
+				</button>
+			</div>
+
+			<!-- Scrollable Content -->
+			<div class="overflow-y-auto p-4 text-white" style="max-height: calc(80vh - 80px);">
+				{@render children()}
+			</div>
+		</div>
+	</div>
+{/if}
