@@ -47,6 +47,7 @@ Vercel environment variables (set in Vercel dashboard):
 - `TURSO_AUTH_TOKEN` - Turso auth token
 - `VITE_PROXY_ICAL_URL` - Proxy URL for fetching CCB iCal feed (bypasses Cloudflare blocking)
 - `VITE_PROXY_EVENT_URL` - Proxy URL for fetching CCB event pages
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage token for image caching
 
 The proxy URLs point to a personal proxy server that adds browser headers to avoid Cloudflare 403 errors when fetching from CCB's website.
 
@@ -58,4 +59,20 @@ The proxy URLs point to a personal proxy server that adds browser headers to avo
 
 CCB's website (comedycafeberlin.com) is behind Cloudflare which blocks requests from cloud provider IPs (like Vercel). Solutions:
 - **iCal sync**: Uses `VITE_PROXY_ICAL_URL` proxy
-- **Images**: Load directly from CCB (browser fetches work, server-side fetches get blocked)
+- **Images**: Cached to Vercel Blob during iCal sync (images are fetched via proxy and stored permanently)
+
+## Image Caching
+
+Images are automatically cached to Vercel Blob storage during the iCal sync process:
+1. Images are fetched from CCB event pages via proxy
+2. Uploaded to Vercel Blob with consistent filenames
+3. Blob URLs are stored in the database
+
+**Endpoints:**
+- `GET /api/sync/images` - Check caching status (how many images are cached vs uncached)
+- `POST /api/sync/images` - Migrate existing CCB images to Vercel Blob (requires `SYNC_SECRET` auth)
+
+**Setup:**
+1. Create a Vercel Blob store in the Vercel dashboard
+2. Add `BLOB_READ_WRITE_TOKEN` environment variable
+3. Run a one-time migration for existing images: `POST /api/sync/images`
