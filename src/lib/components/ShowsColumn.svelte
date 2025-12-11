@@ -3,6 +3,7 @@
   import type { Show } from '$lib/utils/icalParser';
   import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
   import { proxyImageUrl } from '$lib/utils/imageProxy';
+  import { createScrollSnap } from '$lib/utils/scrollSnap';
 
   export let groupedShows: Record<string, Show[]>;
   export let loading: boolean;
@@ -182,12 +183,41 @@
     scrollToFirstUpcoming();
   }
 
+  // Custom proximity snap - find the day container with the first upcoming show
+  function getSnapTargetSelector(): string | null {
+    if (!firstUpcomingShowId || !isCurrentWeek || monitorMode) return null;
+
+    // Find which day container has the first upcoming show
+    const dayContainers = scrollContainer?.querySelectorAll('[data-day-shows]');
+    if (!dayContainers) return null;
+
+    for (const container of dayContainers) {
+      const showIds = container.getAttribute('data-day-shows')?.split(',') || [];
+      if (showIds.includes(firstUpcomingShowId)) {
+        return `[data-day-shows="${container.getAttribute('data-day-shows')}"]`;
+      }
+    }
+    return null;
+  }
+
+  const scrollSnap = createScrollSnap(
+    () => scrollContainer,
+    getSnapTargetSelector,
+    { proximityAbove: 80, proximityBelow: 100 }
+  );
+
+  function handleScrollWithSnap() {
+    handleScroll();
+    scrollSnap.onScroll();
+  }
+
   onMount(() => {
     setTimeout(checkOverflow, 500);
   });
 
   onDestroy(() => {
     stopAutoScroll();
+    scrollSnap.cleanup();
   });
 </script>
 
@@ -200,7 +230,7 @@
     </div>
   {/if}
 
-  <section bind:this={scrollContainer} onscroll={handleScroll} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200 {isCurrentWeek && pastShowIds.length > 0 && !monitorMode ? 'scroll-snap-y' : ''}">
+  <section bind:this={scrollContainer} onscroll={handleScrollWithSnap} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200">
   {#if loading}
     <p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">Loading shows...</p>
   {:else if error}
@@ -208,8 +238,7 @@
   {:else}
     {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
       {@const dayShowIds = dayShows.map(s => s.id)}
-      {@const isFirstUpcomingDay = firstUpcomingShowId && dayShowIds.includes(firstUpcomingShowId)}
-      <div class="reveal-up {isCurrentWeek && isFirstUpcomingDay && !monitorMode ? 'scroll-snap-start' : ''}" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
+      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
         <!-- Day heading with brutalist style -->
         <div class="mb-2 relative">
           <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
@@ -281,11 +310,3 @@
   </section>
 </div>
 
-<style>
-  .scroll-snap-y {
-    scroll-snap-type: y proximity;
-  }
-  .scroll-snap-start {
-    scroll-snap-align: start;
-  }
-</style>

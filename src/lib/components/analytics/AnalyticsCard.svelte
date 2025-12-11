@@ -2,7 +2,7 @@
 	type Item = {
 		title?: string;
 		name?: string;
-		slug: string;
+		slug?: string;
 		count?: number;
 		showCount?: number;
 		iterations?: number;

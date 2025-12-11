@@ -245,8 +245,7 @@
   $: weekRange = getWeekRange(weekOffset);
 
   // Current time for past show detection (reactive)
-  // TEMP: +24 hours for testing
-  $: currentTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  $: currentTime = new Date();
 
   // Filter and group shows for current week
   $: weekShows = shows.filter(show => {
