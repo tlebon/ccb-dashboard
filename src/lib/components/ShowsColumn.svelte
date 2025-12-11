@@ -105,6 +105,19 @@
     if (pauseTimeout) clearTimeout(pauseTimeout);
   }
 
+  function restartAutoScroll() {
+    stopAutoScroll();
+    // Wait for DOM to update with new content, then start
+    // Use tick() to wait for Svelte to finish rendering
+    tick().then(() => {
+      setTimeout(() => {
+        if (monitorMode && scrollContainer) {
+          startAutoScroll();
+        }
+      }, 500);
+    });
+  }
+
   // Track previous monitor mode to detect actual changes
   let prevMonitorMode = false;
   $: if (monitorMode !== prevMonitorMode) {
@@ -116,9 +129,18 @@
     }
   }
 
-  // Check overflow when content changes
-  $: if (groupedShows && scrollContainer) {
-    setTimeout(checkOverflow, 100);
+  // Track grouped shows to detect week changes
+  let prevGroupedShowsKey = '';
+  $: {
+    const newKey = Object.keys(groupedShows).join(',');
+    if (scrollContainer) {
+      setTimeout(checkOverflow, 100);
+      // Restart auto-scroll when content changes while in monitor mode
+      if (newKey !== prevGroupedShowsKey && prevGroupedShowsKey !== '' && monitorMode) {
+        restartAutoScroll();
+      }
+      prevGroupedShowsKey = newKey;
+    }
   }
 
   // Auto-scroll to first upcoming show in manual mode (when past shows are greyed out above)
@@ -213,6 +235,11 @@
 
   onMount(() => {
     setTimeout(checkOverflow, 500);
+    // If monitor mode is already on when component mounts (e.g., after week transition),
+    // start auto-scroll after a delay to let the DOM settle
+    if (monitorMode) {
+      setTimeout(startAutoScroll, 800);
+    }
   });
 
   onDestroy(() => {

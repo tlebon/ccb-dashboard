@@ -99,29 +99,32 @@
   });
 
   // Auto-rotate when in monitor mode (skips empty weeks)
-  $: if (monitorMode) {
-    interval = setInterval(() => {
-      const next = findNextWeekWithShows(weekOffset);
-      if (next !== null) {
-        direction = 1;
-        isManualNav = false; // Auto-rotate uses full page transition
-        monitorThemeOffset++; // Alternate theme each rotation
-        weekOffset = next;
-        updateUrl(weekOffset);
-      } else {
-        // Wrap around: find first week with shows
-        const first = findNextWeekWithShows(-1);
-        if (first !== null && first !== weekOffset) {
-          direction = 1;
-          isManualNav = false;
-          monitorThemeOffset++;
-          weekOffset = first;
-          updateUrl(weekOffset);
-        }
-      }
-    }, ROTATE_MS);
-  } else {
+  let prevMonitorModeForRotate = false;
+  $: if (monitorMode !== prevMonitorModeForRotate) {
+    prevMonitorModeForRotate = monitorMode;
     if (interval) clearInterval(interval);
+    if (monitorMode) {
+      interval = setInterval(() => {
+        const next = findNextWeekWithShows(weekOffset);
+        if (next !== null) {
+          direction = 1;
+          isManualNav = false; // Auto-rotate uses full page transition
+          monitorThemeOffset++; // Alternate theme each rotation
+          weekOffset = next;
+          updateUrl(weekOffset);
+        } else {
+          // Wrap around: find first week with shows
+          const first = findNextWeekWithShows(-1);
+          if (first !== null && first !== weekOffset) {
+            direction = 1;
+            isManualNav = false;
+            monitorThemeOffset++;
+            weekOffset = first;
+            updateUrl(weekOffset);
+          }
+        }
+      }, ROTATE_MS);
+    }
   }
 
   // Check if a week offset has any shows
