@@ -1,60 +1,71 @@
 # Comedy Cafe Berlin Dashboard
 
-A digital dashboard for Comedy Cafe Berlin, displaying upcoming shows and classes for both the current and next week. Designed for in-venue display screens, this project rotates between "This Week" and "Next Week" views, making it easy for visitors to see what's on at a glance.
+A dashboard and show management system for [Comedy Cafe Berlin](https://www.comedycafeberlin.com), Berlin's first international, alternative comedy venue.
 
 ## Features
-- **Live schedule**: Pulls show and class data from an iCal feed and displays it grouped by day.
-- **Dual week view**: Rotates automatically between "This Week" and "Next Week" every 30 seconds.
-- **Modern, readable design**: Large, clear typography and QR codes for easy access to tickets and classes.
-- **Color themes**: Blue for the current week, orange for next week.
-- **Responsive**: Looks great on large screens in the venue.
-- **Caching**: Efficient server-side caching for fast updates and low network usage.
 
-## Screenshots
+### Schedule Display
+- **Weekly calendar** with shows grouped by day
+- **Monitor mode** for in-venue displays with auto-rotation between weeks
+- **Past show greying** - shows earlier in the week are dimmed, auto-scrolls to upcoming shows
+- **Color themes** - blue for current week, orange for future weeks
 
-### This Week View
-![This Week View](screenshots/this-week.png)
+### Show & Performer Database
+- **Show pages** with images, descriptions, and performer lineups
+- **Performer profiles** with photos, bios, and show history
+- **Team pages** with member rosters and upcoming performances
+- **House team rotation** tracking (which teams perform which Fridays)
 
-### Next Week View
-![Next Week View](screenshots/next-week.png)
+### Analytics
+- Show frequency statistics
+- Performer appearance counts
+- Team overlap analysis
+- Historical show data
 
----
+### Mobile Support
+- Responsive layout for all screen sizes
+- Swipe gestures for week navigation
+- Mobile-optimized navigation
 
-# sv
+## Tech Stack
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+- **Framework**: SvelteKit with Svelte 5
+- **Database**: Turso (libSQL)
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Start dev server
 npm run dev
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
+# Build for production
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+## Data Sync
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Show data is synced from the CCB website calendar. Lineups and performer info are scraped from public event pages.
+
+```bash
+# Sync shows from iCal feed
+npx tsx scripts/sync-ccb.ts
+
+# Sync lineups from show pages
+npx tsx scripts/sync-ccb.ts --lineups
+```
+
+## Environment Variables
+
+```
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=...
+```
+
+## License
+
+MIT
