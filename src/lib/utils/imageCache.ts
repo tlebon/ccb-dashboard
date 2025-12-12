@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+import { put, head } from '@vercel/blob';
 import { createHash } from 'crypto';
 import { env } from '$env/dynamic/private';
 
@@ -41,6 +41,20 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 	}
 
 	try {
+		// Generate blob path
+		const blobPath = getBlobPath(imageUrl);
+
+		// Check if blob already exists
+		try {
+			const existingBlob = await head(blobPath);
+			if (existingBlob) {
+				console.log(`[ImageCache] Blob already exists: ${imageUrl} -> ${existingBlob.url}`);
+				return existingBlob.url;
+			}
+		} catch (e) {
+			// Blob doesn't exist, proceed with upload
+		}
+
 		// Fetch image via proxy to bypass Cloudflare
 		const proxyUrl = `${proxyBase}?url=${encodeURIComponent(imageUrl)}`;
 		const response = await fetch(proxyUrl, {
@@ -55,9 +69,6 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 		// Get the image data
 		const imageBuffer = await response.arrayBuffer();
 		const contentType = response.headers.get('content-type') || 'image/jpeg';
-
-		// Generate blob path
-		const blobPath = getBlobPath(imageUrl);
 
 		// Upload to Vercel Blob with timeout
 		const uploadPromise = put(blobPath, imageBuffer, {
