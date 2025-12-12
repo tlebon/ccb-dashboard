@@ -1,7 +1,6 @@
 import { put } from '@vercel/blob';
 import { createHash } from 'crypto';
-
-const getEventProxyUrl = () => import.meta.env.VITE_PROXY_EVENT_URL;
+import { env } from '$env/dynamic/private';
 
 /**
  * Generate a consistent blob path from an image URL
@@ -33,7 +32,7 @@ function hashString(str: string): string {
  * Returns the blob URL or null if caching fails
  */
 export async function cacheImageToBlob(imageUrl: string): Promise<string | null> {
-	const proxyBase = getEventProxyUrl();
+	const proxyBase = env.VITE_PROXY_EVENT_URL;
 
 	// If no proxy configured or no blob token, skip caching
 	if (!proxyBase || !process.env.BLOB_READ_WRITE_TOKEN) {
