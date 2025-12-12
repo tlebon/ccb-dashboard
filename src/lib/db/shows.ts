@@ -148,10 +148,11 @@ export async function upsertShow(show: {
 	date: string;
 	time?: string;
 	description?: string;
-	source: 'ical' | 'beeper' | 'manual';
+	source: 'ical' | 'beeper' | 'manual' | 'schedule';
 	ical_uid?: string;
 	url?: string;
 	image_url?: string;
+	original_image_url?: string;
 }): Promise<number> {
 	// Generate slug from date and title
 	const slug = generateShowSlug(show.date, show.title);
@@ -164,16 +165,16 @@ export async function upsertShow(show: {
 		});
 		if (existing.rows.length > 0) {
 			await db.execute({
-				sql: 'UPDATE shows SET title = ?, date = ?, time = ?, description = ?, url = ?, image_url = ?, slug = ? WHERE ical_uid = ?',
-				args: [show.title, show.date, show.time || null, show.description || null, show.url || null, show.image_url || null, slug, show.ical_uid]
+				sql: 'UPDATE shows SET title = ?, date = ?, time = ?, description = ?, url = ?, image_url = ?, original_image_url = ?, slug = ? WHERE ical_uid = ?',
+				args: [show.title, show.date, show.time || null, show.description || null, show.url || null, show.image_url || null, show.original_image_url || null, slug, show.ical_uid]
 			});
 			return existing.rows[0].id as number;
 		}
 	}
 
 	const result = await db.execute({
-		sql: 'INSERT INTO shows (title, date, time, description, source, ical_uid, url, image_url, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-		args: [show.title, show.date, show.time || null, show.description || null, show.source, show.ical_uid || null, show.url || null, show.image_url || null, slug]
+		sql: 'INSERT INTO shows (title, date, time, description, source, ical_uid, url, image_url, original_image_url, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		args: [show.title, show.date, show.time || null, show.description || null, show.source, show.ical_uid || null, show.url || null, show.image_url || null, show.original_image_url || null, slug]
 	});
 	return Number(result.lastInsertRowid);
 }
