@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { upsertShow } from '$lib/db';
 import ICAL from 'ical.js';
 import { parse } from 'node-html-parser';
+import { cacheImagesToBlob } from '$lib/utils/imageCache';
 
 const getIcalUrl = () => import.meta.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
 const getEventProxyUrl = () => import.meta.env.VITE_PROXY_EVENT_URL;
@@ -93,8 +94,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Fetch images from event pages
-		const imageUrls = await fetchImageUrls(eventUrls);
-		console.log(`Fetched ${imageUrls.size} images from ${eventUrls.length} event pages`);
+		const originalImageUrls = await fetchImageUrls(eventUrls);
+		console.log(`Fetched ${originalImageUrls.size} images from ${eventUrls.length} event pages`);
+
+		// Cache images to Vercel Blob
+		const imageUrls = await cacheImagesToBlob(originalImageUrls);
+		console.log(`Cached ${imageUrls.size} images to Vercel Blob`);
 
 		let synced = 0;
 		let errors = 0;
@@ -113,7 +118,7 @@ export const POST: RequestHandler = async ({ request }) => {
 					url = urlMatch[1].trim();
 				}
 
-				// Get image URL if available
+				// Get cached image URL if available (falls back to original if caching failed)
 				const image_url = url ? imageUrls.get(url) : undefined;
 
 				// Format date and time
@@ -198,8 +203,12 @@ export const GET: RequestHandler = async ({ request }) => {
 		}
 
 		// Fetch images from event pages
-		const imageUrls = await fetchImageUrls(eventUrls);
-		console.log(`[Cron] Fetched ${imageUrls.size} images from ${eventUrls.length} event pages`);
+		const originalImageUrls = await fetchImageUrls(eventUrls);
+		console.log(`[Cron] Fetched ${originalImageUrls.size} images from ${eventUrls.length} event pages`);
+
+		// Cache images to Vercel Blob
+		const imageUrls = await cacheImagesToBlob(originalImageUrls);
+		console.log(`[Cron] Cached ${imageUrls.size} images to Vercel Blob`);
 
 		let synced = 0;
 
@@ -216,7 +225,7 @@ export const GET: RequestHandler = async ({ request }) => {
 					url = urlMatch[1].trim();
 				}
 
-				// Get image URL if available
+				// Get cached image URL if available (falls back to original if caching failed)
 				const image_url = url ? imageUrls.get(url) : undefined;
 
 				const date = start.toISOString().split('T')[0];
