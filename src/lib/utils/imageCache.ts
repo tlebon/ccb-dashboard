@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob';
+import { createHash } from 'crypto';
 
 const getEventProxyUrl = () => import.meta.env.VITE_PROXY_EVENT_URL;
 
@@ -21,16 +22,10 @@ function getBlobPath(imageUrl: string): string {
 }
 
 /**
- * Simple hash function for URL to filename conversion
+ * SHA256 hash for URL to filename conversion (collision-resistant)
  */
 function hashString(str: string): string {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
-		hash = hash & hash;
-	}
-	return Math.abs(hash).toString(36);
+	return createHash('sha256').update(str).digest('hex').substring(0, 16);
 }
 
 /**
@@ -65,12 +60,19 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 		// Generate blob path
 		const blobPath = getBlobPath(imageUrl);
 
-		// Upload to Vercel Blob
-		const blob = await put(blobPath, imageBuffer, {
+		// Upload to Vercel Blob with timeout
+		const uploadPromise = put(blobPath, imageBuffer, {
 			access: 'public',
 			contentType,
 			addRandomSuffix: false // Use consistent paths for deduplication
 		});
+
+		const blob = await Promise.race([
+			uploadPromise,
+			new Promise<never>((_, reject) =>
+				setTimeout(() => reject(new Error('Blob upload timeout')), 15000)
+			)
+		]);
 
 		console.log(`[ImageCache] Cached image: ${imageUrl} -> ${blob.url}`);
 		return blob.url;
@@ -82,7 +84,7 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 
 /**
  * Batch cache multiple images
- * Returns a map of original URL -> blob URL
+ * Returns a map of original URL -> blob URL (or original URL as fallback)
  */
 export async function cacheImagesToBlob(
 	imageUrls: Map<string, string>,
@@ -92,18 +94,23 @@ export async function cacheImagesToBlob(
 	const entries = Array.from(imageUrls.entries());
 
 	let idx = 0;
+	let cached = 0;
+	let fallbacks = 0;
 
 	async function processNext(): Promise<void> {
 		if (idx >= entries.length) return;
 
+		// Note: idx++ is safe here due to JavaScript's single-threaded execution
 		const [eventUrl, originalImageUrl] = entries[idx++];
 
 		const blobUrl = await cacheImageToBlob(originalImageUrl);
 		if (blobUrl) {
 			results.set(eventUrl, blobUrl);
+			cached++;
 		} else {
 			// Fall back to original URL if caching fails
 			results.set(eventUrl, originalImageUrl);
+			fallbacks++;
 		}
 
 		await processNext();
@@ -111,6 +118,6 @@ export async function cacheImagesToBlob(
 
 	await Promise.all(Array.from({ length: concurrency }, processNext));
 
-	console.log(`[ImageCache] Cached ${results.size} images (${entries.length - results.size} failures)`);
+	console.log(`[ImageCache] Cached ${cached} images, ${fallbacks} fallbacks to original URLs`);
 	return results;
 }

@@ -8,11 +8,14 @@ import { cacheImageToBlob } from '$lib/utils/imageCache';
  * This endpoint fetches all shows with CCB image URLs and caches them
  */
 export const POST: RequestHandler = async ({ request }) => {
-	// Verify authorization
+	// Verify authorization - require SYNC_SECRET to be configured
 	const authHeader = request.headers.get('authorization');
 	const expectedToken = process.env.SYNC_SECRET;
 
-	if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
+	if (!expectedToken) {
+		return json({ error: 'SYNC_SECRET not configured' }, { status: 500 });
+	}
+	if (authHeader !== `Bearer ${expectedToken}`) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
