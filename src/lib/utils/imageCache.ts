@@ -28,6 +28,28 @@ function hashString(str: string): string {
 }
 
 /**
+ * Determine content-type from image URL file extension
+ * Don't trust proxy headers as they may return HTML error pages
+ */
+function getContentTypeFromUrl(imageUrl: string): string {
+	const extension = imageUrl.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)(?:\?|$)/)?.[1];
+
+	switch (extension) {
+		case 'jpg':
+		case 'jpeg':
+			return 'image/jpeg';
+		case 'png':
+			return 'image/png';
+		case 'gif':
+			return 'image/gif';
+		case 'webp':
+			return 'image/webp';
+		default:
+			return 'image/jpeg'; // Safe fallback
+	}
+}
+
+/**
  * Fetch an image via proxy and upload to Vercel Blob
  * Returns the blob URL or null if caching fails
  */
@@ -68,7 +90,9 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 
 		// Get the image data
 		const imageBuffer = await response.arrayBuffer();
-		const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+		// Determine content-type from original image URL extension (don't trust proxy headers)
+		const contentType = getContentTypeFromUrl(imageUrl);
 
 		// Upload to Vercel Blob with timeout
 		const uploadPromise = put(blobPath, imageBuffer, {
