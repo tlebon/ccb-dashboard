@@ -32,8 +32,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		let updated = 0;
 		let failed = 0;
 
-		// Process with concurrency limit
-		const CONCURRENCY = 4;
+		// Process with concurrency limit and delays to avoid rate limiting
+		const CONCURRENCY = 2; // Reduced from 4
 		let idx = 0;
 
 		async function processNext(): Promise<void> {
@@ -41,6 +41,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			const show = shows[idx++];
 
 			try {
+				// Add delay to avoid Cloudflare rate limiting
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+
 				// Fetch event page (NO PROXY - direct fetch)
 				const response = await fetch(show.url, {
 					signal: AbortSignal.timeout(10000)
