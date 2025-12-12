@@ -127,7 +127,13 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 	while (currentUrl && page <= MAX_PAGES) {
 		console.log(`[Schedule] Fetching page ${page}: ${currentUrl}`);
 
-		const response = await fetch(currentUrl, {
+		// Use proxy to bypass Cloudflare's cloud IP blocking
+		const proxyBase = process.env.VITE_PROXY_EVENT_URL;
+		const fetchUrl = proxyBase
+			? `${proxyBase}?url=${encodeURIComponent(currentUrl)}`
+			: currentUrl;
+
+		const response = await fetch(fetchUrl, {
 			signal: AbortSignal.timeout(15000)
 		});
 

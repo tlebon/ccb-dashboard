@@ -44,8 +44,13 @@ export const POST: RequestHandler = async ({ request }) => {
 				// Add delay to avoid Cloudflare rate limiting
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 
-				// Fetch event page (NO PROXY - direct fetch)
-				const response = await fetch(show.url, {
+				// Use proxy to bypass Cloudflare's cloud IP blocking
+				const proxyBase = process.env.VITE_PROXY_EVENT_URL;
+				const fetchUrl = proxyBase
+					? `${proxyBase}?url=${encodeURIComponent(show.url)}`
+					: show.url;
+
+				const response = await fetch(fetchUrl, {
 					signal: AbortSignal.timeout(10000)
 				});
 
