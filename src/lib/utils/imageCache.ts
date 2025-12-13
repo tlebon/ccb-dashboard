@@ -99,11 +99,18 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 		const contentType = getContentTypeFromUrl(imageUrl);
 
 		// Upload to Vercel Blob with timeout
-		const uploadPromise = put(blobPath, imageBuffer, {
+		const uploadOptions: Record<string, unknown> = {
 			access: 'public',
 			contentType,
 			addRandomSuffix: false // Use consistent paths for deduplication
-		});
+		};
+
+		// When force=true, allow overwriting existing blobs with correct content-type
+		if (force) {
+			uploadOptions.allowOverwrite = true;
+		}
+
+		const uploadPromise = put(blobPath, imageBuffer, uploadOptions);
 
 		const blob = await Promise.race([
 			uploadPromise,
