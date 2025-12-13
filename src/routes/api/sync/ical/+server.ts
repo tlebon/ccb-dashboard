@@ -5,8 +5,23 @@ import ICAL from 'ical.js';
 import { parse } from 'node-html-parser';
 import { cacheImagesToBlob } from '$lib/utils/imageCache';
 
-const getIcalUrl = () => process.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
-const getEventProxyUrl = () => process.env.VITE_PROXY_EVENT_URL;
+// Original CCB iCal URL (blocked by Cloudflare, requires proxy):
+// https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list
+const getIcalUrl = () => {
+	const proxyUrl = process.env.VITE_PROXY_ICAL_URL;
+	if (!proxyUrl) {
+		throw new Error('VITE_PROXY_ICAL_URL environment variable is required. Direct CCB access blocked by Cloudflare.');
+	}
+	return proxyUrl;
+};
+
+const getEventProxyUrl = () => {
+	const proxyUrl = process.env.VITE_PROXY_EVENT_URL;
+	if (!proxyUrl) {
+		throw new Error('VITE_PROXY_EVENT_URL environment variable is required for image fetching.');
+	}
+	return proxyUrl;
+};
 
 function fetchWithTimeout(resource: string, options: Record<string, unknown> = {}, timeout = 5000) {
 	return Promise.race([
@@ -17,12 +32,7 @@ function fetchWithTimeout(resource: string, options: Record<string, unknown> = {
 
 async function fetchImageUrls(eventUrls: string[]): Promise<Map<string, string>> {
 	const imageUrls = new Map<string, string>();
-	const eventProxyBase = getEventProxyUrl();
-
-	if (!eventProxyBase) {
-		console.log('[Sync] No event proxy configured, skipping image fetch');
-		return imageUrls;
-	}
+	const eventProxyBase = getEventProxyUrl(); // Throws if not configured
 
 	const CONCURRENCY = 4;
 	let idx = 0;
