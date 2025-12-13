@@ -5,8 +5,8 @@ import ICAL from 'ical.js';
 import { parse } from 'node-html-parser';
 import { cacheImagesToBlob } from '$lib/utils/imageCache';
 
-const getIcalUrl = () => import.meta.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
-const getEventProxyUrl = () => import.meta.env.VITE_PROXY_EVENT_URL;
+const getIcalUrl = () => process.env.VITE_PROXY_ICAL_URL || 'https://www.comedycafeberlin.com/?post_type=tribe_events&ical=1&eventDisplay=list';
+const getEventProxyUrl = () => process.env.VITE_PROXY_EVENT_URL;
 
 function fetchWithTimeout(resource: string, options: Record<string, unknown> = {}, timeout = 5000) {
 	return Promise.race([
