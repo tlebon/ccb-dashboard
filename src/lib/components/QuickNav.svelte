@@ -1,15 +1,19 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { getContext } from 'svelte';
   import MobileNav from './MobileNav.svelte';
 
   // Current path for highlighting active link
   $: currentPath = $page.url.pathname;
 
+  // Check if analytics access is granted
+  const hasAnalyticsAccess = getContext<boolean>('analyticsAccess');
+
   let mobileNavOpen = false;
 </script>
 
 <!-- Mobile Nav Sidebar -->
-<MobileNav bind:open={mobileNavOpen} theme="blue" on:close={() => mobileNavOpen = false} />
+<MobileNav bind:open={mobileNavOpen} theme="blue" {hasAnalyticsAccess} on:close={() => mobileNavOpen = false} />
 
 <!-- Mobile Header -->
 <div class="flex md:hidden items-center justify-between mb-4">
@@ -53,10 +57,12 @@
     class="uppercase tracking-wider transition-colors {currentPath.startsWith('/shows') ? 'text-[var(--tw-neon-pink)]' : 'text-white/60 hover:text-[var(--tw-electric-cyan)]'}">
     Shows
   </a>
-  <span class="text-white/30">|</span>
-  <a
-    href="/analytics"
-    class="uppercase tracking-wider transition-colors {currentPath === '/analytics' ? 'text-[var(--tw-neon-pink)]' : 'text-white/60 hover:text-[var(--tw-electric-cyan)]'}">
-    Analytics
-  </a>
+  {#if hasAnalyticsAccess}
+    <span class="text-white/30">|</span>
+    <a
+      href="/analytics"
+      class="uppercase tracking-wider transition-colors {currentPath === '/analytics' ? 'text-[var(--tw-neon-pink)]' : 'text-white/60 hover:text-[var(--tw-electric-cyan)]'}">
+      Analytics
+    </a>
+  {/if}
 </nav>

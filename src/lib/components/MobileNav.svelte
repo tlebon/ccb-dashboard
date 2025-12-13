@@ -6,6 +6,7 @@
 
   export let open = false;
   export let theme: 'blue' | 'orange' = 'blue';
+  export let hasAnalyticsAccess = false;
 
   const dispatch = createEventDispatcher();
 
@@ -19,13 +20,15 @@
     if (e.key === 'Escape' && open) close();
   }
 
-  const links = [
+  const allLinks = [
     { href: '/', label: 'Dashboard', icon: '◈' },
     { href: '/shows', label: 'Shows', icon: '▸' },
     { href: '/teams', label: 'Teams', icon: '◆' },
     { href: '/performers', label: 'Performers', icon: '●' },
-    { href: '/analytics', label: 'Analytics', icon: '◎' },
+    { href: '/analytics', label: 'Analytics', icon: '◎', requiresAccess: true },
   ];
+
+  $: links = allLinks.filter(link => !link.requiresAccess || hasAnalyticsAccess);
 
   const externalLinks = [
     { href: 'https://www.comedycafeberlin.com', label: 'CCB Website' },
