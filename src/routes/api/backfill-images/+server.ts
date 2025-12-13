@@ -17,12 +17,13 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		// Get all shows with URLs but no images
+		// Get shows with URLs but no images, prioritizing upcoming shows
 		const result = await db.execute({
 			sql: `SELECT id, url FROM shows
 			      WHERE url IS NOT NULL
 			      AND (image_url IS NULL OR image_url = '')
-			      LIMIT 100`, // Process in batches
+			      ORDER BY date DESC
+			      LIMIT 100`, // Process in batches, newest first
 			args: []
 		});
 
