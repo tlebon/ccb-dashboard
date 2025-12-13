@@ -56,11 +56,9 @@ function getContentTypeFromUrl(imageUrl: string): string {
  * @param force - If true, skip existence check and force re-upload (useful for fixing broken blobs)
  */
 export async function cacheImageToBlob(imageUrl: string, force = false): Promise<string | null> {
-	const proxyBase = env.VITE_PROXY_EVENT_URL;
-
-	// If no proxy configured or no blob token, skip caching
-	if (!proxyBase || !process.env.BLOB_READ_WRITE_TOKEN) {
-		console.log('[ImageCache] Missing proxy or blob token, skipping cache');
+	// Check blob token is configured
+	if (!process.env.BLOB_READ_WRITE_TOKEN) {
+		console.log('[ImageCache] Missing blob token, skipping cache');
 		return null;
 	}
 
@@ -81,14 +79,22 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 			}
 		}
 
-		// Fetch image via proxy to bypass Cloudflare
-		const proxyUrl = `${proxyBase}?url=${encodeURIComponent(imageUrl)}`;
-		const response = await fetch(proxyUrl, {
+		// Fetch image directly - CDN images (/wp-content/uploads/*) should work from Vercel
+		// Note: Event PAGES need proxy, but static assets are served by CDN
+		const response = await fetch(imageUrl, {
 			signal: AbortSignal.timeout(10000)
 		});
 
 		if (!response.ok) {
-			console.log(`[ImageCache] Failed to fetch image: ${response.status}`);
+			console.log(`[ImageCache] Failed to fetch image ${response.status} from ${imageUrl}`);
+			console.log(`[ImageCache] Headers:`, Object.fromEntries(response.headers.entries()));
+			return null;
+		}
+
+		// Validate we got actual image data, not HTML error
+		const contentType = response.headers.get('content-type');
+		if (contentType && !contentType.startsWith('image/')) {
+			console.log(`[ImageCache] Got non-image content-type: ${contentType} for ${imageUrl}`);
 			return null;
 		}
 
