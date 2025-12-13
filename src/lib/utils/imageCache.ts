@@ -92,8 +92,8 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 			return null;
 		}
 
-		// Get the image data
-		const imageBuffer = await response.arrayBuffer();
+		// Get the image data as bytes (not arrayBuffer to avoid encoding issues)
+		const imageBytes = new Uint8Array(await response.arrayBuffer());
 
 		// Determine content-type from original image URL extension (don't trust proxy headers)
 		const contentType = getContentTypeFromUrl(imageUrl);
@@ -110,7 +110,7 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 			uploadOptions.allowOverwrite = true;
 		}
 
-		const uploadPromise = put(blobPath, imageBuffer, uploadOptions);
+		const uploadPromise = put(blobPath, imageBytes, uploadOptions);
 
 		const blob = await Promise.race([
 			uploadPromise,
