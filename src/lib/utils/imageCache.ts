@@ -52,8 +52,10 @@ function getContentTypeFromUrl(imageUrl: string): string {
 /**
  * Fetch an image via proxy and upload to Vercel Blob
  * Returns the blob URL or null if caching fails
+ * @param imageUrl - The image URL to cache
+ * @param force - If true, skip existence check and force re-upload (useful for fixing broken blobs)
  */
-export async function cacheImageToBlob(imageUrl: string): Promise<string | null> {
+export async function cacheImageToBlob(imageUrl: string, force = false): Promise<string | null> {
 	const proxyBase = env.VITE_PROXY_EVENT_URL;
 
 	// If no proxy configured or no blob token, skip caching
@@ -66,15 +68,17 @@ export async function cacheImageToBlob(imageUrl: string): Promise<string | null>
 		// Generate blob path
 		const blobPath = getBlobPath(imageUrl);
 
-		// Check if blob already exists
-		try {
-			const existingBlob = await head(blobPath);
-			if (existingBlob) {
-				console.log(`[ImageCache] Blob already exists: ${imageUrl} -> ${existingBlob.url}`);
-				return existingBlob.url;
+		// Check if blob already exists (unless force=true)
+		if (!force) {
+			try {
+				const existingBlob = await head(blobPath);
+				if (existingBlob) {
+					console.log(`[ImageCache] Blob already exists: ${imageUrl} -> ${existingBlob.url}`);
+					return existingBlob.url;
+				}
+			} catch (e) {
+				// Blob doesn't exist, proceed with upload
 			}
-		} catch (e) {
-			// Blob doesn't exist, proceed with upload
 		}
 
 		// Fetch image via proxy to bypass Cloudflare

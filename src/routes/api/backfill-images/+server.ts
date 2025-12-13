@@ -69,8 +69,8 @@ export const POST: RequestHandler = async ({ request }) => {
 				const originalImageUrl = img?.getAttribute('src');
 
 				if (originalImageUrl) {
-					// Cache to Vercel Blob with correct content-type
-					const blobUrl = await cacheImageToBlob(originalImageUrl);
+					// Cache to Vercel Blob with correct content-type (force=true to re-upload broken blobs)
+					const blobUrl = await cacheImageToBlob(originalImageUrl, true);
 					if (blobUrl) {
 						// Store both original and blob URLs
 						await db.execute({
