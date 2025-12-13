@@ -22,13 +22,22 @@ export const POST: RequestHandler = async ({ request, url }) => {
 	const forceReupload = url.searchParams.get('force') === 'true';
 
 	try {
-		// Get shows with URLs but no images, prioritizing upcoming shows
+		// Get shows to process
+		// If force=true: process ALL shows with URLs (to fix corrupted blobs)
+		// Otherwise: only process shows missing images
+		const sql = forceReupload
+			? `SELECT id, url FROM shows
+			   WHERE url IS NOT NULL
+			   ORDER BY date DESC
+			   LIMIT 100`
+			: `SELECT id, url FROM shows
+			   WHERE url IS NOT NULL
+			   AND (image_url IS NULL OR image_url = '')
+			   ORDER BY date DESC
+			   LIMIT 100`;
+
 		const result = await db.execute({
-			sql: `SELECT id, url FROM shows
-			      WHERE url IS NOT NULL
-			      AND (image_url IS NULL OR image_url = '')
-			      ORDER BY date DESC
-			      LIMIT 100`, // Process in batches, newest first
+			sql,
 			args: []
 		});
 
