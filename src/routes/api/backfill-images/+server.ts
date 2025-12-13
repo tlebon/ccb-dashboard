@@ -7,14 +7,19 @@ import { cacheImageToBlob } from '$lib/utils/imageCache';
 /**
  * Backfill images for existing shows by scraping their event pages
  * Processes shows in batches of 100 to avoid timeouts
+ * Query params:
+ *   ?force=true - Force re-upload even if blob exists (for fixing corrupted blobs)
  */
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, url }) => {
 	// Auth check
 	const authHeader = request.headers.get('authorization');
 	const syncSecret = process.env.SYNC_SECRET;
 	if (syncSecret && authHeader !== `Bearer ${syncSecret}`) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+
+	// Check if force re-upload is requested
+	const forceReupload = url.searchParams.get('force') === 'true';
 
 	try {
 		// Get shows with URLs but no images, prioritizing upcoming shows
@@ -70,8 +75,8 @@ export const POST: RequestHandler = async ({ request }) => {
 				const originalImageUrl = img?.getAttribute('src');
 
 				if (originalImageUrl) {
-					// Cache to Vercel Blob with correct content-type (force=true to re-upload broken blobs)
-					const blobUrl = await cacheImageToBlob(originalImageUrl, true);
+					// Cache to Vercel Blob with correct content-type
+					const blobUrl = await cacheImageToBlob(originalImageUrl, forceReupload);
 					if (blobUrl) {
 						// Store both original and blob URLs
 						await db.execute({
