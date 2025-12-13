@@ -79,9 +79,15 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 			}
 		}
 
-		// Fetch image directly - CDN images (/wp-content/uploads/*) should work from Vercel
-		// Note: Event PAGES need proxy, but static assets are served by CDN
-		const response = await fetch(imageUrl, {
+		// Fetch image via proxy - even CDN images are blocked by Cloudflare from cloud IPs
+		const proxyBase = process.env.VITE_PROXY_EVENT_URL;
+		if (!proxyBase) {
+			console.log('[ImageCache] No proxy configured, cannot fetch images from Vercel');
+			return null;
+		}
+
+		const proxyUrl = `${proxyBase}?url=${encodeURIComponent(imageUrl)}`;
+		const response = await fetch(proxyUrl, {
 			signal: AbortSignal.timeout(10000)
 		});
 
@@ -101,7 +107,7 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 		// Get the image data as bytes (not arrayBuffer to avoid encoding issues)
 		const imageBytes = new Uint8Array(await response.arrayBuffer());
 
-		// Determine content-type from original image URL extension (don't trust proxy headers)
+		// Determine content-type from original image URL extension for consistency
 		const contentType = getContentTypeFromUrl(imageUrl);
 
 		// Upload to Vercel Blob with timeout
