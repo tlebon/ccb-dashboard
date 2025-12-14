@@ -75,9 +75,10 @@ All existing cookies will become invalid since they're checking for the old vers
 
 **Implementation:**
 - Access control is "soft security" - designed to hide analytics from casual visitors, not protect sensitive data
+- Unauthorized users are automatically redirected to homepage (no "Access Denied" message to avoid revealing page existence)
 - Cookie constants are defined in `src/lib/server/analytics-constants.ts`
 - Hook handler: `src/hooks.server.ts`
-- Page server load: `src/routes/analytics/+page.server.ts`
+- Page server load: `src/routes/analytics/+page.server.ts` (handles redirect)
 - Navigation components conditionally show/hide analytics link based on cookie presence
 
 ## Cron Jobs

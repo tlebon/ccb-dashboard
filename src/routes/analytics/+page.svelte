@@ -5,8 +5,6 @@
 	import AnalyticsBarChart from '$lib/components/analytics/AnalyticsBarChart.svelte';
 	import AnalyticsModal from '$lib/components/analytics/AnalyticsModal.svelte';
 
-	let { data: pageData } = $props();
-
 	interface AnalyticsData {
 		stats: {
 			totalShows: number;
@@ -103,20 +101,6 @@
 <div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
 	<div class="grain-overlay"></div>
 
-	{#if !pageData.hasAccess}
-		<!-- Access Denied -->
-		<div class="relative z-10 flex items-center justify-center min-h-screen px-4">
-			<div class="text-center">
-				<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white mb-4"
-				    style="font-family: var(--font-black);">
-					Access Denied
-				</h1>
-				<p class="text-white/60 text-lg" style="font-family: var(--font-mono);">
-					This page requires special access.
-				</p>
-			</div>
-		</div>
-	{:else}
 	<!-- Header section -->
 	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 pt-4 md:pt-8">
 		<QuickNav />
@@ -328,11 +312,10 @@
 			</footer>
 		{/if}
 	</div>
-	{/if}
 </div>
 
-<!-- Modals (only shown when access granted) -->
-{#if pageData.hasAccess && modalOpen && data}
+<!-- Modals -->
+{#if modalOpen && data}
 	<AnalyticsModal
 		title={modalTitles[modalOpen]}
 		open={true}
