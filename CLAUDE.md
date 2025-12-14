@@ -65,6 +65,14 @@ Visit any page with the unlock query parameter: `?analytics=<secret>`
 
 This sets a persistent cookie that lasts 1 year. The analytics link will appear in the navigation once unlocked.
 
+**How to revoke everyone's access:**
+To invalidate all existing cookies and revoke access for everyone:
+1. Edit `src/lib/server/analytics-constants.ts`
+2. Change `ANALYTICS_VERSION` from `v1` to `v2` (or any new value)
+3. Deploy the change
+
+All existing cookies will become invalid since they're checking for the old version. Users will need to unlock again with the secret.
+
 **Implementation:**
 - Access control is "soft security" - designed to hide analytics from casual visitors, not protect sensitive data
 - Cookie constants are defined in `src/lib/server/analytics-constants.ts`
