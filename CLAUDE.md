@@ -51,6 +51,27 @@ Vercel environment variables (set in Vercel dashboard):
 
 The proxy URLs point to a personal proxy server that adds browser headers to avoid Cloudflare 403 errors when fetching from CCB's website.
 
+**Analytics Access:**
+- `ANALYTICS_UNLOCK_SECRET` - (Optional) Secret value for unlocking analytics page access. Defaults to `unlock` in development.
+
+## Analytics Access Control
+
+The `/analytics` page is protected by a simple cookie-based access control mechanism:
+
+**How to unlock access:**
+Visit any page with the unlock query parameter: `?analytics=<secret>`
+- Example: `https://your-site.com/?analytics=unlock` (development)
+- Example: `https://your-site.com/?analytics=<your-secret>` (production with ANALYTICS_UNLOCK_SECRET set)
+
+This sets a persistent cookie that lasts 1 year. The analytics link will appear in the navigation once unlocked.
+
+**Implementation:**
+- Access control is "soft security" - designed to hide analytics from casual visitors, not protect sensitive data
+- Cookie constants are defined in `src/lib/server/analytics-constants.ts`
+- Hook handler: `src/hooks.server.ts`
+- Page server load: `src/routes/analytics/+page.server.ts`
+- Navigation components conditionally show/hide analytics link based on cookie presence
+
 ## Cron Jobs
 
 - `/api/sync/ical` - Syncs shows from CCB's iCal feed, runs daily at 6am UTC (configured in `vercel.json`)

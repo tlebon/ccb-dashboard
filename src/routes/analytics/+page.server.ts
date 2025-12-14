@@ -1,9 +1,8 @@
 import type { PageServerLoad } from './$types';
-
-const ANALYTICS_COOKIE_NAME = 'ccb_analytics_access';
+import { ANALYTICS_COOKIE_NAME, ANALYTICS_COOKIE_VALUE } from '$lib/server/analytics-constants';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-	const hasAccess = cookies.get(ANALYTICS_COOKIE_NAME) === '1';
+	const hasAccess = cookies.get(ANALYTICS_COOKIE_NAME) === ANALYTICS_COOKIE_VALUE;
 
 	return {
 		hasAccess

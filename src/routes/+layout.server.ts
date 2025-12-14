@@ -1,9 +1,8 @@
 import type { LayoutServerLoad } from './$types';
-
-const ANALYTICS_COOKIE_NAME = 'ccb_analytics_access';
+import { ANALYTICS_COOKIE_NAME, ANALYTICS_COOKIE_VALUE } from '$lib/server/analytics-constants';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
-	const hasAnalyticsAccess = cookies.get(ANALYTICS_COOKIE_NAME) === '1';
+	const hasAnalyticsAccess = cookies.get(ANALYTICS_COOKIE_NAME) === ANALYTICS_COOKIE_VALUE;
 
 	return {
 		hasAnalyticsAccess

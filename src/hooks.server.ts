@@ -1,26 +1,25 @@
 import type { Handle } from '@sveltejs/kit';
-
-const ANALYTICS_COOKIE_NAME = 'ccb_analytics_access';
-const ANALYTICS_UNLOCK_PARAM = 'analytics';
-const ANALYTICS_UNLOCK_VALUE = 'unlock';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+import { dev } from '$app/environment';
+import {
+	ANALYTICS_COOKIE_NAME,
+	ANALYTICS_COOKIE_VALUE,
+	ANALYTICS_UNLOCK_PARAM,
+	ANALYTICS_UNLOCK_VALUE,
+	COOKIE_MAX_AGE
+} from '$lib/server/analytics-constants';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const url = event.url;
-	const unlockParam = url.searchParams.get(ANALYTICS_UNLOCK_PARAM);
+	const unlockParam = event.url.searchParams.get(ANALYTICS_UNLOCK_PARAM);
 
 	// If the unlock parameter is present with correct value, set the cookie
 	if (unlockParam === ANALYTICS_UNLOCK_VALUE) {
-		const response = await resolve(event);
-
-		// Clone the response to add the cookie header
-		const newResponse = new Response(response.body, response);
-		newResponse.headers.append(
-			'Set-Cookie',
-			`${ANALYTICS_COOKIE_NAME}=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=${COOKIE_MAX_AGE}`
-		);
-
-		return newResponse;
+		event.cookies.set(ANALYTICS_COOKIE_NAME, ANALYTICS_COOKIE_VALUE, {
+			path: '/',
+			httpOnly: true,
+			secure: !dev, // Only use Secure flag in production (HTTPS)
+			sameSite: 'lax',
+			maxAge: COOKIE_MAX_AGE
+		});
 	}
 
 	return resolve(event);
