@@ -62,6 +62,7 @@
   let loadingMore = $state(false);
   let hasMore = $state(true);
   let loadTrigger: HTMLDivElement | null = null; // Element to observe for loading more
+  let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
 
   // Viewport tracking for poster sync (manual mode only)
   let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (populated by ShowsColumn)
@@ -93,6 +94,8 @@
 
   // Load more shows (for infinite scroll)
   let loadingPromise: Promise<void> | null = null;
+  const MAX_LOAD_DAYS = 90; // Maximum days to load (stop after 90 days or 3 empty chunks)
+  const MAX_EMPTY_CHUNKS = 3; // Stop after 3 consecutive empty chunks
 
   async function loadMoreShows() {
     if (loadingPromise || !hasMore || monitorMode) return;
@@ -101,29 +104,30 @@
       try {
         loadingMore = true;
 
-        // Calculate start date for next chunk from last loaded show
-        // This prevents date gaps if page is kept open past midnight
-        let nextStartDate: Date;
-        if (shows.length > 0) {
-          const lastShow = shows[shows.length - 1];
-          nextStartDate = new Date(lastShow.start);
-          nextStartDate.setHours(0, 0, 0, 0);
-          nextStartDate.setDate(nextStartDate.getDate() + 1); // Start day after last show
-        } else {
-          // Fallback to today if no shows loaded yet
-          nextStartDate = new Date();
-          nextStartDate.setHours(0, 0, 0, 0);
-        }
+        // Calculate start date for next chunk based on days already loaded
+        // Always calculate from today + displayedDays to handle gaps in schedule
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const nextStartDate = new Date(today);
+        nextStartDate.setDate(today.getDate() + displayedDays);
 
         // Load next 14-day chunk
         const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
 
+        // Always increment displayedDays, even if chunk is empty (to skip gaps)
+        displayedDays += 14;
+
         if (newShows.length === 0) {
-          hasMore = false;
+          consecutiveEmptyChunks += 1;
+          // Stop only after multiple consecutive empty chunks OR reaching max days
+          if (consecutiveEmptyChunks >= MAX_EMPTY_CHUNKS || displayedDays >= MAX_LOAD_DAYS) {
+            hasMore = false;
+          }
         } else {
+          // Reset empty chunk counter when we find shows
+          consecutiveEmptyChunks = 0;
           // Append new shows to existing list
           shows = [...shows, ...newShows];
-          displayedDays += 14;
         }
       } catch (e) {
         console.error('Error loading more shows:', e);
@@ -141,15 +145,11 @@
       // In manual mode (infinite scroll): fetch initial 14 days
       // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
       // pastDays = 28 covers MIN_WEEKS (-4 weeks back)
-      const fetchedShows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
-      console.log('[Debug] Fetched shows:', fetchedShows.length, fetchedShows.slice(0, 3));
-      shows = fetchedShows;
+      shows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
     } catch (e) {
-      console.error('[Debug] Error loading shows:', e);
       error = e instanceof Error ? e.message : 'Failed to load shows';
     } finally {
       loading = false;
-      console.log('[Debug] Loading complete, shows count:', shows.length);
     }
   });
 
@@ -339,28 +339,19 @@
 
   // Filter shows based on mode
   let weekShows = $derived(
-    (() => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const filtered = monitorMode
-        ? // Monitor mode: filter by week range
-          shows.filter(show => {
-            const showDate = new Date(show.start);
-            return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
-          })
-        : // Manual mode (infinite scroll): show all loaded shows from today onwards
-          shows.filter(show => {
-            const showDate = new Date(show.start);
-            return showDate >= today;
-          });
-
-      console.log('[Debug] weekShows filter - mode:', monitorMode ? 'monitor' : 'manual', 'today:', today.toISOString(), 'total shows:', shows.length, 'filtered:', filtered.length);
-      if (filtered.length > 0) {
-        console.log('[Debug] First filtered show:', filtered[0].title, new Date(filtered[0].start).toISOString());
-      }
-      return filtered;
-    })()
+    monitorMode
+      ? // Monitor mode: filter by week range
+        shows.filter(show => {
+          const showDate = new Date(show.start);
+          return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
+        })
+      : // Manual mode (infinite scroll): show all loaded shows from today onwards
+        shows.filter(show => {
+          const showDate = new Date(show.start);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return showDate >= today;
+        })
   );
 
   // In monitor mode, filter out shows that have already started
@@ -385,11 +376,7 @@
   );
   let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
-  let groupedShows = $derived((() => {
-    const grouped = groupShowsByDay(displayShows, monitorMode && weekOffset === 0);
-    console.log('[Debug] groupedShows - input shows:', displayShows.length, 'grouped days:', Object.keys(grouped).length, 'total in groups:', Object.values(grouped).flat().length);
-    return grouped;
-  })());
+  let groupedShows = $derived(groupShowsByDay(displayShows, monitorMode && weekOffset === 0));
 
   function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
     const groups: Record<string, Show[]> = {};
