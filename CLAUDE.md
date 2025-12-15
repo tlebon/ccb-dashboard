@@ -51,6 +51,43 @@ Vercel environment variables (set in Vercel dashboard):
 
 The proxy URLs point to a personal proxy server that adds browser headers to avoid Cloudflare 403 errors when fetching from CCB's website.
 
+**Analytics Access:**
+- `ANALYTICS_UNLOCK_SECRET` - (Optional) Secret value for unlocking analytics page access. Defaults to `unlock` in development.
+
+## Analytics Access Control
+
+The `/analytics` page is protected by a simple cookie-based access control mechanism:
+
+**How to unlock access:**
+Visit any page with the unlock query parameter: `?analytics=<secret>`
+- Example: `https://your-site.com/?analytics=unlock` (development)
+- Example: `https://your-site.com/?analytics=<your-secret>` (production with ANALYTICS_UNLOCK_SECRET set)
+
+The system will:
+1. Verify the secret using constant-time comparison (prevents timing attacks)
+2. Set a persistent cookie that lasts 1 year (users will need to re-unlock annually)
+3. Redirect to the same page without the query parameter (removes secret from URL bar/history)
+4. Analytics link will appear in navigation
+
+**Note:** If deploying to production without setting `ANALYTICS_UNLOCK_SECRET`, a warning will be logged that the default "unlock" value is being used.
+
+**How to revoke everyone's access:**
+To invalidate all existing cookies and revoke access for everyone:
+1. Edit `src/lib/server/analytics-constants.ts`
+2. Change `ANALYTICS_VERSION` from `v1` to `v2` (or any new value)
+3. Deploy the change
+
+All existing cookies will become invalid since they're checking for the old version. Users will need to unlock again with the secret.
+
+**Implementation:**
+- Access control is "soft security" - designed to hide analytics from casual visitors, not protect sensitive data
+- Unauthorized users are automatically redirected to homepage (no "Access Denied" message to avoid revealing page existence)
+- Secret verification uses constant-time comparison (`crypto.timingSafeEqual`) to prevent timing attacks
+- Cookie constants and verification function in `src/lib/server/analytics-constants.ts`
+- Hook handler in `src/hooks.server.ts` (sets cookie and redirects)
+- Page server load in `src/routes/analytics/+page.server.ts` (handles redirect for direct access)
+- Navigation components conditionally show/hide analytics link based on cookie presence
+
 ## Cron Jobs
 
 - `/api/sync/ical` - Syncs shows from CCB's iCal feed, runs daily at 6am UTC (configured in `vercel.json`)
