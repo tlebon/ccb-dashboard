@@ -43,19 +43,19 @@
   }
 
   // Week offset: 0 = this week, 1 = next week, 2 = week after, etc.
-  let weekOffset = 0;
-  let monitorMode = false;
-  let direction = 1; // 1 = forward, -1 = backward (for animation)
-  let isManualNav = true; // Track if navigation was manual (click) vs auto (monitor mode) - start true so first click is smooth
+  let weekOffset = $state(0);
+  let monitorMode = $state(false);
+  let direction = $state(1); // 1 = forward, -1 = backward (for animation)
+  let isManualNav = $state(true); // Track if navigation was manual (click) vs auto (monitor mode) - start true so first click is smooth
   let initialTheme: 'blue' | 'orange' = Math.random() < 0.5 ? 'blue' : 'orange'; // Random theme on load
-  let monitorThemeOffset = 0; // Tracks theme rotation in monitor mode
+  let monitorThemeOffset = $state(0); // Tracks theme rotation in monitor mode
   let interval: ReturnType<typeof setInterval>;
-  let initialized = false;
+  let initialized = $state(false);
 
   // Show data
-  let shows: Show[] = [];
-  let loading = true;
-  let error: string | null = null;
+  let shows = $state<Show[]>([]);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
 
   // Infinite scroll state (for manual mode only)
   let displayedDays = $state(14); // Days loaded so far
