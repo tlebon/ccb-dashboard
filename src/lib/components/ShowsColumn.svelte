@@ -18,6 +18,10 @@
   export let pastShowIds: string[] = []; // IDs of shows that have already started (for greying out)
   export let firstUpcomingShowId: string | null = null; // ID of first upcoming show (for auto-scroll)
   export let isCurrentWeek: boolean = false; // Only auto-scroll on current week
+  export let loadingMore: boolean = false; // Loading more shows (for infinite scroll)
+  export let hasMore: boolean = true; // Whether there are more shows to load
+  export let loadTrigger: HTMLDivElement | null = null; // Ref for load trigger element
+  export let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (for poster sync)
 
   let scrollContainer: HTMLElement;
   let scrollDirection: 'down' | 'up' = 'down';
@@ -242,9 +246,81 @@
     }
   });
 
+  // Viewport tracking for poster sync (manual mode only)
+  let visibleDaySections = new Set<string>(); // Track visible day section keys
+
+  function updateVisibleShows() {
+    if (monitorMode) {
+      visibleShowIds = []; // Don't track in monitor mode
+      return;
+    }
+
+    // Extract all show IDs from visible day sections
+    const visible: string[] = [];
+    visibleDaySections.forEach(dayKey => {
+      if (groupedShows[dayKey]) {
+        visible.push(...groupedShows[dayKey].map(s => s.id));
+      }
+    });
+    visibleShowIds = visible;
+  }
+
+  function setupViewportTracking(): IntersectionObserver | null {
+    if (monitorMode || !scrollContainer) return null;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          const dayKey = entry.target.getAttribute('data-day-key');
+          if (!dayKey) return;
+
+          if (entry.isIntersecting) {
+            visibleDaySections.add(dayKey);
+          } else {
+            visibleDaySections.delete(dayKey);
+          }
+        });
+        updateVisibleShows();
+      },
+      {
+        root: scrollContainer,
+        rootMargin: '-10% 0px -10% 0px', // Only consider elements in middle 80% of viewport
+        threshold: 0.1
+      }
+    );
+
+    // Observe all day section elements
+    const daySections = scrollContainer.querySelectorAll('[data-day-key]');
+    daySections.forEach(section => observer.observe(section));
+
+    return observer;
+  }
+
+  // Setup viewport tracking when content changes
+  let viewportObserver: IntersectionObserver | null = null;
+  let prevGroupedShowsKeyForViewport = '';
+
+  $: {
+    const newKey = Object.keys(groupedShows).join(',');
+    if (scrollContainer && newKey !== prevGroupedShowsKeyForViewport) {
+      prevGroupedShowsKeyForViewport = newKey;
+      // Cleanup old observer
+      if (viewportObserver) {
+        viewportObserver.disconnect();
+      }
+      // Setup new observer after DOM updates
+      setTimeout(() => {
+        viewportObserver = setupViewportTracking();
+      }, 100);
+    }
+  }
+
   onDestroy(() => {
     stopAutoScroll();
     scrollSnap.cleanup();
+    if (viewportObserver) {
+      viewportObserver.disconnect();
+    }
   });
 </script>
 
@@ -265,7 +341,7 @@
   {:else}
     {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
       {@const dayShowIds = dayShows.map(s => s.id)}
-      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')}>
+      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
         <!-- Day heading with brutalist style -->
         <div class="mb-2 relative">
           <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
@@ -329,6 +405,21 @@
         </ul>
       </div>
     {/each}
+
+    <!-- Infinite scroll: Load trigger element -->
+    {#if !monitorMode && hasMore}
+      <div bind:this={loadTrigger} class="h-4"></div>
+    {/if}
+
+    <!-- Infinite scroll: Loading indicator -->
+    {#if loadingMore}
+      <div class="text-center py-4">
+        <p class="text-white/60 font-bold uppercase tracking-wider" style="font-family: var(--font-display);">
+          Loading more shows...
+        </p>
+      </div>
+    {/if}
+
     <!-- Spacer to allow scrolling past shows to the top when content is short (current week only) -->
     {#if pastShowIds.length > 0 && !monitorMode && isCurrentWeek}
       <div style="height: {Math.min(pastShowIds.length * 60, 400)}px"></div>

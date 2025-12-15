@@ -36,6 +36,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const daysParam = url.searchParams.get('days');
 		const pastDaysParam = url.searchParams.get('pastDays');
+		const startDateParam = url.searchParams.get('startDate');
 		const days = daysParam ? parseInt(daysParam, 10) : 14;
 		const pastDays = pastDaysParam ? parseInt(pastDaysParam, 10) : 0;
 
@@ -43,13 +44,20 @@ export const GET: RequestHandler = async ({ url }) => {
 		const today = new Date();
 		const todayStr = today.toISOString().split('T')[0];
 
-		// Calculate start date (can be in the past)
-		const startDate = new Date(today);
-		startDate.setDate(startDate.getDate() - pastDays);
+		// Calculate start date
+		let startDate: Date;
+		if (startDateParam) {
+			// Use provided start date for pagination
+			startDate = new Date(startDateParam);
+		} else {
+			// Use pastDays offset from today (can be in the past)
+			startDate = new Date(today);
+			startDate.setDate(startDate.getDate() - pastDays);
+		}
 		const startDateStr = startDate.toISOString().split('T')[0];
 
-		// Calculate end date
-		const endDate = new Date(today);
+		// Calculate end date (N days from start date)
+		const endDate = new Date(startDate);
 		endDate.setDate(endDate.getDate() + days);
 		const endDateStr = endDate.toISOString().split('T')[0];
 

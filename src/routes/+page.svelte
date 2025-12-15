@@ -57,19 +57,28 @@
   let loading = true;
   let error: string | null = null;
 
+  // Infinite scroll state (for manual mode only)
+  let displayedDays = $state(14); // Days loaded so far
+  let loadingMore = $state(false);
+  let hasMore = $state(true);
+  let loadTrigger: HTMLDivElement | null = null; // Element to observe for loading more
+
+  // Viewport tracking for poster sync (manual mode only)
+  let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (populated by ShowsColumn)
+
   const ROTATE_MS = 30000; // Auto-rotate interval
   const MAX_WEEKS = 8; // Maximum weeks to show ahead
   const MIN_WEEKS = -4; // Maximum weeks to show behind (negative = past)
 
   // Sync week from URL (reacts to URL changes including back navigation)
-  $: urlWeek = $page.url.searchParams.get('week');
-  $: {
+  $effect(() => {
+    const urlWeek = $page.url.searchParams.get('week');
     const parsed = urlWeek ? parseInt(urlWeek, 10) : 0;
     if (!isNaN(parsed) && parsed >= MIN_WEEKS && parsed < MAX_WEEKS && parsed !== weekOffset) {
       weekOffset = parsed;
     }
     initialized = true;
-  }
+  });
 
   // Update URL when week changes (adds to browser history)
   function updateUrl(week: number) {
@@ -82,15 +91,63 @@
     goto(url.pathname + url.search, { noScroll: true });
   }
 
+  // Load more shows (for infinite scroll)
+  async function loadMoreShows() {
+    if (loadingMore || !hasMore || monitorMode) return;
+
+    try {
+      loadingMore = true;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Calculate start date for next chunk
+      const nextStartDate = new Date(today);
+      nextStartDate.setDate(today.getDate() + displayedDays);
+
+      // Load next 14-day chunk
+      const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
+
+      if (newShows.length === 0) {
+        hasMore = false;
+      } else {
+        // Append new shows to existing list
+        shows = [...shows, ...newShows];
+        displayedDays += 14;
+      }
+    } catch (e) {
+      console.error('Error loading more shows:', e);
+    } finally {
+      loadingMore = false;
+    }
+  }
+
   onMount(async () => {
     try {
-      // Fetch enough shows to cover multiple weeks (future and past)
+      // In manual mode (infinite scroll): fetch initial 14 days
+      // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
       // pastDays = 28 covers MIN_WEEKS (-4 weeks back)
-      shows = await fetchShowsFromDB(60, 28);
+      shows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load shows';
     } finally {
       loading = false;
+    }
+  });
+
+  // Setup Intersection Observer for infinite scroll when loadTrigger becomes available
+  $effect(() => {
+    if (!monitorMode && loadTrigger) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !loadingMore && hasMore) {
+            loadMoreShows();
+          }
+        },
+        { rootMargin: '500px' }
+      );
+      observer.observe(loadTrigger);
+
+      return () => observer.disconnect();
     }
   });
 
@@ -100,32 +157,34 @@
 
   // Auto-rotate when in monitor mode (skips empty weeks)
   let prevMonitorModeForRotate = false;
-  $: if (monitorMode !== prevMonitorModeForRotate) {
-    prevMonitorModeForRotate = monitorMode;
-    if (interval) clearInterval(interval);
-    if (monitorMode) {
-      interval = setInterval(() => {
-        const next = findNextWeekWithShows(weekOffset);
-        if (next !== null) {
-          direction = 1;
-          isManualNav = false; // Auto-rotate uses full page transition
-          monitorThemeOffset++; // Alternate theme each rotation
-          weekOffset = next;
-          updateUrl(weekOffset);
-        } else {
-          // Wrap around: find first week with shows
-          const first = findNextWeekWithShows(-1);
-          if (first !== null && first !== weekOffset) {
+  $effect(() => {
+    if (monitorMode !== prevMonitorModeForRotate) {
+      prevMonitorModeForRotate = monitorMode;
+      if (interval) clearInterval(interval);
+      if (monitorMode) {
+        interval = setInterval(() => {
+          const next = findNextWeekWithShows(weekOffset);
+          if (next !== null) {
             direction = 1;
-            isManualNav = false;
-            monitorThemeOffset++;
-            weekOffset = first;
+            isManualNav = false; // Auto-rotate uses full page transition
+            monitorThemeOffset++; // Alternate theme each rotation
+            weekOffset = next;
             updateUrl(weekOffset);
+          } else {
+            // Wrap around: find first week with shows
+            const first = findNextWeekWithShows(-1);
+            if (first !== null && first !== weekOffset) {
+              direction = 1;
+              isManualNav = false;
+              monitorThemeOffset++;
+              weekOffset = first;
+              updateUrl(weekOffset);
+            }
           }
-        }
-      }, ROTATE_MS);
+        }, ROTATE_MS);
+      }
     }
-  }
+  });
 
   // Check if a week offset has any shows
   function weekHasShows(offset: number): boolean {
@@ -245,34 +304,51 @@
     }
   }
 
-  $: weekRange = getWeekRange(weekOffset);
+  let weekRange = $derived(getWeekRange(weekOffset));
 
   // Current time for past show detection (reactive)
-  $: currentTime = new Date();
+  let currentTime = $derived(new Date());
 
-  // Filter and group shows for current week
-  $: weekShows = shows.filter(show => {
-    const showDate = new Date(show.start);
-    return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
-  });
+  // Filter shows based on mode
+  let weekShows = $derived(
+    monitorMode
+      ? // Monitor mode: filter by week range
+        shows.filter(show => {
+          const showDate = new Date(show.start);
+          return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
+        })
+      : // Manual mode (infinite scroll): show all loaded shows from today onwards
+        shows.filter(show => {
+          const showDate = new Date(show.start);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          return showDate >= today;
+        })
+  );
 
   // In monitor mode, filter out shows that have already started
-  $: displayShows = monitorMode
-    ? weekShows.filter(show => new Date(show.start) > currentTime)
-    : weekShows;
+  let displayShows = $derived(
+    monitorMode
+      ? weekShows.filter(show => new Date(show.start) > currentTime)
+      : weekShows
+  );
 
   // Track IDs of shows that have passed their start time (for greying out in manual mode)
-  $: pastShowIds = weekShows
-    .filter(show => new Date(show.start) <= currentTime)
-    .map(show => show.id);
+  let pastShowIds = $derived(
+    weekShows
+      .filter(show => new Date(show.start) <= currentTime)
+      .map(show => show.id)
+  );
 
   // Find the first upcoming show (for auto-scroll in manual mode)
-  $: firstUpcomingShow = weekShows
-    .filter(show => new Date(show.start) > currentTime)
-    .sort((a, b) => +new Date(a.start) - +new Date(b.start))[0];
-  $: firstUpcomingShowId = firstUpcomingShow?.id ?? null;
+  let firstUpcomingShow = $derived(
+    weekShows
+      .filter(show => new Date(show.start) > currentTime)
+      .sort((a, b) => +new Date(a.start) - +new Date(b.start))[0]
+  );
+  let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
-  $: groupedShows = groupShowsByDay(displayShows, weekOffset === 0);
+  let groupedShows = $derived(groupShowsByDay(displayShows, monitorMode && weekOffset === 0));
 
   function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
     const groups: Record<string, Show[]> = {};
@@ -309,36 +385,38 @@
   }
 
   // Find next show
-  $: now = new Date();
-  $: nextShow = weekShows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0];
-  $: highlightedShowIds = weekShows.filter(s => s.imageUrl).map(s => s.id);
+  let now = $derived(new Date());
+  let nextShow = $derived(weekShows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0]);
+  let highlightedShowIds = $derived(weekShows.filter(s => s.imageUrl).map(s => s.id));
 
   // Dynamic sizing based on content
-  $: dayCount = Object.keys(groupedShows).length;
-  $: totalShows = weekShows.length;
-  $: dayHeadingClass = totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
-  $: timeClass = totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl';
-  $: titleClass = totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg';
+  let dayCount = $derived(Object.keys(groupedShows).length);
+  let totalShows = $derived(weekShows.length);
+  let dayHeadingClass = $derived(totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl');
+  let timeClass = $derived(totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl');
+  let titleClass = $derived(totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg');
 
   // Theme: random on load for manual nav, alternates in monitor mode
-  $: theme = isManualNav
-    ? initialTheme
-    : (monitorThemeOffset % 2 === 0 ? initialTheme : (initialTheme === 'blue' ? 'orange' : 'blue')) as 'blue' | 'orange';
+  let theme = $derived(
+    isManualNav
+      ? initialTheme
+      : (monitorThemeOffset % 2 === 0 ? initialTheme : (initialTheme === 'blue' ? 'orange' : 'blue')) as 'blue' | 'orange'
+  );
 
   // Layout style only changes in monitor mode (affects column order)
-  $: isNextWeekStyle = !isManualNav && monitorThemeOffset % 2 === 1;
+  let isNextWeekStyle = $derived(!isManualNav && monitorThemeOffset % 2 === 1);
 
   // Navigation availability (based on whether there are weeks with shows)
   // Note: explicit dependency on `shows` to recompute when data loads
-  $: prevWeekOffset = shows.length ? findPrevWeekWithShows(weekOffset) : null;
-  $: nextWeekOffset = shows.length ? findNextWeekWithShows(weekOffset) : null;
-  $: canGoPrev = !loading && prevWeekOffset !== null;
-  $: canGoNext = !loading && nextWeekOffset !== null;
-  $: prevWeekLabel = prevWeekOffset !== null ? getWeekRange(prevWeekOffset).label : '';
-  $: nextWeekLabel = nextWeekOffset !== null ? getWeekRange(nextWeekOffset).label : '';
+  let prevWeekOffset = $derived(shows.length ? findPrevWeekWithShows(weekOffset) : null);
+  let nextWeekOffset = $derived(shows.length ? findNextWeekWithShows(weekOffset) : null);
+  let canGoPrev = $derived(!loading && prevWeekOffset !== null);
+  let canGoNext = $derived(!loading && nextWeekOffset !== null);
+  let prevWeekLabel = $derived(prevWeekOffset !== null ? getWeekRange(prevWeekOffset).label : '');
+  let nextWeekLabel = $derived(nextWeekOffset !== null ? getWeekRange(nextWeekOffset).label : '');
 
   // Past week detection (negative offset means past)
-  $: isPastWeek = weekOffset < 0;
+  let isPastWeek = $derived(weekOffset < 0);
 </script>
 
 <svelte:head>
@@ -393,7 +471,11 @@
               showInlineImages={true}
               {pastShowIds}
               {firstUpcomingShowId}
-              isCurrentWeek={weekOffset === 0}
+              isCurrentWeek={true}
+              {loadingMore}
+              {hasMore}
+              bind:loadTrigger
+              bind:visibleShowIds
             />
           </main>
         </div>
@@ -403,7 +485,7 @@
               style="grid-template-columns: {isNextWeekStyle ? '3.5fr 3.5fr 2.7fr' : '2.7fr 3.5fr 3.5fr'};">
           {#if isNextWeekStyle}
             <!-- Next week style: Images, Shows, Branding -->
-            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} {isPastWeek} />
+            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} upFirst={true} {theme} {isPastWeek} {visibleShowIds} {monitorMode} />
             <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={weekOffset === 0} />
             <BrandingColumn
               {theme}
@@ -436,7 +518,7 @@
               on:toggleMonitor={toggleMonitorMode}
             />
             <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={weekOffset === 0} />
-            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} {isPastWeek} />
+            <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} {isPastWeek} {visibleShowIds} {monitorMode} />
           {/if}
         </main>
       </div>
@@ -521,7 +603,7 @@
               out:fade={{ duration: 100 }}
               class="absolute inset-0"
             >
-              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={weekOffset === 0} />
+              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={weekOffset === 0} {loadingMore} {hasMore} bind:loadTrigger bind:visibleShowIds />
             </div>
           {/key}
         </div>
@@ -533,7 +615,7 @@
               out:fade={{ duration: 100 }}
               class="absolute inset-0"
             >
-              <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} {isPastWeek} />
+              <ImagesColumn {nextShow} shows={weekShows} nextShowId={nextShow?.id} {theme} {isPastWeek} {visibleShowIds} {monitorMode} />
             </div>
           {/key}
         </div>

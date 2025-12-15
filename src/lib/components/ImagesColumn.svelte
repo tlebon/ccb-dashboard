@@ -8,7 +8,14 @@
   export let upFirst: boolean = false;
   export let theme: 'blue' | 'orange' = 'blue';
   export let isPastWeek: boolean = false;
+  export let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (for carousel filtering)
+  export let monitorMode: boolean = false; // In monitor mode, don't filter carousel
   import ShowCarousel from './ShowCarousel.svelte';
+
+  // Filter carousel shows to only visible shows in manual mode
+  $: carouselShows = monitorMode || visibleShowIds.length === 0
+    ? shows // Monitor mode or no tracking: show all shows
+    : shows.filter(show => visibleShowIds.includes(show.id)); // Manual mode: show only visible shows
 
   // Format show title - add team names for House Show
   function getDisplayTitle(show: Show): string {
@@ -24,10 +31,10 @@
   {#if isPastWeek}
     <!-- Past week: two carousels, no featured show -->
     <div class="w-full flex-1 min-h-0 reveal-up delay-300">
-      <ShowCarousel shows={shows.slice(0, Math.ceil(shows.length / 2))} nextShowId={undefined} {theme} />
+      <ShowCarousel shows={carouselShows.slice(0, Math.ceil(carouselShows.length / 2))} nextShowId={undefined} {theme} />
     </div>
     <div class="w-full flex-1 min-h-0 reveal-up delay-400">
-      <ShowCarousel shows={shows.slice(Math.ceil(shows.length / 2))} nextShowId={undefined} {theme} />
+      <ShowCarousel shows={carouselShows.slice(Math.ceil(carouselShows.length / 2))} nextShowId={undefined} {theme} />
     </div>
   {:else}
     {#if nextShow}
@@ -75,7 +82,7 @@
 
     <!-- Carousel -->
     <div class="w-full flex-1 min-h-0 reveal-up delay-400">
-      <ShowCarousel {shows} {nextShowId} {theme} />
+      <ShowCarousel shows={carouselShows} {nextShowId} {theme} />
     </div>
   {/if}
 </section> 

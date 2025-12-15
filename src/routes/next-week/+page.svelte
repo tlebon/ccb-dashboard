@@ -21,17 +21,27 @@
   });
 
   // Filter shows for next week only (Monday to Sunday after this week)
+  // Week definition: Monday = start, Sunday = end (shows run Wed-Sun)
   function getNextWeekRange() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-    const daysUntilNextMonday = ((8 - dayOfWeek) % 7) || 7;
+
+    // Calculate days until next Monday (start of next week)
+    // Sunday (0) is LAST day of current week, so next Monday is 1 day away
+    // Monday (1) is START of current week, so next Monday is 7 days away
+    // Tuesday-Saturday: Calculate days remaining in this week + 1
+    const daysUntilNextMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek);
+
     const nextMonday = new Date(today);
     nextMonday.setDate(today.getDate() + daysUntilNextMonday);
     nextMonday.setHours(0, 0, 0, 0);
+
+    // Next Sunday is 6 days after next Monday (end of next week)
     const nextSunday = new Date(nextMonday);
     nextSunday.setDate(nextMonday.getDate() + 6);
     nextSunday.setHours(23, 59, 59, 999);
+
     return { nextMonday, nextSunday };
   }
 
@@ -66,9 +76,6 @@
   $: dayHeadingClass = totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl';
   $: timeClass = totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl';
   $: titleClass = totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg';
-
-  $: console.log('nextWeekShows', nextWeekShows);
-  $: console.log('groupedShows', groupedShows);
 </script>
 
 <div class="h-screen max-h-screen text-white flex flex-col overflow-hidden box-border relative
