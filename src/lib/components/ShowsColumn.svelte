@@ -309,9 +309,9 @@
         viewportObserver.disconnect();
       }
       // Setup new observer after DOM updates
-      setTimeout(() => {
+      tick().then(() => {
         viewportObserver = setupViewportTracking();
-      }, 100);
+      });
     }
   }
 

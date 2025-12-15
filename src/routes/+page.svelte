@@ -92,33 +92,48 @@
   }
 
   // Load more shows (for infinite scroll)
+  let loadingPromise: Promise<void> | null = null;
+
   async function loadMoreShows() {
-    if (loadingMore || !hasMore || monitorMode) return;
+    if (loadingPromise || !hasMore || monitorMode) return;
 
-    try {
-      loadingMore = true;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    loadingPromise = (async () => {
+      try {
+        loadingMore = true;
 
-      // Calculate start date for next chunk
-      const nextStartDate = new Date(today);
-      nextStartDate.setDate(today.getDate() + displayedDays);
+        // Calculate start date for next chunk from last loaded show
+        // This prevents date gaps if page is kept open past midnight
+        let nextStartDate: Date;
+        if (shows.length > 0) {
+          const lastShow = shows[shows.length - 1];
+          nextStartDate = new Date(lastShow.start);
+          nextStartDate.setHours(0, 0, 0, 0);
+          nextStartDate.setDate(nextStartDate.getDate() + 1); // Start day after last show
+        } else {
+          // Fallback to today if no shows loaded yet
+          nextStartDate = new Date();
+          nextStartDate.setHours(0, 0, 0, 0);
+        }
 
-      // Load next 14-day chunk
-      const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
+        // Load next 14-day chunk
+        const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
 
-      if (newShows.length === 0) {
-        hasMore = false;
-      } else {
-        // Append new shows to existing list
-        shows = [...shows, ...newShows];
-        displayedDays += 14;
+        if (newShows.length === 0) {
+          hasMore = false;
+        } else {
+          // Append new shows to existing list
+          shows = [...shows, ...newShows];
+          displayedDays += 14;
+        }
+      } catch (e) {
+        console.error('Error loading more shows:', e);
+      } finally {
+        loadingMore = false;
+        loadingPromise = null;
       }
-    } catch (e) {
-      console.error('Error loading more shows:', e);
-    } finally {
-      loadingMore = false;
-    }
+    })();
+
+    await loadingPromise;
   }
 
   onMount(async () => {

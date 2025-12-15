@@ -61,12 +61,12 @@ export const GET: RequestHandler = async ({ url }) => {
 		endDate.setDate(endDate.getDate() + days);
 		const endDateStr = endDate.toISOString().split('T')[0];
 
-		// Fetch all shows in range
+		// Fetch all shows in range (exclusive end date to return exactly N days)
 		const result = await db.execute({
 			sql: `
 				SELECT id, title, slug, date, time, description, source, url, image_url
 				FROM shows
-				WHERE date >= ? AND date <= ?
+				WHERE date >= ? AND date < ?
 				ORDER BY date, time
 			`,
 			args: [startDateStr, endDateStr]
