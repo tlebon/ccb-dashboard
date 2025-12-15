@@ -175,6 +175,15 @@
   $effect(() => {
     if (monitorMode !== prevMonitorModeForRotate) {
       prevMonitorModeForRotate = monitorMode;
+
+      // Reload data when switching modes (monitor needs more date range)
+      if (monitorMode) {
+        // Switch to monitor mode: load 60 future days and 28 past days
+        fetchShowsFromDB(60, 28).then(newShows => {
+          shows = newShows;
+        });
+      }
+
       if (interval) clearInterval(interval);
       if (monitorMode) {
         interval = setInterval(() => {
@@ -585,7 +594,11 @@
                 showInlineImages={true}
                 {pastShowIds}
                 {firstUpcomingShowId}
-                isCurrentWeek={weekOffset === 0}
+                isCurrentWeek={true}
+                {loadingMore}
+                {hasMore}
+                bind:loadTrigger
+                bind:visibleShowIds
               />
             </div>
           {/key}
@@ -618,7 +631,7 @@
               out:fade={{ duration: 100 }}
               class="absolute inset-0"
             >
-              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={weekOffset === 0} {loadingMore} {hasMore} bind:loadTrigger bind:visibleShowIds />
+              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={true} {loadingMore} {hasMore} bind:loadTrigger bind:visibleShowIds />
             </div>
           {/key}
         </div>
