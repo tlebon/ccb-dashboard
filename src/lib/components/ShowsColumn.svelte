@@ -408,7 +408,7 @@
 
     <!-- Infinite scroll: Load trigger element -->
     {#if !monitorMode && hasMore}
-      <div bind:this={loadTrigger} class="h-4"></div>
+      <div bind:this={loadTrigger} class="h-4 bg-red-500" data-load-trigger="true"></div>
     {/if}
 
     <!-- Infinite scroll: Loading indicator -->

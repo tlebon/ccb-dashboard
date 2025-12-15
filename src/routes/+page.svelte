@@ -61,7 +61,7 @@
   let displayedDays = $state(14); // Days loaded so far
   let loadingMore = $state(false);
   let hasMore = $state(true);
-  let loadTrigger: HTMLDivElement | null = null; // Element to observe for loading more
+  let loadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading more
   let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
 
   // Viewport tracking for poster sync (manual mode only)
@@ -165,6 +165,7 @@
 
   // Setup Intersection Observer for infinite scroll when loadTrigger becomes available
   $effect(() => {
+    console.log('[Effect] Running - monitorMode:', monitorMode, 'loadTrigger:', !!loadTrigger);
     if (!monitorMode && loadTrigger) {
       console.log('[IntersectionObserver] Setting up observer for loadTrigger');
       const observer = new IntersectionObserver(
