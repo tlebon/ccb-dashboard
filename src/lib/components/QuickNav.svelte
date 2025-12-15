@@ -6,8 +6,8 @@
   // Current path for highlighting active link
   $: currentPath = $page.url.pathname;
 
-  // Check if analytics access is granted
-  const hasAnalyticsAccess = getContext<boolean>('analyticsAccess');
+  // Check if analytics access is granted (with fallback if context not set)
+  const hasAnalyticsAccess = getContext<boolean>('analyticsAccess') ?? false;
 
   let mobileNavOpen = false;
 </script>

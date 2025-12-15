@@ -63,7 +63,11 @@ Visit any page with the unlock query parameter: `?analytics=<secret>`
 - Example: `https://your-site.com/?analytics=unlock` (development)
 - Example: `https://your-site.com/?analytics=<your-secret>` (production with ANALYTICS_UNLOCK_SECRET set)
 
-This sets a persistent cookie that lasts 1 year. The analytics link will appear in the navigation once unlocked.
+The system will:
+1. Verify the secret using constant-time comparison (prevents timing attacks)
+2. Set a persistent cookie that lasts 1 year
+3. Redirect to the same page without the query parameter (removes secret from URL bar/history)
+4. Analytics link will appear in navigation
 
 **How to revoke everyone's access:**
 To invalidate all existing cookies and revoke access for everyone:
@@ -76,9 +80,10 @@ All existing cookies will become invalid since they're checking for the old vers
 **Implementation:**
 - Access control is "soft security" - designed to hide analytics from casual visitors, not protect sensitive data
 - Unauthorized users are automatically redirected to homepage (no "Access Denied" message to avoid revealing page existence)
-- Cookie constants are defined in `src/lib/server/analytics-constants.ts`
-- Hook handler: `src/hooks.server.ts`
-- Page server load: `src/routes/analytics/+page.server.ts` (handles redirect)
+- Secret verification uses constant-time comparison (`crypto.timingSafeEqual`) to prevent timing attacks
+- Cookie constants and verification function in `src/lib/server/analytics-constants.ts`
+- Hook handler in `src/hooks.server.ts` (sets cookie and redirects)
+- Page server load in `src/routes/analytics/+page.server.ts` (handles redirect for direct access)
 - Navigation components conditionally show/hide analytics link based on cookie presence
 
 ## Cron Jobs
