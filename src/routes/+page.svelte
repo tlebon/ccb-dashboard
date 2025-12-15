@@ -276,16 +276,24 @@
     today.setHours(0, 0, 0, 0);
 
     if (offset === 0) {
-      // This week: from Monday of current week through today + 4 days
-      // This ensures shows from earlier in the week are still visible (greyed out)
+      // This week: from Monday of current week
       const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
       const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
       const weekStart = new Date(today);
       weekStart.setDate(today.getDate() - daysSinceMonday);
       weekStart.setHours(0, 0, 0, 0);
 
-      const endDate = new Date(today);
-      endDate.setDate(today.getDate() + 4);
+      // In monitor mode: show full week (Monday-Sunday)
+      // In manual mode: show through today + 4 days (for browsing context)
+      const endDate = new Date(weekStart);
+      if (monitorMode) {
+        // Full week: Sunday is 6 days after Monday
+        endDate.setDate(weekStart.getDate() + 6);
+      } else {
+        // Manual mode: show past shows + upcoming few days
+        endDate.setTime(today.getTime());
+        endDate.setDate(today.getDate() + 4);
+      }
       endDate.setHours(23, 59, 59, 999);
       return { startDate: weekStart, endDate, label: 'This Week' };
     } else if (offset > 0) {
