@@ -141,11 +141,15 @@
       // In manual mode (infinite scroll): fetch initial 14 days
       // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
       // pastDays = 28 covers MIN_WEEKS (-4 weeks back)
-      shows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
+      const fetchedShows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
+      console.log('[Debug] Fetched shows:', fetchedShows.length, fetchedShows.slice(0, 3));
+      shows = fetchedShows;
     } catch (e) {
+      console.error('[Debug] Error loading shows:', e);
       error = e instanceof Error ? e.message : 'Failed to load shows';
     } finally {
       loading = false;
+      console.log('[Debug] Loading complete, shows count:', shows.length);
     }
   });
 
@@ -335,19 +339,28 @@
 
   // Filter shows based on mode
   let weekShows = $derived(
-    monitorMode
-      ? // Monitor mode: filter by week range
-        shows.filter(show => {
-          const showDate = new Date(show.start);
-          return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
-        })
-      : // Manual mode (infinite scroll): show all loaded shows from today onwards
-        shows.filter(show => {
-          const showDate = new Date(show.start);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return showDate >= today;
-        })
+    (() => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const filtered = monitorMode
+        ? // Monitor mode: filter by week range
+          shows.filter(show => {
+            const showDate = new Date(show.start);
+            return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
+          })
+        : // Manual mode (infinite scroll): show all loaded shows from today onwards
+          shows.filter(show => {
+            const showDate = new Date(show.start);
+            return showDate >= today;
+          });
+
+      console.log('[Debug] weekShows filter - mode:', monitorMode ? 'monitor' : 'manual', 'today:', today.toISOString(), 'total shows:', shows.length, 'filtered:', filtered.length);
+      if (filtered.length > 0) {
+        console.log('[Debug] First filtered show:', filtered[0].title, new Date(filtered[0].start).toISOString());
+      }
+      return filtered;
+    })()
   );
 
   // In monitor mode, filter out shows that have already started
@@ -372,7 +385,11 @@
   );
   let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
-  let groupedShows = $derived(groupShowsByDay(displayShows, monitorMode && weekOffset === 0));
+  let groupedShows = $derived((() => {
+    const grouped = groupShowsByDay(displayShows, monitorMode && weekOffset === 0);
+    console.log('[Debug] groupedShows - input shows:', displayShows.length, 'grouped days:', Object.keys(grouped).length, 'total in groups:', Object.values(grouped).flat().length);
+    return grouped;
+  })());
 
   function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
     const groups: Record<string, Show[]> = {};
