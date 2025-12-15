@@ -65,9 +65,11 @@ Visit any page with the unlock query parameter: `?analytics=<secret>`
 
 The system will:
 1. Verify the secret using constant-time comparison (prevents timing attacks)
-2. Set a persistent cookie that lasts 1 year
+2. Set a persistent cookie that lasts 1 year (users will need to re-unlock annually)
 3. Redirect to the same page without the query parameter (removes secret from URL bar/history)
 4. Analytics link will appear in navigation
+
+**Note:** If deploying to production without setting `ANALYTICS_UNLOCK_SECRET`, a warning will be logged that the default "unlock" value is being used.
 
 **How to revoke everyone's access:**
 To invalidate all existing cookies and revoke access for everyone:

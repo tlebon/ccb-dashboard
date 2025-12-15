@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { dev } from '$app/environment';
 import { timingSafeEqual } from 'crypto';
 
 // Constants for analytics access control
@@ -9,6 +10,11 @@ export const ANALYTICS_COOKIE_VALUE = '1';
 export const ANALYTICS_UNLOCK_PARAM = 'analytics';
 export const ANALYTICS_UNLOCK_VALUE = env.ANALYTICS_UNLOCK_SECRET || 'unlock'; // Default for development
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+// Warn if using default unlock secret in production
+if (!dev && ANALYTICS_UNLOCK_VALUE === 'unlock') {
+	console.warn('⚠️  ANALYTICS_UNLOCK_SECRET not set - using default "unlock" value in production!');
+}
 
 /**
  * Constant-time comparison to prevent timing attacks.
