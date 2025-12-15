@@ -98,7 +98,10 @@
   const MAX_EMPTY_CHUNKS = 3; // Stop after 3 consecutive empty chunks
 
   async function loadMoreShows() {
-    if (loadingPromise || !hasMore || monitorMode) return;
+    if (loadingPromise || !hasMore || monitorMode) {
+      console.log('[LoadMore] Skipped - loadingPromise:', !!loadingPromise, 'hasMore:', hasMore, 'monitorMode:', monitorMode);
+      return;
+    }
 
     loadingPromise = (async () => {
       try {
@@ -111,26 +114,33 @@
         const nextStartDate = new Date(today);
         nextStartDate.setDate(today.getDate() + displayedDays);
 
+        console.log('[LoadMore] Loading chunk - startDate:', nextStartDate.toISOString().split('T')[0], 'displayedDays:', displayedDays, 'consecutiveEmpty:', consecutiveEmptyChunks);
+
         // Load next 14-day chunk
         const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
+
+        console.log('[LoadMore] Received', newShows.length, 'shows');
 
         // Always increment displayedDays, even if chunk is empty (to skip gaps)
         displayedDays += 14;
 
         if (newShows.length === 0) {
           consecutiveEmptyChunks += 1;
+          console.log('[LoadMore] Empty chunk - consecutiveEmpty:', consecutiveEmptyChunks, 'displayedDays:', displayedDays);
           // Stop only after multiple consecutive empty chunks OR reaching max days
           if (consecutiveEmptyChunks >= MAX_EMPTY_CHUNKS || displayedDays >= MAX_LOAD_DAYS) {
             hasMore = false;
+            console.log('[LoadMore] Stopping - reached limit');
           }
         } else {
           // Reset empty chunk counter when we find shows
           consecutiveEmptyChunks = 0;
           // Append new shows to existing list
           shows = [...shows, ...newShows];
+          console.log('[LoadMore] Added shows - total now:', shows.length);
         }
       } catch (e) {
-        console.error('Error loading more shows:', e);
+        console.error('[LoadMore] Error:', e);
       } finally {
         loadingMore = false;
         loadingPromise = null;
@@ -156,8 +166,10 @@
   // Setup Intersection Observer for infinite scroll when loadTrigger becomes available
   $effect(() => {
     if (!monitorMode && loadTrigger) {
+      console.log('[IntersectionObserver] Setting up observer for loadTrigger');
       const observer = new IntersectionObserver(
         (entries) => {
+          console.log('[IntersectionObserver] Trigger intersecting:', entries[0].isIntersecting, 'loadingMore:', loadingMore, 'hasMore:', hasMore);
           if (entries[0].isIntersecting && !loadingMore && hasMore) {
             loadMoreShows();
           }
@@ -166,7 +178,10 @@
       );
       observer.observe(loadTrigger);
 
-      return () => observer.disconnect();
+      return () => {
+        console.log('[IntersectionObserver] Cleaning up observer');
+        observer.disconnect();
+      };
     }
   });
 
@@ -295,6 +310,7 @@
         endDate.setDate(today.getDate() + 4);
       }
       endDate.setHours(23, 59, 59, 999);
+      console.log('[WeekRange] This Week - mode:', monitorMode ? 'monitor' : 'manual', 'range:', weekStart.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0]);
       return { startDate: weekStart, endDate, label: 'This Week' };
     } else if (offset > 0) {
       // Future weeks: Calculate the Monday of week N
