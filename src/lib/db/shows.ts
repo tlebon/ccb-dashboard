@@ -172,6 +172,22 @@ export async function upsertShow(show: {
 		}
 	}
 
+	// Try to find existing show by slug
+	const existing = await db.execute({
+		sql: 'SELECT id FROM shows WHERE slug = ?',
+		args: [slug]
+	});
+
+	if (existing.rows.length > 0) {
+		// Update existing show
+		await db.execute({
+			sql: 'UPDATE shows SET title = ?, date = ?, time = ?, description = ?, url = ?, image_url = ?, original_image_url = ? WHERE slug = ?',
+			args: [show.title, show.date, show.time || null, show.description || null, show.url || null, show.image_url || null, show.original_image_url || null, slug]
+		});
+		return existing.rows[0].id as number;
+	}
+
+	// Insert new show
 	const result = await db.execute({
 		sql: 'INSERT INTO shows (title, date, time, description, source, ical_uid, url, image_url, original_image_url, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 		args: [show.title, show.date, show.time || null, show.description || null, show.source, show.ical_uid || null, show.url || null, show.image_url || null, show.original_image_url || null, slug]

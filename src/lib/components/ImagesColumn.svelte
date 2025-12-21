@@ -13,9 +13,11 @@
   import ShowCarousel from './ShowCarousel.svelte';
 
   // Filter carousel shows to only visible shows in manual mode
-  $: carouselShows = monitorMode || visibleShowIds.length === 0
-    ? shows // Monitor mode or no tracking: show all shows
-    : shows.filter(show => visibleShowIds.includes(show.id)); // Manual mode: show only visible shows
+  $: carouselShows = monitorMode
+    ? shows // Monitor mode: show all shows
+    : visibleShowIds.length === 0
+      ? shows.filter(show => new Date(show.start) > new Date()) // No tracking yet: show only upcoming shows
+      : shows.filter(show => visibleShowIds.includes(show.id)); // Manual mode: show only visible shows
 
   // Format show title - add team names for House Show
   function getDisplayTitle(show: Show): string {

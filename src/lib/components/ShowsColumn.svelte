@@ -5,31 +5,65 @@
   import { proxyImageUrl } from '$lib/utils/imageProxy';
   import { createScrollSnap } from '$lib/utils/scrollSnap';
 
-  export let groupedShows: Record<string, Show[]>;
-  export let loading: boolean;
-  export let error: string | null;
-  export let dayHeadingClass: string;
-  export let timeClass: string;
-  export let titleClass: string;
-  export let theme: 'blue' | 'orange' = 'blue';
-  export let highlightedShowIds: string[] = []; // IDs of shows currently in sidebar
-  export let monitorMode: boolean = false;
-  export let showInlineImages: boolean = false; // Show small thumbnails inline (for mobile)
-  export let pastShowIds: string[] = []; // IDs of shows that have already started (for greying out)
-  export let firstUpcomingShowId: string | null = null; // ID of first upcoming show (for auto-scroll)
-  export let isCurrentWeek: boolean = false; // Only auto-scroll on current week
-  export let loadingMore: boolean = false; // Loading more shows (for infinite scroll)
-  export let hasMore: boolean = true; // Whether there are more shows to load
-  export let loadTrigger: HTMLDivElement | null = null; // Ref for load trigger element
-  export let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (for poster sync)
+  // Week grouping interface (matches parent component)
+  interface WeekGroup {
+    weekLabel: string;
+    startDate: Date;
+    days: Record<string, Show[]>;
+  }
 
-  let scrollContainer: HTMLElement;
+  let {
+    groupedShows,
+    loading,
+    error,
+    dayHeadingClass,
+    timeClass,
+    titleClass,
+    theme = 'blue',
+    highlightedShowIds = [],
+    monitorMode = false,
+    showInlineImages = false,
+    pastShowIds = [],
+    firstUpcomingShowId = null,
+    isCurrentWeek = false,
+    loadingMore = false,
+    hasMore = true,
+    loadTrigger = $bindable(null),
+    hasPastShows = true,
+    topLoadTrigger = $bindable(null),
+    pastDaysLoaded = 0,
+    visibleShowIds = $bindable([]),
+    scrollContainer = $bindable()
+  }: {
+    groupedShows: WeekGroup[];
+    loading: boolean;
+    error: string | null;
+    dayHeadingClass: string;
+    timeClass: string;
+    titleClass: string;
+    theme?: 'blue' | 'orange';
+    highlightedShowIds?: string[];
+    monitorMode?: boolean;
+    showInlineImages?: boolean;
+    pastShowIds?: string[];
+    firstUpcomingShowId?: string | null;
+    isCurrentWeek?: boolean;
+    loadingMore?: boolean;
+    hasMore?: boolean;
+    loadTrigger?: HTMLDivElement | null;
+    hasPastShows?: boolean;
+    topLoadTrigger?: HTMLDivElement | null;
+    pastDaysLoaded?: number;
+    visibleShowIds?: string[];
+    scrollContainer?: HTMLElement;
+  } = $props();
   let scrollDirection: 'down' | 'up' = 'down';
   let animationFrame: number;
   let pauseTimeout: ReturnType<typeof setTimeout>;
   let hasOverflow = false;
   let scrollProgress = 0; // 0 = top, 1 = bottom
   let isScrolling = false; // Guard to prevent re-initialization
+  let showTodayButton = $state(false); // Show "Back to Today" button when scrolled above current day
 
   const SCROLL_SPEED = 1.5; // pixels per frame (~90px/sec at 60fps)
   const PAUSE_DURATION = 2000; // pause at top/bottom in ms
@@ -51,6 +85,30 @@
 
   function handleScroll() {
     updateScrollProgress();
+
+    // Check if we should show "Back to Today" button
+    if (!monitorMode && firstUpcomingShowId && scrollContainer) {
+      // Find the day section containing the first upcoming show
+      const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+      let firstUpcomingDaySection: HTMLElement | null = null;
+
+      for (const section of daySections) {
+        const showIds = (section as HTMLElement).getAttribute('data-day-shows')?.split(',') || [];
+        if (showIds.includes(firstUpcomingShowId)) {
+          firstUpcomingDaySection = section as HTMLElement;
+          break;
+        }
+      }
+
+      if (firstUpcomingDaySection) {
+        const rect = firstUpcomingDaySection.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+        // Show button if the day section is below the viewport (we're scrolled above it)
+        showTodayButton = rect.top > containerRect.bottom;
+      }
+    } else {
+      showTodayButton = false;
+    }
   }
 
   function autoScroll() {
@@ -124,19 +182,22 @@
 
   // Track previous monitor mode to detect actual changes
   let prevMonitorMode = false;
-  $: if (monitorMode !== prevMonitorMode) {
-    prevMonitorMode = monitorMode;
-    if (monitorMode && scrollContainer) {
-      startAutoScroll();
-    } else {
-      stopAutoScroll();
+  $effect(() => {
+    if (monitorMode !== prevMonitorMode) {
+      prevMonitorMode = monitorMode;
+      if (monitorMode && scrollContainer) {
+        startAutoScroll();
+      } else {
+        stopAutoScroll();
+      }
     }
-  }
+  });
 
   // Track grouped shows to detect week changes
   let prevGroupedShowsKey = '';
-  $: {
-    const newKey = Object.keys(groupedShows).join(',');
+  $effect(() => {
+    // Generate key from week labels and day counts
+    const newKey = groupedShows.map(w => `${w.weekLabel}:${Object.keys(w.days).length}`).join(',');
     if (scrollContainer) {
       setTimeout(checkOverflow, 100);
       // Restart auto-scroll when content changes while in monitor mode
@@ -145,11 +206,12 @@
       }
       prevGroupedShowsKey = newKey;
     }
-  }
+  });
 
   // Auto-scroll to first upcoming show in manual mode (when past shows are greyed out above)
   // Only applies to current week - past weeks show all shows from the top
   let isInitialScroll = true;
+  let contentVisible = $state(false); // Hide content until positioned
 
   async function scrollToFirstUpcoming() {
     if (monitorMode || !firstUpcomingShowId || !scrollContainer || !isCurrentWeek) return;
@@ -157,57 +219,73 @@
     // Wait for DOM updates
     await tick();
 
-    // Additional delay to ensure transitions have completed and elements are rendered
-    setTimeout(() => {
-      // Find the day container that contains the first upcoming show
-      // This ensures the day heading is visible, not just the show
-      const dayContainers = scrollContainer.querySelectorAll('[data-day-shows]');
-      let targetElement: HTMLElement | null = null;
+    // On initial load, wait a bit less for DOM to settle
+    if (isInitialScroll) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
 
-      for (const container of dayContainers) {
-        const showIds = container.getAttribute('data-day-shows')?.split(',') || [];
-        if (showIds.includes(firstUpcomingShowId)) {
-          targetElement = container as HTMLElement;
-          break;
-        }
+    // Find the day container that contains the first upcoming show
+    const dayContainers = scrollContainer.querySelectorAll('[data-day-shows]');
+    let targetElement: HTMLElement | null = null;
+
+    for (const container of dayContainers) {
+      const showIds = container.getAttribute('data-day-shows')?.split(',') || [];
+      if (showIds.includes(firstUpcomingShowId)) {
+        targetElement = container as HTMLElement;
+        break;
+      }
+    }
+
+    if (targetElement && scrollContainer) {
+      // Calculate position relative to scroll container
+      let offsetTop = 0;
+      let element = targetElement as HTMLElement;
+
+      // Walk up the DOM tree until we reach the scroll container
+      while (element && element !== scrollContainer) {
+        offsetTop += element.offsetTop;
+        element = element.offsetParent as HTMLElement;
       }
 
-      if (targetElement && scrollContainer) {
-        // Calculate offset from the element's position relative to container
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const elementRect = targetElement.getBoundingClientRect();
-        const offset = elementRect.top - containerRect.top;
+      console.log('[ScrollDebug] Scroll - calculated offsetTop:', offsetTop, 'isInitial:', isInitialScroll);
 
-        // Only scroll if the element is not already near the top
-        if (offset > 10) {
-          scrollContainer.scrollTo({
-            top: scrollContainer.scrollTop + offset,
-            // Use instant scroll on initial load to avoid flicker, smooth for subsequent
-            behavior: isInitialScroll ? 'auto' : 'smooth'
-          });
-        }
-        isInitialScroll = false;
-      }
-    }, isInitialScroll ? 100 : 300); // Shorter delay for initial scroll
+      // Set scroll position directly
+      scrollContainer.scrollTop = offsetTop;
+
+      console.log('[ScrollDebug] After setting - scrollTop:', scrollContainer.scrollTop);
+      isInitialScroll = false;
+
+      // Show content after positioning
+      contentVisible = true;
+    }
   }
+
+  // Make content visible if not in scroll-required mode
+  $effect(() => {
+    if (loading || monitorMode || !isCurrentWeek || pastShowIds.length === 0) {
+      contentVisible = true;
+    }
+  });
 
   // Track when we should scroll - once per data load
   let lastScrolledForShowId: string | null = null;
 
   // Trigger scroll when data arrives and there are past shows to scroll past
   // Only on current week - past weeks show all shows from top
-  $: if (
-    firstUpcomingShowId &&
-    pastShowIds.length > 0 &&
-    !monitorMode &&
-    scrollContainer &&
-    !loading &&
-    isCurrentWeek &&
-    firstUpcomingShowId !== lastScrolledForShowId
-  ) {
-    lastScrolledForShowId = firstUpcomingShowId;
-    scrollToFirstUpcoming();
-  }
+  $effect(() => {
+    if (
+      firstUpcomingShowId &&
+      pastShowIds.length > 0 &&
+      !monitorMode &&
+      scrollContainer &&
+      !loading &&
+      isCurrentWeek &&
+      firstUpcomingShowId !== lastScrolledForShowId
+    ) {
+      lastScrolledForShowId = firstUpcomingShowId;
+      scrollToFirstUpcoming();
+    }
+  });
 
   // Custom proximity snap - find the day container with the first upcoming show
   function getSnapTargetSelector(): string | null {
@@ -258,11 +336,16 @@
     // Extract all show IDs from visible day sections
     const visible: string[] = [];
     visibleDaySections.forEach(dayKey => {
-      if (groupedShows[dayKey]) {
-        visible.push(...groupedShows[dayKey].map(s => s.id));
+      // Search through weeks to find matching day
+      for (const week of groupedShows) {
+        if (week.days[dayKey]) {
+          visible.push(...week.days[dayKey].map(s => s.id));
+          break;
+        }
       }
     });
     visibleShowIds = visible;
+    console.log('[VisibleShows] Updated:', visible.length, 'shows visible from', visibleDaySections.size, 'day sections');
   }
 
   function setupViewportTracking(): IntersectionObserver | null {
@@ -298,22 +381,66 @@
 
   // Setup viewport tracking when content changes
   let viewportObserver: IntersectionObserver | null = null;
+  let animationObserver: IntersectionObserver | null = null;
   let prevGroupedShowsKeyForViewport = '';
 
-  $: {
-    const newKey = Object.keys(groupedShows).join(',');
+  // Setup animation observer for reveal-up effect on scroll
+  function setupAnimationObserver(): IntersectionObserver | null {
+    if (!scrollContainer) return null;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Add reveal-up class when element enters viewport
+            entry.target.classList.add('reveal-up');
+            // Unobserve after animating (one-time animation)
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: scrollContainer,
+        rootMargin: '50px 0px', // Start animation slightly before entering viewport
+        threshold: 0.1
+      }
+    );
+
+    // Observe all day sections
+    const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+    daySections.forEach(section => {
+      // Only observe sections that haven't been animated yet
+      if (!section.classList.contains('reveal-up')) {
+        observer.observe(section);
+      }
+    });
+
+    return observer;
+  }
+
+  $effect(() => {
+    // Generate key from week labels and day counts
+    const newKey = groupedShows.map(w => `${w.weekLabel}:${Object.keys(w.days).length}`).join(',');
     if (scrollContainer && newKey !== prevGroupedShowsKeyForViewport) {
       prevGroupedShowsKeyForViewport = newKey;
-      // Cleanup old observer
+      // Cleanup old observers
       if (viewportObserver) {
         viewportObserver.disconnect();
       }
-      // Setup new observer after DOM updates
+      if (animationObserver) {
+        animationObserver.disconnect();
+      }
+      // Clear visible tracking when content changes
+      visibleDaySections.clear();
+      visibleShowIds = [];
+
+      // Setup new observers after DOM updates
       tick().then(() => {
         viewportObserver = setupViewportTracking();
+        animationObserver = setupAnimationObserver();
       });
     }
-  }
+  });
 
   onDestroy(() => {
     stopAutoScroll();
@@ -321,10 +448,13 @@
     if (viewportObserver) {
       viewportObserver.disconnect();
     }
+    if (animationObserver) {
+      animationObserver.disconnect();
+    }
   });
 </script>
 
-<div class="relative h-full overflow-hidden">
+<div class="relative h-full flex flex-col overflow-hidden">
   <!-- Subtle gradient fade when more content below -->
   {#if hasOverflow && !monitorMode && scrollProgress < 0.95}
     <div
@@ -333,15 +463,67 @@
     </div>
   {/if}
 
-  <section bind:this={scrollContainer} onscroll={handleScrollWithSnap} class="space-y-3 h-full overflow-auto pr-2 reveal-up delay-200">
+  <!-- "Back to Today" floating button when scrolled above current day -->
+  {#if showTodayButton}
+    <button
+      onclick={() => {
+        if (!scrollContainer || !firstUpcomingShowId) return;
+
+        // Find the day section containing the first upcoming show
+        const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+        for (const section of daySections) {
+          const showIds = (section as HTMLElement).getAttribute('data-day-shows')?.split(',') || [];
+          if (showIds.includes(firstUpcomingShowId)) {
+            // Scroll to the top of the day section (the day heading)
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            break;
+          }
+        }
+      }}
+      class="absolute top-4 right-4 z-20 px-4 py-2
+             bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]
+             text-black font-bold uppercase tracking-wider text-sm
+             hover:scale-105 transition-transform cursor-pointer
+             shadow-lg shadow-[var(--tw-electric-cyan)]/50"
+      style="font-family: var(--font-mono); clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);"
+    >
+      ↓ Today
+    </button>
+  {/if}
+
+  <section
+    bind:this={scrollContainer}
+    onscroll={handleScrollWithSnap}
+    class="space-y-3 overflow-y-auto overflow-x-hidden max-h-full pr-2 reveal-up delay-200 transition-opacity duration-200"
+    style="opacity: {contentVisible ? 1 : 0}">
   {#if loading}
     <p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">Loading shows...</p>
   {:else if error}
     <p class="text-center text-red-400 text-xl font-bold" style="font-family: var(--font-display);">Error: {error}</p>
   {:else}
-    {#each Object.entries(groupedShows) as [day, dayShows], i (day)}
-      {@const dayShowIds = dayShows.map(s => s.id)}
-      <div class="reveal-up" style="animation-delay: {0.3 + i * 0.1}s; opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
+    <!-- Archive link when past show limit is reached -->
+    {#if !monitorMode && !hasPastShows && pastDaysLoaded >= 28}
+      <div class="text-center py-4 mb-4 border-b border-white/10">
+        <a
+          href="/shows"
+          class="inline-flex items-center gap-2 text-[var(--tw-electric-cyan)] hover:text-[var(--tw-neon-pink)] transition-colors uppercase tracking-wider text-sm font-mono"
+        >
+          <span>View Full Archive</span>
+          <span>→</span>
+        </a>
+        <p class="text-white/40 text-xs mt-2 font-mono">Showing last 4 weeks</p>
+      </div>
+    {/if}
+
+    <!-- Top load trigger for bidirectional scroll (load past shows) -->
+    {#if !monitorMode && hasPastShows}
+      <div bind:this={topLoadTrigger} class="h-1 opacity-0" data-load-trigger-top="true"></div>
+    {/if}
+
+    {#each groupedShows as week, weekIndex (week.weekLabel)}
+      {#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
+        {@const dayShowIds = dayShows.map(s => s.id)}
+        <div style="opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
         <!-- Day heading with brutalist style -->
         <div class="mb-2 relative">
           <h2 class={`uppercase tracking-wider font-black text-white ${dayHeadingClass} relative inline-block px-3 py-1
@@ -373,7 +555,7 @@
                 <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform ${isPast ? '' : 'group-hover:scale-110'} ${timeClass}
                             ${isPast ? 'text-white/30' : (theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]')}`}
                      style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
-                  {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' })}
                 </div>
 
                 <!-- Show title with display font -->
@@ -404,25 +586,22 @@
           {/each}
         </ul>
       </div>
+      {/each}
     {/each}
 
     <!-- Infinite scroll: Load trigger element -->
     {#if !monitorMode && hasMore}
-      <div bind:this={loadTrigger} class="h-4 bg-red-500" data-load-trigger="true"></div>
+      <div bind:this={loadTrigger} class="h-1 opacity-0" data-load-trigger="true"></div>
     {/if}
 
     <!-- Infinite scroll: Loading indicator -->
     {#if loadingMore}
-      <div class="text-center py-4">
-        <p class="text-white/60 font-bold uppercase tracking-wider" style="font-family: var(--font-display);">
-          Loading more shows...
-        </p>
+      <div class="text-center py-3">
+        <div class="inline-flex items-center gap-2 text-white/40">
+          <div class="w-2 h-2 bg-current rounded-full animate-pulse"></div>
+          <span class="text-sm uppercase tracking-wide font-mono">Loading</span>
+        </div>
       </div>
-    {/if}
-
-    <!-- Spacer to allow scrolling past shows to the top when content is short (current week only) -->
-    {#if pastShowIds.length > 0 && !monitorMode && isCurrentWeek}
-      <div style="height: {Math.min(pastShowIds.length * 60, 400)}px"></div>
     {/if}
   {/if}
   </section>

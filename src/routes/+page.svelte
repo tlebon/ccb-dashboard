@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import { page } from '$app/stores';
@@ -10,6 +10,13 @@
   import ImagesColumn from '$lib/components/ImagesColumn.svelte';
   import MobileHeader from '$lib/components/MobileHeader.svelte';
   import MobileNav from '$lib/components/MobileNav.svelte';
+
+  // Week grouping interface for infinite scroll animation
+  interface WeekGroup {
+    weekLabel: string;
+    startDate: Date;
+    days: Record<string, Show[]>;
+  }
 
   let mobileNavOpen = false;
 
@@ -64,6 +71,12 @@
   let loadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading more
   let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
 
+  // Bidirectional scroll state (past shows)
+  let pastDaysLoaded = $state(0); // How many days into past we've loaded
+  let hasPastShows = $state(true); // Whether more past shows exist
+  let topLoadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading past shows
+  let scrollContainer = $state<HTMLElement | null>(null); // Scroll container ref for position adjustment
+
   // Viewport tracking for poster sync (manual mode only)
   let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (populated by ShowsColumn)
 
@@ -99,7 +112,6 @@
 
   async function loadMoreShows() {
     if (loadingPromise || !hasMore || monitorMode) {
-      console.log('[LoadMore] Skipped - loadingPromise:', !!loadingPromise, 'hasMore:', hasMore, 'monitorMode:', monitorMode);
       return;
     }
 
@@ -114,30 +126,23 @@
         const nextStartDate = new Date(today);
         nextStartDate.setDate(today.getDate() + displayedDays);
 
-        console.log('[LoadMore] Loading chunk - startDate:', nextStartDate.toISOString().split('T')[0], 'displayedDays:', displayedDays, 'consecutiveEmpty:', consecutiveEmptyChunks);
-
         // Load next 14-day chunk
         const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
-
-        console.log('[LoadMore] Received', newShows.length, 'shows');
 
         // Always increment displayedDays, even if chunk is empty (to skip gaps)
         displayedDays += 14;
 
         if (newShows.length === 0) {
           consecutiveEmptyChunks += 1;
-          console.log('[LoadMore] Empty chunk - consecutiveEmpty:', consecutiveEmptyChunks, 'displayedDays:', displayedDays);
           // Stop only after multiple consecutive empty chunks OR reaching max days
           if (consecutiveEmptyChunks >= MAX_EMPTY_CHUNKS || displayedDays >= MAX_LOAD_DAYS) {
             hasMore = false;
-            console.log('[LoadMore] Stopping - reached limit');
           }
         } else {
           // Reset empty chunk counter when we find shows
           consecutiveEmptyChunks = 0;
           // Append new shows to existing list
           shows = [...shows, ...newShows];
-          console.log('[LoadMore] Added shows - total now:', shows.length);
         }
       } catch (e) {
         console.error('[LoadMore] Error:', e);
@@ -150,12 +155,78 @@
     await loadingPromise;
   }
 
+  // Load past shows (for bidirectional scroll)
+  const MAX_PAST_DAYS = 28; // Load up to 4 weeks of past shows
+
+  async function loadPastShows() {
+    if (loadingPromise || !hasPastShows || monitorMode) {
+      return;
+    }
+
+    loadingPromise = (async () => {
+      try {
+        loadingMore = true;
+
+        // Calculate how many more days we can load (cap at 28 total)
+        const daysToLoad = Math.min(14, MAX_PAST_DAYS - pastDaysLoaded);
+
+        if (daysToLoad <= 0) {
+          hasPastShows = false;
+          return;
+        }
+
+        // Load next chunk of past shows
+        // pastDays parameter is how far back to START (current + days to load)
+        const startOffset = pastDaysLoaded + daysToLoad;
+        const pastShows = await fetchShowsFromDB(daysToLoad, startOffset);
+
+        pastDaysLoaded += daysToLoad;
+
+        if (pastShows.length === 0) {
+          // No shows found, but still mark as loaded to prevent infinite retries
+          if (pastDaysLoaded >= MAX_PAST_DAYS) {
+            hasPastShows = false;
+          }
+        } else {
+          // Save current scroll position before prepending
+          const oldScrollHeight = scrollContainer?.scrollHeight || 0;
+          const oldScrollTop = scrollContainer?.scrollTop || 0;
+
+          // PREPEND past shows to beginning of array
+          shows = [...pastShows, ...shows];
+
+          // Wait for DOM to update, then adjust scroll position to maintain visual position
+          await tick();
+          if (scrollContainer) {
+            const newScrollHeight = scrollContainer.scrollHeight;
+            const heightDifference = newScrollHeight - oldScrollHeight;
+            // Adjust scroll position by the amount of content added
+            scrollContainer.scrollTop = oldScrollTop + heightDifference;
+            // IntersectionObserver will handle animations as elements scroll into view
+          }
+        }
+      } catch (e) {
+        console.error('[LoadPast] Error:', e);
+      } finally {
+        loadingMore = false;
+        loadingPromise = null;
+      }
+    })();
+
+    await loadingPromise;
+  }
+
   onMount(async () => {
     try {
-      // In manual mode (infinite scroll): fetch initial 14 days
+      // In manual mode (infinite scroll): fetch initial 14 days forward + 7 days back
       // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
-      // pastDays = 28 covers MIN_WEEKS (-4 weeks back)
-      shows = await fetchShowsFromDB(monitorMode ? 60 : 14, monitorMode ? 28 : 0);
+      if (monitorMode) {
+        shows = await fetchShowsFromDB(60, 28);
+      } else {
+        // Load 7 days of past shows initially for bidirectional scroll
+        shows = await fetchShowsFromDB(14, 7);
+        pastDaysLoaded = 7; // Mark that we've loaded 7 days already
+      }
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load shows';
     } finally {
@@ -165,12 +236,9 @@
 
   // Setup Intersection Observer for infinite scroll when loadTrigger becomes available
   $effect(() => {
-    console.log('[Effect] Running - monitorMode:', monitorMode, 'loadTrigger:', !!loadTrigger);
     if (!monitorMode && loadTrigger) {
-      console.log('[IntersectionObserver] Setting up observer for loadTrigger');
       const observer = new IntersectionObserver(
         (entries) => {
-          console.log('[IntersectionObserver] Trigger intersecting:', entries[0].isIntersecting, 'loadingMore:', loadingMore, 'hasMore:', hasMore);
           if (entries[0].isIntersecting && !loadingMore && hasMore) {
             loadMoreShows();
           }
@@ -179,8 +247,24 @@
       );
       observer.observe(loadTrigger);
 
+      return () => observer.disconnect();
+    }
+  });
+
+  // Setup Intersection Observer for loading past shows (bidirectional scroll)
+  $effect(() => {
+    if (!monitorMode && topLoadTrigger) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !loadingMore && hasPastShows) {
+            loadPastShows();
+          }
+        },
+        { rootMargin: '500px' }
+      );
+      observer.observe(topLoadTrigger);
+
       return () => {
-        console.log('[IntersectionObserver] Cleaning up observer');
         observer.disconnect();
       };
     }
@@ -200,6 +284,18 @@
       if (monitorMode) {
         // Switch to monitor mode: load 60 future days and 28 past days
         fetchShowsFromDB(60, 28).then(newShows => {
+          shows = newShows;
+        });
+      } else {
+        // Switching back to manual mode: reset infinite scroll state
+        displayedDays = 14;
+        pastDaysLoaded = 7;
+        consecutiveEmptyChunks = 0;
+        hasMore = true;
+        hasPastShows = true;
+
+        // Reload shows for manual mode (14 forward, 7 back)
+        fetchShowsFromDB(14, 7).then(newShows => {
           shows = newShows;
         });
       }
@@ -311,7 +407,6 @@
         endDate.setDate(today.getDate() + 4);
       }
       endDate.setHours(23, 59, 59, 999);
-      console.log('[WeekRange] This Week - mode:', monitorMode ? 'monitor' : 'manual', 'range:', weekStart.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0]);
       return { startDate: weekStart, endDate, label: 'This Week' };
     } else if (offset > 0) {
       // Future weeks: Calculate the Monday of week N
@@ -370,13 +465,8 @@
           const showDate = new Date(show.start);
           return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
         })
-      : // Manual mode (infinite scroll): show all loaded shows from today onwards
-        shows.filter(show => {
-          const showDate = new Date(show.start);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return showDate >= today;
-        })
+      : // Manual mode (infinite scroll): show all loaded shows (past and future)
+        shows
   );
 
   // In monitor mode, filter out shows that have already started
@@ -401,7 +491,76 @@
   );
   let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
-  let groupedShows = $derived(groupShowsByDay(displayShows, monitorMode && weekOffset === 0));
+  // Helper: Get Monday (start of week) for a given date
+  function getWeekStart(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const dayOfWeek = d.getDay(); // 0 (Sun) - 6 (Sat)
+    const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
+    d.setDate(d.getDate() - daysSinceMonday);
+    return d;
+  }
+
+  // Helper: Generate week label based on distance from today
+  function getWeekLabel(weekStart: Date, today: Date): string {
+    const todayWeekStart = getWeekStart(today);
+    const diffMs = weekStart.getTime() - todayWeekStart.getTime();
+    const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+
+    if (diffWeeks === 0) return 'This Week';
+    if (diffWeeks === 1) return 'Next Week';
+    if (diffWeeks === -1) return 'Last Week';
+
+    // Format as date range for other weeks
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    const startMonth = weekStart.toLocaleDateString(undefined, { month: 'short' });
+    const startDay = weekStart.getDate();
+    const endMonth = weekEnd.toLocaleDateString(undefined, { month: 'short' });
+    const endDay = weekEnd.getDate();
+
+    if (startMonth === endMonth) {
+      return `${startMonth} ${startDay}-${endDay}`;
+    } else {
+      return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+    }
+  }
+
+  // Group shows by week, then by day within each week
+  function groupShowsByWeek(shows: Show[]): WeekGroup[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Group shows by week
+    const showsByWeek = new Map<string, Show[]>();
+
+    for (const show of shows) {
+      const showDate = new Date(show.start);
+      const weekStart = getWeekStart(showDate);
+      const weekKey = weekStart.toISOString();
+
+      if (!showsByWeek.has(weekKey)) {
+        showsByWeek.set(weekKey, []);
+      }
+      showsByWeek.get(weekKey)!.push(show);
+    }
+
+    // Convert to WeekGroup format
+    const weeks: WeekGroup[] = [];
+    for (const [weekKey, weekShows] of showsByWeek) {
+      const weekStart = new Date(weekKey);
+      const weekLabel = getWeekLabel(weekStart, today);
+      const days = groupShowsByDay(weekShows, false); // Don't filter by current week here
+
+      weeks.push({ weekLabel, startDate: weekStart, days });
+    }
+
+    // Sort by week start date
+    return weeks.sort((a, b) => +a.startDate - +b.startDate);
+  }
+
+  let groupedShows = $derived(groupShowsByWeek(displayShows));
 
   function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
     const groups: Record<string, Show[]> = {};
@@ -442,12 +601,27 @@
   let nextShow = $derived(weekShows.filter(s => new Date(s.start) > now).sort((a, b) => +new Date(a.start) - +new Date(b.start))[0]);
   let highlightedShowIds = $derived(weekShows.filter(s => s.imageUrl).map(s => s.id));
 
-  // Dynamic sizing based on content
-  let dayCount = $derived(Object.keys(groupedShows).length);
+  // Font sizing: Fixed for manual mode (infinite scroll), dynamic for monitor mode
+  let dayCount = $derived(groupedShows.length); // Number of weeks
   let totalShows = $derived(weekShows.length);
-  let dayHeadingClass = $derived(totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl');
-  let timeClass = $derived(totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl');
-  let titleClass = $derived(totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg');
+
+  // In manual mode (infinite scroll), use fixed consistent sizes
+  // In monitor mode, use dynamic sizing based on content
+  let dayHeadingClass = $derived(
+    monitorMode
+      ? (totalShows > 20 ? 'text-xl' : totalShows > 15 ? 'text-2xl' : dayCount < 5 ? 'text-3xl' : 'text-2xl')
+      : 'text-2xl' // Fixed size for infinite scroll
+  );
+  let timeClass = $derived(
+    monitorMode
+      ? (totalShows > 20 ? 'text-lg' : totalShows > 15 ? 'text-xl' : dayCount < 5 ? 'text-2xl' : 'text-xl')
+      : 'text-xl' // Fixed size for infinite scroll
+  );
+  let titleClass = $derived(
+    monitorMode
+      ? (totalShows > 20 ? 'text-base' : totalShows > 15 ? 'text-lg' : dayCount < 5 ? 'text-xl' : 'text-lg')
+      : 'text-lg' // Fixed size for infinite scroll
+  );
 
   // Theme: random on load for manual nav, alternates in monitor mode
   let theme = $derived(
@@ -528,7 +702,11 @@
               {loadingMore}
               {hasMore}
               bind:loadTrigger
+              {hasPastShows}
+              bind:topLoadTrigger
+              {pastDaysLoaded}
               bind:visibleShowIds
+              bind:scrollContainer
             />
           </main>
         </div>
@@ -627,7 +805,11 @@
                 {loadingMore}
                 {hasMore}
                 bind:loadTrigger
+                {hasPastShows}
+                bind:topLoadTrigger
+                {pastDaysLoaded}
                 bind:visibleShowIds
+                bind:scrollContainer
               />
             </div>
           {/key}
@@ -660,7 +842,7 @@
               out:fade={{ duration: 100 }}
               class="absolute inset-0"
             >
-              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={true} {loadingMore} {hasMore} bind:loadTrigger bind:visibleShowIds />
+              <ShowsColumn {groupedShows} {loading} {error} {dayHeadingClass} {timeClass} {titleClass} {highlightedShowIds} {theme} {monitorMode} {pastShowIds} {firstUpcomingShowId} isCurrentWeek={true} {loadingMore} {hasMore} bind:loadTrigger {hasPastShows} bind:topLoadTrigger {pastDaysLoaded} bind:visibleShowIds bind:scrollContainer />
             </div>
           {/key}
         </div>

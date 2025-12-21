@@ -148,7 +148,10 @@ export const GET: RequestHandler = async ({ url }) => {
 		const shows = mergedShows.map((row) => {
 			const [year, month, day] = row.date.split('-').map(Number);
 			const [hours, minutes] = row.time ? row.time.split(':').map(Number) : [0, 0];
-			const start = new Date(year, month - 1, day, hours, minutes);
+
+			// Database times are in Berlin local time
+			// Create Date using UTC constructor, then display layer converts to Berlin time
+			const start = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
 			const end = new Date(start.getTime() + 90 * 60 * 1000);
 
 			return {
