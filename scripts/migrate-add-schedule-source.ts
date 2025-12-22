@@ -51,6 +51,13 @@ async function migrate() {
 		await db.execute(`ALTER TABLE shows_new RENAME TO shows`);
 		console.log('✓ Renamed table');
 
+		// Create indexes for frequently queried columns
+		await db.execute(`CREATE INDEX IF NOT EXISTS idx_shows_date ON shows(date)`);
+		console.log('✓ Created index on date column');
+
+		await db.execute(`CREATE INDEX IF NOT EXISTS idx_shows_slug ON shows(slug)`);
+		console.log('✓ Created index on slug column');
+
 		console.log('✅ Migration complete!');
 	} catch (error) {
 		console.error('❌ Migration failed:', error);
