@@ -247,12 +247,8 @@
         element = element.offsetParent as HTMLElement;
       }
 
-      console.log('[ScrollDebug] Scroll - calculated offsetTop:', offsetTop, 'isInitial:', isInitialScroll);
-
       // Set scroll position directly
       scrollContainer.scrollTop = offsetTop;
-
-      console.log('[ScrollDebug] After setting - scrollTop:', scrollContainer.scrollTop);
       isInitialScroll = false;
 
       // Show content after positioning
@@ -345,7 +341,6 @@
       }
     });
     visibleShowIds = visible;
-    console.log('[VisibleShows] Updated:', visible.length, 'shows visible from', visibleDaySections.size, 'day sections');
   }
 
   function setupViewportTracking(): IntersectionObserver | null {
@@ -555,7 +550,7 @@
                 <div class={`font-bold min-w-[70px] sm:min-w-[100px] text-right transition-transform ${isPast ? '' : 'group-hover:scale-110'} ${timeClass}
                             ${isPast ? 'text-white/30' : (theme === 'orange' ? 'text-[var(--nw-neon-yellow)]' : 'text-[var(--tw-electric-cyan)]')}`}
                      style="font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.05em;">
-                  {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' })}
+                  {new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
 
                 <!-- Show title with display font -->

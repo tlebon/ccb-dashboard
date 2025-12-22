@@ -65,7 +65,7 @@
   let error = $state<string | null>(null);
 
   // Infinite scroll state (for manual mode only)
-  let displayedDays = $state(14); // Days loaded so far
+  let displayedDays = $state(21); // Days loaded so far (matches initial load of 21 days)
   let loadingMore = $state(false);
   let hasMore = $state(true);
   let loadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading more
@@ -218,14 +218,16 @@
 
   onMount(async () => {
     try {
-      // In manual mode (infinite scroll): fetch initial 14 days forward + 7 days back
+      // In manual mode (infinite scroll): fetch initial batch
       // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
       if (monitorMode) {
         shows = await fetchShowsFromDB(60, 28);
       } else {
-        // Load 7 days of past shows initially for bidirectional scroll
-        shows = await fetchShowsFromDB(14, 7);
-        pastDaysLoaded = 7; // Mark that we've loaded 7 days already
+        // Load minimal past + enough forward to get past holiday gaps
+        // 3 days back + 21 days forward (to catch shows after Dec holiday break)
+        shows = await fetchShowsFromDB(21, 3);
+        pastDaysLoaded = 3;
+        displayedDays = 21;
       }
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load shows';
@@ -484,11 +486,13 @@
   );
 
   // Find the first upcoming show (for auto-scroll in manual mode)
-  let firstUpcomingShow = $derived(
-    weekShows
+  let firstUpcomingShow = $derived.by(() => {
+    const upcoming = weekShows
       .filter(show => new Date(show.start) > currentTime)
-      .sort((a, b) => +new Date(a.start) - +new Date(b.start))[0]
-  );
+      .sort((a, b) => +new Date(a.start) - +new Date(b.start));
+
+    return upcoming[0];
+  });
   let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
   // Helper: Get Monday (start of week) for a given date

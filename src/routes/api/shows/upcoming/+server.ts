@@ -149,9 +149,10 @@ export const GET: RequestHandler = async ({ url }) => {
 			const [year, month, day] = row.date.split('-').map(Number);
 			const [hours, minutes] = row.time ? row.time.split(':').map(Number) : [0, 0];
 
-			// Database times are in Berlin local time
-			// Create Date using UTC constructor, then display layer converts to Berlin time
-			const start = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
+			// Database times are Berlin local time (e.g., "20:00" = 8pm Berlin)
+			// Berlin is UTC+1, so subtract 1 hour to get correct UTC time
+			// This way browser's local timezone conversion will show correct time
+			const start = new Date(Date.UTC(year, month - 1, day, hours - 1, minutes, 0));
 			const end = new Date(start.getTime() + 90 * 60 * 1000);
 
 			return {
