@@ -106,17 +106,17 @@
   }
 
   // Load more shows (for infinite scroll)
-  let forwardLoadPromise: Promise<void> | null = null;
-  let backwardLoadPromise: Promise<void> | null = null;
+  // Single loading lock to prevent concurrent array modifications from both directions
+  let loadingPromise: Promise<void> | null = null;
   const MAX_LOAD_DAYS = 90; // Maximum days to load (stop after 90 days or 3 empty chunks)
   const MAX_EMPTY_CHUNKS = 3; // Stop after 3 consecutive empty chunks
 
   async function loadMoreShows() {
-    if (forwardLoadPromise || !hasMore || monitorMode) {
+    if (loadingPromise || !hasMore || monitorMode) {
       return;
     }
 
-    forwardLoadPromise = (async () => {
+    loadingPromise = (async () => {
       try {
         loadingMore = true;
 
@@ -149,22 +149,22 @@
         console.error('[LoadMore] Error:', e);
       } finally {
         loadingMore = false;
-        forwardLoadPromise = null;
+        loadingPromise = null;
       }
     })();
 
-    await forwardLoadPromise;
+    await loadingPromise;
   }
 
   // Load past shows (for bidirectional scroll)
   const MAX_PAST_DAYS = 28; // Load up to 4 weeks of past shows
 
   async function loadPastShows() {
-    if (backwardLoadPromise || !hasPastShows || monitorMode) {
+    if (loadingPromise || !hasPastShows || monitorMode) {
       return;
     }
 
-    backwardLoadPromise = (async () => {
+    loadingPromise = (async () => {
       try {
         loadingMore = true;
 
@@ -210,11 +210,11 @@
         console.error('[LoadPast] Error:', e);
       } finally {
         loadingMore = false;
-        backwardLoadPromise = null;
+        loadingPromise = null;
       }
     })();
 
-    await backwardLoadPromise;
+    await loadingPromise;
   }
 
   onMount(async () => {
