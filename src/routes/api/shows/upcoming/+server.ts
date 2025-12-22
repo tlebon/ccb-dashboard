@@ -36,17 +36,27 @@ function datesWithinDays(date1: string, date2: string, days: number): boolean {
 // DST runs from last Sunday of March (2:00 AM) to last Sunday of October (3:00 AM)
 // monthIndex: 0-11 (January = 0, December = 11) to match JavaScript Date constructor
 function isDST(year: number, monthIndex: number, day: number): boolean {
-	// Get last Sunday of March
-	const marchLastDay = new Date(year, 2, 31); // March is month 2 (0-indexed)
-	const marchLastSunday = 31 - ((marchLastDay.getDay()) % 7);
+	// Helper: Find last Sunday of a month
+	// Strategy: Start from first day of next month, go back to last day of target month,
+	// then go back to the previous Sunday
+	function getLastSundayOfMonth(year: number, month: number): number {
+		// Get first day of next month, then subtract 1 to get last day of target month
+		const lastDay = new Date(year, month + 1, 0);
+		const lastDayOfMonth = lastDay.getDate();
+		const lastDayOfWeek = lastDay.getDay(); // 0 = Sunday, 6 = Saturday
 
-	// Get last Sunday of October
-	const octoberLastDay = new Date(year, 9, 31); // October is month 9 (0-indexed)
-	const octoberLastSunday = 31 - ((octoberLastDay.getDay()) % 7);
+		// If last day is Sunday, that's it. Otherwise subtract days to get to previous Sunday
+		const daysToSubtract = lastDayOfWeek === 0 ? 0 : lastDayOfWeek;
+		return lastDayOfMonth - daysToSubtract;
+	}
 
-	// DST starts on last Sunday of March and ends on last Sunday of October
-	const dstStart = new Date(year, 2, marchLastSunday, 2, 0, 0); // March at 2:00 AM
-	const dstEnd = new Date(year, 9, octoberLastSunday, 3, 0, 0); // October at 3:00 AM
+	// Get last Sunday of March and October
+	const marchLastSunday = getLastSundayOfMonth(year, 2); // March is month 2
+	const octoberLastSunday = getLastSundayOfMonth(year, 9); // October is month 9
+
+	// DST starts on last Sunday of March at 2:00 AM and ends on last Sunday of October at 3:00 AM
+	const dstStart = new Date(year, 2, marchLastSunday, 2, 0, 0);
+	const dstEnd = new Date(year, 9, octoberLastSunday, 3, 0, 0);
 	const dateToCheck = new Date(year, monthIndex, day, 12, 0, 0); // Use noon to avoid edge cases
 
 	return dateToCheck >= dstStart && dateToCheck < dstEnd;

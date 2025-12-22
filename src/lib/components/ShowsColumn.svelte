@@ -435,6 +435,16 @@
         animationObserver = setupAnimationObserver();
       });
     }
+
+    // Cleanup function: disconnect observers when effect re-runs or component unmounts
+    return () => {
+      if (viewportObserver) {
+        viewportObserver.disconnect();
+      }
+      if (animationObserver) {
+        animationObserver.disconnect();
+      }
+    };
   });
 
   onDestroy(() => {
