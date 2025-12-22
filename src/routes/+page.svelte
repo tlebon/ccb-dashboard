@@ -108,8 +108,18 @@
   // Load more shows (for infinite scroll)
   // Single loading lock to prevent concurrent array modifications from both directions
   let loadingPromise: Promise<void> | null = null;
+
+  // Infinite scroll constants
+  const CHUNK_SIZE_DAYS = 14; // Load shows in 14-day chunks
   const MAX_LOAD_DAYS = 90; // Maximum days to load (stop after 90 days or 3 empty chunks)
   const MAX_EMPTY_CHUNKS = 3; // Stop after 3 consecutive empty chunks
+  const MAX_PAST_DAYS = 28; // Load up to 4 weeks of past shows
+
+  // Initial load constants
+  const INITIAL_PAST_DAYS = 3; // Days of past shows to load initially
+  const INITIAL_FUTURE_DAYS = 21; // Days of future shows to load initially
+  const MONITOR_FUTURE_DAYS = 60; // Days ahead to load in monitor mode
+  const MONITOR_PAST_DAYS = 28; // Days back to load in monitor mode
 
   async function loadMoreShows() {
     if (loadingPromise || !hasMore || monitorMode) {
@@ -127,11 +137,11 @@
         const nextStartDate = new Date(today);
         nextStartDate.setDate(today.getDate() + displayedDays);
 
-        // Load next 14-day chunk
-        const newShows = await fetchShowsFromDB(14, 0, nextStartDate);
+        // Load next chunk
+        const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
 
         // Always increment displayedDays, even if chunk is empty (to skip gaps)
-        displayedDays += 14;
+        displayedDays += CHUNK_SIZE_DAYS;
 
         if (newShows.length === 0) {
           consecutiveEmptyChunks += 1;
@@ -157,8 +167,6 @@
   }
 
   // Load past shows (for bidirectional scroll)
-  const MAX_PAST_DAYS = 28; // Load up to 4 weeks of past shows
-
   async function loadPastShows() {
     if (loadingPromise || !hasPastShows || monitorMode) {
       return;
@@ -168,8 +176,8 @@
       try {
         loadingMore = true;
 
-        // Calculate how many more days we can load (cap at 28 total)
-        const daysToLoad = Math.min(14, MAX_PAST_DAYS - pastDaysLoaded);
+        // Calculate how many more days we can load (cap at MAX_PAST_DAYS total)
+        const daysToLoad = Math.min(CHUNK_SIZE_DAYS, MAX_PAST_DAYS - pastDaysLoaded);
 
         if (daysToLoad <= 0) {
           hasPastShows = false;
@@ -222,13 +230,12 @@
       // In manual mode (infinite scroll): fetch initial batch
       // In monitor mode: fetch enough shows to cover multiple weeks (future and past)
       if (monitorMode) {
-        shows = await fetchShowsFromDB(60, 28);
+        shows = await fetchShowsFromDB(MONITOR_FUTURE_DAYS, MONITOR_PAST_DAYS);
       } else {
         // Load minimal past + enough forward to get past holiday gaps
-        // 3 days back + 21 days forward (to catch shows after Dec holiday break)
-        shows = await fetchShowsFromDB(21, 3);
-        pastDaysLoaded = 3;
-        displayedDays = 21;
+        shows = await fetchShowsFromDB(INITIAL_FUTURE_DAYS, INITIAL_PAST_DAYS);
+        pastDaysLoaded = INITIAL_PAST_DAYS;
+        displayedDays = INITIAL_FUTURE_DAYS;
       }
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load shows';

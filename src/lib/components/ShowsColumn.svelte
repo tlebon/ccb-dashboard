@@ -67,6 +67,7 @@
 
   const SCROLL_SPEED = 1.5; // pixels per frame (~90px/sec at 60fps)
   const PAUSE_DURATION = 2000; // pause at top/bottom in ms
+  const SCROLL_THRESHOLD_SHOW_TODAY = 0.95; // Show "Back to Today" when scrolled past 95% of content
 
   function checkOverflow() {
     if (scrollContainer) {
@@ -461,7 +462,7 @@
 
 <div class="relative h-full flex flex-col overflow-hidden">
   <!-- Subtle gradient fade when more content below -->
-  {#if hasOverflow && !monitorMode && scrollProgress < 0.95}
+  {#if hasOverflow && !monitorMode && scrollProgress < SCROLL_THRESHOLD_SHOW_TODAY}
     <div
       class="absolute bottom-0 left-0 right-2 h-12 pointer-events-none z-10
              bg-gradient-to-t {theme === 'orange' ? 'from-black/60' : 'from-[var(--tw-deep-purple)]/60'} to-transparent">
