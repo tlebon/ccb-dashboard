@@ -39,7 +39,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			const title = shows[0].title;
 
 			// Get team appearances for all shows in this series
-			const showIds = shows.map(s => s.id);
+			const showIds = shows.map((s) => s.id);
 			const teamsResult = await db.execute(`
 				SELECT DISTINCT sa.show_id, t.name as team_name, t.slug as team_slug
 				FROM show_appearances sa
@@ -62,7 +62,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			}
 
 			// Add teams to each show
-			const showsWithTeams = shows.map(show => ({
+			const showsWithTeams = shows.map((show) => ({
 				...show,
 				teams: teamsByShow.get(show.id) || []
 			}));

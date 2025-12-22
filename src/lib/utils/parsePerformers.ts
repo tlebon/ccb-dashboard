@@ -17,14 +17,11 @@ const NAME_LIST_PATTERNS = [
 	/performers?:\s*/i,
 	/starring:\s*/i,
 	/featuring:\s*/i,
-	/lineup:\s*/i,
+	/lineup:\s*/i
 ];
 
 // Patterns for single/multiple person mentions (not followed by a long list)
-const SINGLE_PERSON_PATTERNS = [
-	/[Hh]osted by:?\s*/,
-	/[Cc]oached by\s*/,
-];
+const SINGLE_PERSON_PATTERNS = [/[Hh]osted by:?\s*/, /[Cc]oached by\s*/];
 
 /**
  * Split a string of names by comma and "and"
@@ -32,9 +29,9 @@ const SINGLE_PERSON_PATTERNS = [
 function splitNames(nameSection: string): string[] {
 	return nameSection
 		.split(/,\s*/)
-		.flatMap(part => part.split(/\s+and\s+/))
-		.map(n => n.trim().replace(/[.!?]+$/, '')) // Remove trailing punctuation
-		.filter(n => n.length > 0 && !n.includes('(') && n.length < 50);
+		.flatMap((part) => part.split(/\s+and\s+/))
+		.map((n) => n.trim().replace(/[.!?]+$/, '')) // Remove trailing punctuation
+		.filter((n) => n.length > 0 && !n.includes('(') && n.length < 50);
 }
 
 /**
@@ -65,7 +62,9 @@ export function extractNameStrings(description: string): string[] {
 			const afterPattern = description.slice(match.index + match[0].length);
 			// Get until newline or period
 			const endMatch = afterPattern.match(/\.\s|\n|$/);
-			const nameSection = endMatch ? afterPattern.slice(0, endMatch.index).trim() : afterPattern.trim();
+			const nameSection = endMatch
+				? afterPattern.slice(0, endMatch.index).trim()
+				: afterPattern.trim();
 
 			if (nameSection.length > 0 && nameSection.length < 100) {
 				names.push(...splitNames(nameSection));
@@ -117,8 +116,10 @@ export function matchPerformers(
 			// Check if extracted name is contained in performer name or vice versa
 			// This helps with cases like "Josh Telson" matching "Joshua Telson"
 			if (normalizedExtracted.length >= 5) {
-				if (normalizedPerformer.includes(normalizedExtracted) ||
-				    normalizedExtracted.includes(normalizedPerformer)) {
+				if (
+					normalizedPerformer.includes(normalizedExtracted) ||
+					normalizedExtracted.includes(normalizedPerformer)
+				) {
 					matched.push(performer);
 					matchedIds.add(performer.id);
 				}

@@ -24,7 +24,10 @@ interface ShowLineup {
 }
 
 async function getOrCreatePerformer(name: string): Promise<number> {
-	const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+	const slug = name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
 
 	// Check if exists
 	const existing = await db.execute({
@@ -64,11 +67,14 @@ function normalizeTitle(title: string): string {
 const TITLE_ALIASES: Record<string, string[]> = {
 	'indie night': ['indie improv', 'indie improv show'],
 	'stand up': ['stand-up', 'standup'],
-	'smorgasbord': ['smörgåsbord', 'bit show'],
-	'dackel': ['frei erfunden', 'german improv'],
+	smorgasbord: ['smörgåsbord', 'bit show'],
+	dackel: ['frei erfunden', 'german improv']
 };
 
-async function findShow(date: string, title: string): Promise<{ id: number; date: string; title: string } | null> {
+async function findShow(
+	date: string,
+	title: string
+): Promise<{ id: number; date: string; title: string } | null> {
 	const normalizedSearch = normalizeTitle(title);
 
 	// Get aliases for this title
@@ -140,7 +146,9 @@ async function main() {
 	const shows = await db.execute('SELECT COUNT(*) as c FROM shows');
 	console.log('Total shows:', shows.rows[0].c);
 
-	const showsWithLineups = await db.execute('SELECT COUNT(DISTINCT show_id) as c FROM show_appearances');
+	const showsWithLineups = await db.execute(
+		'SELECT COUNT(DISTINCT show_id) as c FROM show_appearances'
+	);
 	console.log('Shows with lineup data:', showsWithLineups.rows[0].c);
 
 	// Load lineup data
@@ -171,7 +179,9 @@ async function main() {
 		}
 
 		if (showMatch.date !== lineup.date) {
-			console.log(`  Matched: ${lineup.date} "${lineup.show}" -> ${showMatch.date} "${showMatch.title}"`);
+			console.log(
+				`  Matched: ${lineup.date} "${lineup.show}" -> ${showMatch.date} "${showMatch.title}"`
+			);
 		}
 
 		linkedShows++;
@@ -290,14 +300,16 @@ async function main() {
 
 	if (notFoundList.length > 0) {
 		console.log('\n=== Shows Not Found ===');
-		notFoundList.forEach(s => console.log(`  ${s}`));
+		notFoundList.forEach((s) => console.log(`  ${s}`));
 	}
 
 	// Verify final state
 	const finalAppearances = await db.execute('SELECT COUNT(*) as count FROM show_appearances');
 	console.log(`\nTotal show_appearances now: ${finalAppearances.rows[0].count}`);
 
-	const finalShows = await db.execute('SELECT COUNT(DISTINCT show_id) as count FROM show_appearances');
+	const finalShows = await db.execute(
+		'SELECT COUNT(DISTINCT show_id) as count FROM show_appearances'
+	);
 	console.log(`Shows with lineup data: ${finalShows.rows[0].count}`);
 
 	// Show some samples
@@ -310,7 +322,7 @@ async function main() {
 		ORDER BY s.date DESC
 		LIMIT 10
 	`);
-	samples.rows.forEach(r => console.log(`  ${r.date} - ${r.title} (${r.performers} performers)`));
+	samples.rows.forEach((r) => console.log(`  ${r.date} - ${r.title} (${r.performers} performers)`));
 }
 
 main().catch(console.error);

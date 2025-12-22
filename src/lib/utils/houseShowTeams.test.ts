@@ -57,47 +57,47 @@ describe('houseShowTeams', () => {
 		it('should return Thunderclap and Handshake for 1st Friday in Jan 2025', () => {
 			const teams = getHouseShowTeams(new Date('2025-01-03'));
 			expect(teams).toHaveLength(2);
-			expect(teams.map(t => t.slug)).toContain('thunderclap');
-			expect(teams.map(t => t.slug)).toContain('handshake');
+			expect(teams.map((t) => t.slug)).toContain('thunderclap');
+			expect(teams.map((t) => t.slug)).toContain('handshake');
 		});
 
 		it('should return Brace Brace and Handshake for 4th Friday in Jan 2025', () => {
 			const teams = getHouseShowTeams(new Date('2025-01-24'));
 			expect(teams).toHaveLength(2);
-			expect(teams.map(t => t.slug)).toContain('brace-brace');
-			expect(teams.map(t => t.slug)).toContain('handshake');
+			expect(teams.map((t) => t.slug)).toContain('brace-brace');
+			expect(teams.map((t) => t.slug)).toContain('handshake');
 		});
 
 		it('should return Brace Brace and Capiche for 2nd Friday in Aug 2025', () => {
 			const teams = getHouseShowTeams(new Date('2025-08-08'));
 			expect(teams).toHaveLength(2);
-			expect(teams.map(t => t.slug)).toContain('brace-brace');
-			expect(teams.map(t => t.slug)).toContain('capiche');
+			expect(teams.map((t) => t.slug)).toContain('brace-brace');
+			expect(teams.map((t) => t.slug)).toContain('capiche');
 		});
 
 		it('should return Thunderclap and Capiche for 3rd Friday in Aug 2025', () => {
 			const teams = getHouseShowTeams(new Date('2025-08-15'));
 			expect(teams).toHaveLength(2);
-			expect(teams.map(t => t.slug)).toContain('thunderclap');
-			expect(teams.map(t => t.slug)).toContain('capiche');
+			expect(teams.map((t) => t.slug)).toContain('thunderclap');
+			expect(teams.map((t) => t.slug)).toContain('capiche');
 		});
 
 		it('should NOT include Handshake before Jan 2025', () => {
 			const teams = getHouseShowTeams(new Date('2024-12-06')); // 1st Friday Dec 2024
-			expect(teams.map(t => t.slug)).not.toContain('handshake');
-			expect(teams.map(t => t.slug)).toContain('thunderclap'); // Thunderclap should still be there
+			expect(teams.map((t) => t.slug)).not.toContain('handshake');
+			expect(teams.map((t) => t.slug)).toContain('thunderclap'); // Thunderclap should still be there
 		});
 
 		it('should NOT include Capiche before Aug 2025', () => {
 			const teams = getHouseShowTeams(new Date('2025-07-11')); // 2nd Friday July 2025
-			expect(teams.map(t => t.slug)).not.toContain('capiche');
-			expect(teams.map(t => t.slug)).toContain('brace-brace'); // Brace Brace should still be there
+			expect(teams.map((t) => t.slug)).not.toContain('capiche');
+			expect(teams.map((t) => t.slug)).toContain('brace-brace'); // Brace Brace should still be there
 		});
 
 		it('should handle string dates', () => {
 			const teams = getHouseShowTeams('2025-01-10'); // 2nd Friday (before Capiche starts)
 			expect(teams).toHaveLength(1); // Only Brace Brace (Capiche starts Aug 2025)
-			expect(teams.map(t => t.slug)).toContain('brace-brace');
+			expect(teams.map((t) => t.slug)).toContain('brace-brace');
 		});
 
 		it('should return empty array for 5th Friday (no teams perform)', () => {
@@ -116,14 +116,14 @@ describe('houseShowTeams', () => {
 		it('should handle edge case: exact start date for Capiche', () => {
 			const teams = getHouseShowTeams('2025-08-01'); // Start date (Friday)
 			// August 1, 2025 is the 1st Friday
-			expect(teams.map(t => t.slug)).not.toContain('capiche'); // Capiche performs on 2nd & 3rd
-			expect(teams.map(t => t.slug)).toContain('thunderclap'); // Thunderclap performs on 1st
-			expect(teams.map(t => t.slug)).toContain('handshake'); // Handshake performs on 1st & 4th
+			expect(teams.map((t) => t.slug)).not.toContain('capiche'); // Capiche performs on 2nd & 3rd
+			expect(teams.map((t) => t.slug)).toContain('thunderclap'); // Thunderclap performs on 1st
+			expect(teams.map((t) => t.slug)).toContain('handshake'); // Handshake performs on 1st & 4th
 		});
 
 		it('should include Capiche on first 2nd Friday after start date', () => {
 			const teams = getHouseShowTeams('2025-08-08'); // 2nd Friday of August
-			expect(teams.map(t => t.slug)).toContain('capiche');
+			expect(teams.map((t) => t.slug)).toContain('capiche');
 		});
 	});
 
@@ -213,12 +213,12 @@ describe('houseShowTeams', () => {
 			expect(dates).toHaveLength(5);
 
 			// All should be Fridays
-			dates.forEach(date => {
+			dates.forEach((date) => {
 				expect(date.getDay()).toBe(5); // Friday
 			});
 
 			// All should be 2nd or 4th Friday
-			dates.forEach(date => {
+			dates.forEach((date) => {
 				const fridayOfMonth = getFridayOfMonth(date);
 				expect([2, 4]).toContain(fridayOfMonth);
 			});
@@ -244,14 +244,14 @@ describe('houseShowTeams', () => {
 		it('should return dates only for the specified team weeks', () => {
 			// Thunderclap performs on 1st & 3rd Fridays
 			const dates = getUpcomingHouseShowDates('thunderclap', 5);
-			dates.forEach(date => {
+			dates.forEach((date) => {
 				const fridayOfMonth = getFridayOfMonth(date);
 				expect([1, 3]).toContain(fridayOfMonth);
 			});
 
 			// Handshake performs on 1st & 4th Fridays
 			const dates2 = getUpcomingHouseShowDates('handshake', 5);
-			dates2.forEach(date => {
+			dates2.forEach((date) => {
 				const fridayOfMonth = getFridayOfMonth(date);
 				expect([1, 4]).toContain(fridayOfMonth);
 			});
@@ -259,7 +259,7 @@ describe('houseShowTeams', () => {
 
 		it('should skip 5th Fridays', () => {
 			const dates = getUpcomingHouseShowDates('brace-brace', 20);
-			dates.forEach(date => {
+			dates.forEach((date) => {
 				const fridayOfMonth = getFridayOfMonth(date);
 				expect(fridayOfMonth).toBeLessThan(5); // Never 5th Friday
 			});
@@ -269,7 +269,7 @@ describe('houseShowTeams', () => {
 			const dates = getUpcomingHouseShowDates('capiche', 3);
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
-			dates.forEach(date => {
+			dates.forEach((date) => {
 				expect(date.getTime()).toBeGreaterThanOrEqual(today.getTime());
 			});
 		});
@@ -329,7 +329,7 @@ describe('houseShowTeams', () => {
 
 		it('should return correct team data for all house teams', () => {
 			const teams = ['brace-brace', 'thunderclap', 'handshake', 'capiche'];
-			teams.forEach(slug => {
+			teams.forEach((slug) => {
 				const team = getHouseTeamBySlug(slug);
 				expect(team).toBeDefined();
 				expect(team?.slug).toBe(slug);
@@ -343,20 +343,20 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should have unique slugs', () => {
-			const slugs = HOUSE_SHOW_TEAMS.map(t => t.slug);
+			const slugs = HOUSE_SHOW_TEAMS.map((t) => t.slug);
 			const uniqueSlugs = new Set(slugs);
 			expect(uniqueSlugs.size).toBe(slugs.length);
 		});
 
 		it('should have unique names', () => {
-			const names = HOUSE_SHOW_TEAMS.map(t => t.name);
+			const names = HOUSE_SHOW_TEAMS.map((t) => t.name);
 			const uniqueNames = new Set(names);
 			expect(uniqueNames.size).toBe(names.length);
 		});
 
 		it('should have valid week numbers (1-4 only)', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
-				team.weeks.forEach(week => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
+				team.weeks.forEach((week) => {
 					expect(week).toBeGreaterThanOrEqual(1);
 					expect(week).toBeLessThanOrEqual(4);
 				});
@@ -364,7 +364,7 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should have all required fields', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
 				expect(team.name).toBeDefined();
 				expect(team.slug).toBeDefined();
 				expect(team.weeks).toBeDefined();
@@ -375,14 +375,14 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should have exactly 2 weeks per team', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
 				expect(team.weeks).toHaveLength(2);
 			});
 		});
 
 		it('should have valid team member names (non-empty strings)', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
-				team.members.forEach(member => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
+				team.members.forEach((member) => {
 					expect(typeof member).toBe('string');
 					expect(member.trim().length).toBeGreaterThan(0);
 				});
@@ -390,14 +390,14 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should have valid coach names', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
 				expect(typeof team.coach).toBe('string');
 				expect(team.coach.trim().length).toBeGreaterThan(0);
 			});
 		});
 
 		it('should have valid start dates in YYYY-MM-DD format where present', () => {
-			HOUSE_SHOW_TEAMS.forEach(team => {
+			HOUSE_SHOW_TEAMS.forEach((team) => {
 				if (team.startDate) {
 					expect(team.startDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 					// Ensure it's a valid date
@@ -412,12 +412,12 @@ describe('houseShowTeams', () => {
 		it('should handle year boundaries correctly', () => {
 			// December 27, 2024 is 4th Friday
 			const teams2024 = getHouseShowTeams('2024-12-27');
-			expect(teams2024.map(t => t.slug)).toContain('brace-brace');
-			expect(teams2024.map(t => t.slug)).not.toContain('handshake'); // Not started yet
+			expect(teams2024.map((t) => t.slug)).toContain('brace-brace');
+			expect(teams2024.map((t) => t.slug)).not.toContain('handshake'); // Not started yet
 
 			// January 3, 2025 is 1st Friday
 			const teams2025 = getHouseShowTeams('2025-01-03');
-			expect(teams2025.map(t => t.slug)).toContain('handshake'); // Started by now
+			expect(teams2025.map((t) => t.slug)).toContain('handshake'); // Started by now
 		});
 
 		it('should handle leap years correctly', () => {

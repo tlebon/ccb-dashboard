@@ -65,7 +65,9 @@ async function main() {
 	const total = await db.execute('SELECT COUNT(*) as count FROM show_appearances');
 	console.log(`Total show_appearances: ${total.rows[0].count}`);
 
-	const showsWithLineup = await db.execute('SELECT COUNT(DISTINCT show_id) as count FROM show_appearances');
+	const showsWithLineup = await db.execute(
+		'SELECT COUNT(DISTINCT show_id) as count FROM show_appearances'
+	);
 	console.log(`Shows with lineup: ${showsWithLineup.rows[0].count}`);
 }
 

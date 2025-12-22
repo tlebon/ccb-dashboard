@@ -151,7 +151,8 @@ async function scrapePerformerPage(slug: string, name: string): Promise<Performe
 
 async function main() {
 	const dryRun = process.argv.includes('--dry-run');
-	const limit = parseInt(process.argv.find(a => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
+	const limit =
+		parseInt(process.argv.find((a) => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
 
 	console.log(`Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
 	console.log(`Limit: ${limit === Infinity ? 'none' : limit}`);
@@ -216,7 +217,9 @@ async function main() {
 			continue;
 		}
 
-		console.log(`  ✓ Image: ${hasImage ? 'yes' : 'no'}, Bio: ${hasBio ? `${data.bio!.length} chars` : 'no'}, Instagram: ${hasInstagram ? `@${data.instagram}` : 'no'}, Teams: ${teamCount}`);
+		console.log(
+			`  ✓ Image: ${hasImage ? 'yes' : 'no'}, Bio: ${hasBio ? `${data.bio!.length} chars` : 'no'}, Instagram: ${hasInstagram ? `@${data.instagram}` : 'no'}, Teams: ${teamCount}`
+		);
 
 		if (!dryRun) {
 			await db.execute({
@@ -232,7 +235,7 @@ async function main() {
 		updated++;
 
 		// Delay between requests to avoid rate limiting
-		await new Promise(r => setTimeout(r, 500));
+		await new Promise((r) => setTimeout(r, 500));
 	}
 
 	console.log(`\n--- Summary ---`);

@@ -46,12 +46,25 @@ body {
 
 /* Textured background pattern */
 @keyframes grain {
-	0%, 100% { transform: translate(0, 0); }
-	10% { transform: translate(-5%, -10%); }
-	30% { transform: translate(3%, -15%); }
-	50% { transform: translate(12%, 9%); }
-	70% { transform: translate(9%, 4%); }
-	90% { transform: translate(-1%, 7%); }
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	10% {
+		transform: translate(-5%, -10%);
+	}
+	30% {
+		transform: translate(3%, -15%);
+	}
+	50% {
+		transform: translate(12%, 9%);
+	}
+	70% {
+		transform: translate(9%, 4%);
+	}
+	90% {
+		transform: translate(-1%, 7%);
+	}
 }
 
 .grain-overlay {
@@ -104,9 +117,16 @@ body {
 }
 
 @keyframes glitchText {
-	0%, 100% { transform: translate(0); }
-	33% { transform: translate(-2px, 2px); }
-	66% { transform: translate(2px, -2px); }
+	0%,
+	100% {
+		transform: translate(0);
+	}
+	33% {
+		transform: translate(-2px, 2px);
+	}
+	66% {
+		transform: translate(2px, -2px);
+	}
 }
 
 .reveal-left {
@@ -121,11 +141,26 @@ body {
 	animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.delay-100 { animation-delay: 0.1s; opacity: 0; }
-.delay-200 { animation-delay: 0.2s; opacity: 0; }
-.delay-300 { animation-delay: 0.3s; opacity: 0; }
-.delay-400 { animation-delay: 0.4s; opacity: 0; }
-.delay-500 { animation-delay: 0.5s; opacity: 0; }
+.delay-100 {
+	animation-delay: 0.1s;
+	opacity: 0;
+}
+.delay-200 {
+	animation-delay: 0.2s;
+	opacity: 0;
+}
+.delay-300 {
+	animation-delay: 0.3s;
+	opacity: 0;
+}
+.delay-400 {
+	animation-delay: 0.4s;
+	opacity: 0;
+}
+.delay-500 {
+	animation-delay: 0.5s;
+	opacity: 0;
+}
 
 /* Neon glow effect */
 .neon-glow {

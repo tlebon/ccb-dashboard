@@ -20,9 +20,26 @@
 		dayDistribution: { day: string; count: number }[];
 		monthlyActivity: { month: string; count: number }[];
 		showVarietyPerMonth: { month: string; count: number; shows: string[] }[];
-		longestRunningShows: { title: string; slug: string; firstDate: string; lastDate: string; iterations: number }[];
-		multiTeamPerformers: { id: number; name: string; slug: string; teams: string[]; teamCount: number }[];
-		teamPairings: { team1: { id: number; name: string; slug: string }; team2: { id: number; name: string; slug: string }; sharedMembers: number; performers: string[] }[];
+		longestRunningShows: {
+			title: string;
+			slug: string;
+			firstDate: string;
+			lastDate: string;
+			iterations: number;
+		}[];
+		multiTeamPerformers: {
+			id: number;
+			name: string;
+			slug: string;
+			teams: string[];
+			teamCount: number;
+		}[];
+		teamPairings: {
+			team1: { id: number; name: string; slug: string };
+			team2: { id: number; name: string; slug: string };
+			sharedMembers: number;
+			performers: string[];
+		}[];
 		rookies: { id: number; name: string; slug: string; debutDate: string; showCount: number }[];
 		topPerformers: { id: number; name: string; slug: string; showCount: number; teams: string[] }[];
 		topTeams: { id: number; name: string; slug: string; showCount: number; memberCount: number }[];
@@ -35,7 +52,17 @@
 	let selectedYear = $state<string>('all');
 
 	// Modal state
-	type ModalType = 'shows' | 'performers' | 'teams' | 'dayDistribution' | 'monthlyActivity' | 'showVariety' | 'longestRunning' | 'teamOverlap' | 'multiTeam' | null;
+	type ModalType =
+		| 'shows'
+		| 'performers'
+		| 'teams'
+		| 'dayDistribution'
+		| 'monthlyActivity'
+		| 'showVariety'
+		| 'longestRunning'
+		| 'teamOverlap'
+		| 'multiTeam'
+		| null;
 	let modalOpen = $state<ModalType>(null);
 
 	const LIST_LIMIT = 10;
@@ -69,16 +96,21 @@
 	const maxShowCount = $derived(data?.topShows[0]?.count || 1);
 	const maxPerformerCount = $derived(data?.topPerformers[0]?.showCount || 1);
 	const maxTeamCount = $derived(data?.topTeams[0]?.showCount || 1);
-	const maxDayCount = $derived(Math.max(...(data?.dayDistribution.map(d => d.count) || [1])));
-	const maxMonthCount = $derived(Math.max(...(data?.monthlyActivity.map(m => m.count) || [1])));
-	const maxVarietyCount = $derived(Math.max(...(data?.showVarietyPerMonth.map(m => m.count) || [1])));
+	const maxDayCount = $derived(Math.max(...(data?.dayDistribution.map((d) => d.count) || [1])));
+	const maxMonthCount = $derived(Math.max(...(data?.monthlyActivity.map((m) => m.count) || [1])));
+	const maxVarietyCount = $derived(
+		Math.max(...(data?.showVarietyPerMonth.map((m) => m.count) || [1]))
+	);
 	const maxIterations = $derived(data?.longestRunningShows[0]?.iterations || 1);
 	const maxSharedMembers = $derived(data?.teamPairings[0]?.sharedMembers || 1);
 	const maxMultiTeamCount = $derived(data?.multiTeamPerformers[0]?.teamCount || 1);
 
 	// Order days correctly
 	const dayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-	const orderedDays = $derived(data?.dayDistribution.toSorted((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)) || []);
+	const orderedDays = $derived(
+		data?.dayDistribution.toSorted((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)) ||
+			[]
+	);
 
 	// Modal title mapping
 	const modalTitles: Record<Exclude<ModalType, null>, string> = {
@@ -98,22 +130,26 @@
 	<title>Analytics | CCB Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
+<div
+	class="min-h-screen bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black text-white"
+>
 	<div class="grain-overlay"></div>
 
 	<!-- Header section -->
-	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 pt-4 md:pt-8">
+	<div class="relative z-10 mx-auto max-w-5xl px-4 pt-4 md:px-6 md:pt-8">
 		<QuickNav />
 
-		<header class="mb-6 md:mb-8 flex flex-wrap items-end justify-between gap-4">
+		<header class="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
 			<div>
-				<h1 class="text-4xl md:text-5xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
-				           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
-				    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
-						Analytics
+				<h1
+					class="inline-block bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)] px-3 py-1.5 text-4xl tracking-wider text-white uppercase
+				           md:px-4 md:py-2 md:text-5xl"
+					style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);"
+				>
+					Analytics
 				</h1>
 				{#if data}
-					<p class="mt-2 text-white/60 font-mono text-sm">
+					<p class="mt-2 font-mono text-sm text-white/60">
 						{data.stats.firstDate} — {data.stats.lastDate}
 					</p>
 				{/if}
@@ -122,7 +158,7 @@
 			{#if data}
 				<select
 					bind:value={selectedYear}
-					class="px-4 py-2 bg-[var(--tw-concrete)] text-[var(--nw-burning-orange)] text-lg uppercase tracking-wider border-2 border-[var(--nw-burning-orange)]/30 focus:border-[var(--nw-hot-pink)] outline-none cursor-pointer"
+					class="cursor-pointer border-2 border-[var(--nw-burning-orange)]/30 bg-[var(--tw-concrete)] px-4 py-2 text-lg tracking-wider text-[var(--nw-burning-orange)] uppercase outline-none focus:border-[var(--nw-hot-pink)]"
 					style="font-family: var(--font-display);"
 				>
 					<option value="all">All Time</option>
@@ -135,42 +171,99 @@
 	</div>
 
 	<!-- Dashboard content -->
-	<div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pb-4 md:pb-8">
+	<div class="relative z-10 mx-auto max-w-7xl px-4 pb-4 md:px-6 md:pb-8">
 		{#if loading}
-			<div class="text-center py-20">
-				<p class="text-2xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">Loading analytics...</p>
+			<div class="py-20 text-center">
+				<p
+					class="text-2xl text-[var(--nw-burning-orange)]"
+					style="font-family: var(--font-display);"
+				>
+					Loading analytics...
+				</p>
 			</div>
 		{:else if error}
-			<div class="text-center py-20">
-				<p class="text-2xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">{error}</p>
+			<div class="py-20 text-center">
+				<p class="text-2xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">
+					{error}
+				</p>
 			</div>
 		{:else if data}
 			<!-- Stats Row -->
-			<div class="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-6">
+			<div class="mb-6 grid grid-cols-3 gap-2 md:grid-cols-5 md:gap-4">
 				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
-					<div class="text-2xl md:text-4xl text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{data.stats.totalShows}</div>
-					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Shows</div>
+					<div
+						class="text-2xl text-[var(--nw-hot-pink)] md:text-4xl"
+						style="font-family: var(--font-display);"
+					>
+						{data.stats.totalShows}
+					</div>
+					<div
+						class="text-xs tracking-wider uppercase opacity-70"
+						style="font-family: var(--font-mono);"
+					>
+						Shows
+					</div>
 				</div>
 				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
-					<div class="text-2xl md:text-4xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">{data.stats.uniqueShows}</div>
-					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Unique</div>
+					<div
+						class="text-2xl text-[var(--nw-burning-orange)] md:text-4xl"
+						style="font-family: var(--font-display);"
+					>
+						{data.stats.uniqueShows}
+					</div>
+					<div
+						class="text-xs tracking-wider uppercase opacity-70"
+						style="font-family: var(--font-mono);"
+					>
+						Unique
+					</div>
 				</div>
 				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4">
-					<div class="text-2xl md:text-4xl text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{data.stats.performerCount}</div>
-					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Performers</div>
+					<div
+						class="text-2xl text-[var(--nw-neon-yellow)] md:text-4xl"
+						style="font-family: var(--font-display);"
+					>
+						{data.stats.performerCount}
+					</div>
+					<div
+						class="text-xs tracking-wider uppercase opacity-70"
+						style="font-family: var(--font-mono);"
+					>
+						Performers
+					</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4 hidden md:block">
-					<div class="text-2xl md:text-4xl text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{data.stats.teamCount}</div>
-					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">Teams</div>
+				<div class="brutalist-border hidden bg-[var(--tw-deep-purple)] p-3 md:block md:p-4">
+					<div
+						class="text-2xl text-[var(--nw-hot-pink)] md:text-4xl"
+						style="font-family: var(--font-display);"
+					>
+						{data.stats.teamCount}
+					</div>
+					<div
+						class="text-xs tracking-wider uppercase opacity-70"
+						style="font-family: var(--font-mono);"
+					>
+						Teams
+					</div>
 				</div>
-				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-3 md:p-4 hidden md:block">
-					<div class="text-2xl md:text-4xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">{data.stats.showsWithLineup}</div>
-					<div class="text-xs uppercase tracking-wider opacity-70" style="font-family: var(--font-mono);">With Lineup</div>
+				<div class="brutalist-border hidden bg-[var(--tw-deep-purple)] p-3 md:block md:p-4">
+					<div
+						class="text-2xl text-[var(--nw-burning-orange)] md:text-4xl"
+						style="font-family: var(--font-display);"
+					>
+						{data.stats.showsWithLineup}
+					</div>
+					<div
+						class="text-xs tracking-wider uppercase opacity-70"
+						style="font-family: var(--font-mono);"
+					>
+						With Lineup
+					</div>
 				</div>
 			</div>
 
 			<!-- Main Dashboard Grid -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
 				<!-- Top Shows -->
 				<AnalyticsCard
 					title="TOP SHOWS"
@@ -179,7 +272,7 @@
 					listLimit={LIST_LIMIT}
 					valueKey="count"
 					linkPrefix="/shows/"
-					onViewAll={() => modalOpen = 'shows'}
+					onViewAll={() => (modalOpen = 'shows')}
 				/>
 
 				<!-- Top Performers -->
@@ -191,7 +284,7 @@
 					valueKey="showCount"
 					gradient="from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]"
 					linkPrefix="/performers/"
-					onViewAll={() => modalOpen = 'performers'}
+					onViewAll={() => (modalOpen = 'performers')}
 				/>
 
 				<!-- Top Teams -->
@@ -202,7 +295,7 @@
 					listLimit={LIST_LIMIT}
 					valueKey="showCount"
 					linkPrefix="/teams/"
-					onViewAll={() => modalOpen = 'teams'}
+					onViewAll={() => (modalOpen = 'teams')}
 					renderValue={(item) => String(item.showCount)}
 				/>
 
@@ -215,7 +308,7 @@
 					valueKey="iterations"
 					gradient="from-[var(--tw-electric-cyan)] to-[var(--nw-neon-yellow)]"
 					linkPrefix="/shows/"
-					onViewAll={() => modalOpen = 'longestRunning'}
+					onViewAll={() => (modalOpen = 'longestRunning')}
 					renderValue={(item) => `#${item.iterations}`}
 				/>
 
@@ -228,7 +321,7 @@
 					valueKey="teamCount"
 					gradient="from-[var(--nw-neon-yellow)] to-[var(--nw-burning-orange)]"
 					linkPrefix="/performers/"
-					onViewAll={() => modalOpen = 'multiTeam'}
+					onViewAll={() => (modalOpen = 'multiTeam')}
 				/>
 
 				<!-- Team Overlap -->
@@ -240,7 +333,7 @@
 					valueKey="sharedMembers"
 					gradient="from-[var(--tw-electric-cyan)] to-[var(--nw-hot-pink)]"
 					isTeamOverlap={true}
-					onViewAll={() => modalOpen = 'teamOverlap'}
+					onViewAll={() => (modalOpen = 'teamOverlap')}
 				/>
 
 				<!-- Monthly Activity -->
@@ -252,29 +345,43 @@
 						height={160}
 						gradient="from-[var(--tw-deep-purple)] via-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]"
 						isMonthly={true}
-						onViewAll={() => modalOpen = 'monthlyActivity'}
+						onViewAll={() => (modalOpen = 'monthlyActivity')}
 					/>
 				</div>
 
 				<!-- Rookies -->
 				<div class="brutalist-border bg-[var(--tw-deep-purple)] p-4 md:p-5">
-					<h2 class="text-xl md:text-2xl text-[var(--nw-burning-orange)] mb-4" style="font-family: var(--font-display);">
+					<h2
+						class="mb-4 text-xl text-[var(--nw-burning-orange)] md:text-2xl"
+						style="font-family: var(--font-display);"
+					>
 						ROOKIES
 					</h2>
 					<div class="space-y-2">
 						{#each data.rookies.slice(0, 5) as rookie}
-							<a href="/performers/{rookie.slug}" class="flex justify-between items-center group">
-								<span class="text-xs truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+							<a href="/performers/{rookie.slug}" class="group flex items-center justify-between">
+								<span
+									class="truncate pr-2 text-xs transition-colors group-hover:text-[var(--nw-hot-pink)]"
+									style="font-family: var(--font-mono);"
+								>
 									{rookie.name}
 								</span>
-								<span class="text-xs text-white/50 flex-shrink-0" style="font-family: var(--font-mono);">
-									{new Date(rookie.debutDate).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+								<span
+									class="flex-shrink-0 text-xs text-white/50"
+									style="font-family: var(--font-mono);"
+								>
+									{new Date(rookie.debutDate).toLocaleDateString('en', {
+										month: 'short',
+										day: 'numeric'
+									})}
 								</span>
 							</a>
 						{/each}
 					</div>
 					{#if data.rookies.length === 0}
-						<p class="text-xs text-white/50" style="font-family: var(--font-mono);">No new performers in last 3 months</p>
+						<p class="text-xs text-white/50" style="font-family: var(--font-mono);">
+							No new performers in last 3 months
+						</p>
 					{/if}
 				</div>
 
@@ -286,7 +393,7 @@
 					height={140}
 					gradient="from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]"
 					isDayOfWeek={true}
-					onViewAll={() => modalOpen = 'dayDistribution'}
+					onViewAll={() => (modalOpen = 'dayDistribution')}
 				/>
 
 				<!-- Show Variety Per Month -->
@@ -299,15 +406,16 @@
 						height={140}
 						gradient="from-[var(--nw-hot-pink)] via-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]"
 						isMonthly={true}
-						onViewAll={() => modalOpen = 'showVariety'}
+						onViewAll={() => (modalOpen = 'showVariety')}
 					/>
 				</div>
 			</div>
 
 			<!-- Footer -->
-			<footer class="mt-8 text-center space-y-1">
+			<footer class="mt-8 space-y-1 text-center">
 				<p class="text-xs opacity-40" style="font-family: var(--font-mono);">
-					Data sourced from CCB Calendar · Performer data from {data.stats.showsWithLineup} shows with lineup info
+					Data sourced from CCB Calendar · Performer data from {data.stats.showsWithLineup} shows with
+					lineup info
 				</p>
 			</footer>
 		{/if}
@@ -316,24 +424,29 @@
 
 <!-- Modals -->
 {#if modalOpen && data}
-	<AnalyticsModal
-		title={modalTitles[modalOpen]}
-		open={true}
-		onClose={() => modalOpen = null}
-	>
+	<AnalyticsModal title={modalTitles[modalOpen]} open={true} onClose={() => (modalOpen = null)}>
 		{#if modalOpen === 'shows'}
 			<div class="space-y-2">
 				{#each data.topShows as show, i}
 					{@const width = (show.count / maxShowCount) * 100}
-					<a href="/shows/{show.slug}" class="block group">
-						<div class="flex justify-between items-center mb-0.5">
-							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+					<a href="/shows/{show.slug}" class="group block">
+						<div class="mb-0.5 flex items-center justify-between">
+							<span
+								class="truncate pr-2 text-sm text-white transition-colors group-hover:text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-mono);"
+							>
 								{i + 1}. {show.title}
 							</span>
-							<span class="text-sm text-[var(--nw-hot-pink)] flex-shrink-0" style="font-family: var(--font-display);">{show.count}</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-display);">{show.count}</span
+							>
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</a>
 				{/each}
@@ -342,15 +455,24 @@
 			<div class="space-y-2">
 				{#each data.topPerformers as performer, i}
 					{@const width = (performer.showCount / maxPerformerCount) * 100}
-					<a href="/performers/{performer.slug}" class="block group">
-						<div class="flex justify-between items-center mb-0.5">
-							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+					<a href="/performers/{performer.slug}" class="group block">
+						<div class="mb-0.5 flex items-center justify-between">
+							<span
+								class="truncate pr-2 text-sm text-white transition-colors group-hover:text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-mono);"
+							>
 								{i + 1}. {performer.name}
 							</span>
-							<span class="text-sm text-[var(--nw-hot-pink)] flex-shrink-0" style="font-family: var(--font-display);">{performer.showCount}</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-display);">{performer.showCount}</span
+							>
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-neon-yellow)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</a>
 				{/each}
@@ -359,15 +481,24 @@
 			<div class="space-y-2">
 				{#each data.topTeams as team, i}
 					{@const width = (team.showCount / maxTeamCount) * 100}
-					<a href="/teams/{team.slug}" class="block group">
-						<div class="flex justify-between items-center mb-0.5">
-							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+					<a href="/teams/{team.slug}" class="group block">
+						<div class="mb-0.5 flex items-center justify-between">
+							<span
+								class="truncate pr-2 text-sm text-white transition-colors group-hover:text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-mono);"
+							>
 								{i + 1}. {team.name}
 							</span>
-							<span class="text-sm text-[var(--nw-neon-yellow)] flex-shrink-0" style="font-family: var(--font-display);">{team.showCount}</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--nw-neon-yellow)]"
+								style="font-family: var(--font-display);">{team.showCount}</span
+							>
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</a>
 				{/each}
@@ -376,15 +507,24 @@
 			<div class="space-y-3">
 				{#each data.longestRunningShows as show, i}
 					{@const width = (show.iterations / maxIterations) * 100}
-					<a href="/shows/{show.slug}" class="block group">
-						<div class="flex justify-between items-center mb-0.5">
-							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+					<a href="/shows/{show.slug}" class="group block">
+						<div class="mb-0.5 flex items-center justify-between">
+							<span
+								class="truncate pr-2 text-sm text-white transition-colors group-hover:text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-mono);"
+							>
 								{i + 1}. {show.title}
 							</span>
-							<span class="text-sm text-[var(--tw-electric-cyan)] flex-shrink-0" style="font-family: var(--font-display);">#{show.iterations}</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--tw-electric-cyan)]"
+								style="font-family: var(--font-display);">#{show.iterations}</span
+							>
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-neon-yellow)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-neon-yellow)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</a>
 				{/each}
@@ -393,18 +533,27 @@
 			<div class="space-y-3">
 				{#each data.multiTeamPerformers as performer, i}
 					{@const width = (performer.teamCount / maxMultiTeamCount) * 100}
-					<a href="/performers/{performer.slug}" class="block group">
-						<div class="flex justify-between items-center mb-1">
-							<span class="text-sm text-white truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+					<a href="/performers/{performer.slug}" class="group block">
+						<div class="mb-1 flex items-center justify-between">
+							<span
+								class="truncate pr-2 text-sm text-white transition-colors group-hover:text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-mono);"
+							>
 								{i + 1}. {performer.name}
 							</span>
-							<span class="text-sm text-[var(--nw-neon-yellow)] flex-shrink-0" style="font-family: var(--font-display);">{performer.teamCount} teams</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--nw-neon-yellow)]"
+								style="font-family: var(--font-display);">{performer.teamCount} teams</span
+							>
 						</div>
-						<div class="text-xs text-white/60 mb-1" style="font-family: var(--font-mono);">
+						<div class="mb-1 text-xs text-white/60" style="font-family: var(--font-mono);">
 							{performer.teams.join(', ')}
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--nw-neon-yellow)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--nw-neon-yellow)] to-[var(--nw-burning-orange)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</a>
 				{/each}
@@ -414,23 +563,37 @@
 				{#each data.teamPairings as pairing, i}
 					{@const width = (pairing.sharedMembers / maxSharedMembers) * 100}
 					<div class="group">
-						<div class="flex justify-between items-center mb-1">
-							<div class="flex items-center gap-2 text-sm truncate pr-2">
-								<a href="/teams/{pairing.team1.slug}" class="text-[var(--tw-electric-cyan)] hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+						<div class="mb-1 flex items-center justify-between">
+							<div class="flex items-center gap-2 truncate pr-2 text-sm">
+								<a
+									href="/teams/{pairing.team1.slug}"
+									class="text-[var(--tw-electric-cyan)] transition-colors hover:text-[var(--nw-hot-pink)]"
+									style="font-family: var(--font-mono);"
+								>
 									{pairing.team1.name}
 								</a>
 								<span class="text-white/40">∩</span>
-								<a href="/teams/{pairing.team2.slug}" class="text-[var(--tw-electric-cyan)] hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+								<a
+									href="/teams/{pairing.team2.slug}"
+									class="text-[var(--tw-electric-cyan)] transition-colors hover:text-[var(--nw-hot-pink)]"
+									style="font-family: var(--font-mono);"
+								>
 									{pairing.team2.name}
 								</a>
 							</div>
-							<span class="text-sm text-[var(--tw-electric-cyan)] flex-shrink-0" style="font-family: var(--font-display);">{pairing.sharedMembers} shared</span>
+							<span
+								class="flex-shrink-0 text-sm text-[var(--tw-electric-cyan)]"
+								style="font-family: var(--font-display);">{pairing.sharedMembers} shared</span
+							>
 						</div>
-						<div class="text-xs text-white/60 mb-1" style="font-family: var(--font-mono);">
+						<div class="mb-1 text-xs text-white/60" style="font-family: var(--font-mono);">
 							{pairing.performers.join(', ')}
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-hot-pink)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--nw-hot-pink)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</div>
 				{/each}
@@ -440,12 +603,18 @@
 				{#each orderedDays as { day, count }}
 					{@const width = (count / maxDayCount) * 100}
 					<div>
-						<div class="flex justify-between items-center mb-1">
+						<div class="mb-1 flex items-center justify-between">
 							<span class="text-sm text-white" style="font-family: var(--font-mono);">{day}</span>
-							<span class="text-sm text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{count} shows</span>
+							<span
+								class="text-sm text-[var(--nw-neon-yellow)]"
+								style="font-family: var(--font-display);">{count} shows</span
+							>
 						</div>
-						<div class="h-2 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]" style="width: {width}%"></div>
+						<div class="h-2 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--nw-burning-orange)] to-[var(--nw-hot-pink)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</div>
 				{/each}
@@ -455,14 +624,24 @@
 				{#each data.monthlyActivity as { month, count }}
 					{@const width = (count / maxMonthCount) * 100}
 					{@const [year, m] = month.split('-')}
-					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', { month: 'long' })}
+					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', {
+						month: 'long'
+					})}
 					<div>
-						<div class="flex justify-between items-center mb-0.5">
-							<span class="text-sm text-white" style="font-family: var(--font-mono);">{monthName} {year}</span>
-							<span class="text-sm text-[var(--nw-hot-pink)]" style="font-family: var(--font-display);">{count}</span>
+						<div class="mb-0.5 flex items-center justify-between">
+							<span class="text-sm text-white" style="font-family: var(--font-mono);"
+								>{monthName} {year}</span
+							>
+							<span
+								class="text-sm text-[var(--nw-hot-pink)]"
+								style="font-family: var(--font-display);">{count}</span
+							>
 						</div>
-						<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
-							<div class="h-full bg-gradient-to-r from-[var(--tw-deep-purple)] via-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]" style="width: {width}%"></div>
+						<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
+							<div
+								class="h-full bg-gradient-to-r from-[var(--tw-deep-purple)] via-[var(--nw-hot-pink)] to-[var(--nw-burning-orange)]"
+								style="width: {width}%"
+							></div>
 						</div>
 					</div>
 				{/each}
@@ -471,13 +650,20 @@
 			<div class="space-y-4">
 				{#each data.showVarietyPerMonth as { month, count, shows }}
 					{@const [year, m] = month.split('-')}
-					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', { month: 'long' })}
+					{@const monthName = new Date(parseInt(year), parseInt(m) - 1).toLocaleString('en', {
+						month: 'long'
+					})}
 					<div class="border-l-2 border-[var(--nw-burning-orange)] pl-3">
-						<div class="flex justify-between items-center mb-1">
-							<span class="text-sm text-[var(--nw-neon-yellow)]" style="font-family: var(--font-display);">{monthName} {year}</span>
-							<span class="text-xs text-white/50" style="font-family: var(--font-mono);">{count} unique shows</span>
+						<div class="mb-1 flex items-center justify-between">
+							<span
+								class="text-sm text-[var(--nw-neon-yellow)]"
+								style="font-family: var(--font-display);">{monthName} {year}</span
+							>
+							<span class="text-xs text-white/50" style="font-family: var(--font-mono);"
+								>{count} unique shows</span
+							>
 						</div>
-						<div class="text-xs text-white/80 space-y-0.5" style="font-family: var(--font-mono);">
+						<div class="space-y-0.5 text-xs text-white/80" style="font-family: var(--font-mono);">
 							{#each shows as show}
 								<div>• {show}</div>
 							{/each}

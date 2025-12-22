@@ -28,19 +28,21 @@
 
 		<!-- Modal Content -->
 		<div
-			class="relative w-full max-w-2xl max-h-[80vh] overflow-hidden brutalist-border bg-[var(--tw-deep-purple)]"
+			class="brutalist-border relative max-h-[80vh] w-full max-w-2xl overflow-hidden bg-[var(--tw-deep-purple)]"
 			onclick={(e) => e.stopPropagation()}
 			role="document"
 		>
 			<!-- Header -->
-			<div class="flex items-center justify-between p-4 border-b-2 border-[var(--nw-burning-orange)]/30">
-				<h2 class="text-2xl text-[var(--nw-burning-orange)]" style="font-family: var(--font-display);">
+			<div
+				class="flex items-center justify-between border-b-2 border-[var(--nw-burning-orange)]/30 p-4"
+			>
+				<h2
+					class="text-2xl text-[var(--nw-burning-orange)]"
+					style="font-family: var(--font-display);"
+				>
 					{title}
 				</h2>
-				<button
-					onclick={onClose}
-					class="text-white/50 hover:text-white text-2xl leading-none px-2"
-				>
+				<button onclick={onClose} class="px-2 text-2xl leading-none text-white/50 hover:text-white">
 					×
 				</button>
 			</div>

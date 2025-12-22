@@ -50,7 +50,12 @@ async function insertTeam(team: any): Promise<number> {
 
 	const slug = slugify(team.name);
 	// Map types: duo->indie, musical/unknown->other
-	const typeMap: Record<string, string> = { house: 'house', indie: 'indie', duo: 'indie', musical: 'other' };
+	const typeMap: Record<string, string> = {
+		house: 'house',
+		indie: 'indie',
+		duo: 'indie',
+		musical: 'other'
+	};
 	const type = typeMap[team.type] || 'other';
 
 	// Insert coach first if exists
@@ -149,7 +154,9 @@ async function main() {
 	console.log('3. Importing historical shows...');
 	let historicalCount = 0;
 	// historicalData is an array, not { shows: [...] }
-	const historicalShows = Array.isArray(historicalData) ? historicalData : historicalData.shows || [];
+	const historicalShows = Array.isArray(historicalData)
+		? historicalData
+		: historicalData.shows || [];
 	for (const show of historicalShows) {
 		// Historical shows may not have uid, skip conflict check
 		await db.execute({

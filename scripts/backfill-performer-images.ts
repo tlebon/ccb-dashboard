@@ -186,7 +186,7 @@ async function scrapePerformersDirectory(): Promise<PerformerImage[]> {
 		const nextPage = root.querySelector('.next.page-numbers');
 		if (!nextPage) break;
 
-		await new Promise(r => setTimeout(r, 100));
+		await new Promise((r) => setTimeout(r, 100));
 	}
 
 	return performers;
@@ -248,7 +248,10 @@ async function main() {
 
 	// Get all performers from DB
 	const dbPerformers = await db.execute('SELECT id, name, slug FROM performers');
-	const performerMap = new Map<string, { id: number; name: string; slug: string; matched?: boolean }>();
+	const performerMap = new Map<
+		string,
+		{ id: number; name: string; slug: string; matched?: boolean }
+	>();
 
 	for (const row of dbPerformers.rows) {
 		const normalized = normalizeName(row.name as string);
@@ -269,7 +272,7 @@ async function main() {
 
 	// Then scrape team pages for additional images
 	const allPerformerImages: PerformerImage[] = [...directoryPerformers];
-	const seenNames = new Set<string>(directoryPerformers.map(p => p.normalizedName));
+	const seenNames = new Set<string>(directoryPerformers.map((p) => p.normalizedName));
 
 	if (!skipTeams) {
 		console.log('--- Scraping Team Pages ---\n');
@@ -287,7 +290,7 @@ async function main() {
 				}
 			}
 
-			await new Promise(r => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 100));
 		}
 	}
 
@@ -305,7 +308,8 @@ async function main() {
 		if (dbPerformer) {
 			// Check for ambiguous matches (e.g., "Harry" could match multiple)
 			const scrapedFirst = scraped.normalizedName.split(' ')[0];
-			const isPartialMatch = scraped.normalizedName === scrapedFirst &&
+			const isPartialMatch =
+				scraped.normalizedName === scrapedFirst &&
 				normalizeName(dbPerformer.name) !== scraped.normalizedName;
 
 			if (isPartialMatch) {

@@ -72,14 +72,16 @@
 		return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 	}
 
-	$: currentMembers = team?.members.filter(m => !m.is_former) || [];
-	$: formerMembers = team?.members.filter(m => m.is_former) || [];
+	$: currentMembers = team?.members.filter((m) => !m.is_former) || [];
+	$: formerMembers = team?.members.filter((m) => m.is_former) || [];
 
 	// Separate upcoming and past shows
 	$: today = new Date().toISOString().split('T')[0];
 	// For house teams, filter out House Shows from upcomingShows to avoid duplication with upcomingHouseShows section
-	$: upcomingShows = shows.filter(s => s.date >= today && !(team?.type === 'house' && s.title === 'House Show'));
-	$: pastShows = shows.filter(s => s.date < today);
+	$: upcomingShows = shows.filter(
+		(s) => s.date >= today && !(team?.type === 'house' && s.title === 'House Show')
+	);
+	$: pastShows = shows.filter((s) => s.date < today);
 
 	const typeLabels: Record<string, string> = {
 		house: 'House Team',
@@ -101,80 +103,100 @@
 	<title>{team?.name || 'Team'} | CCB Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
+<div
+	class="min-h-screen bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black text-white"
+>
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-6 py-8">
+	<div class="relative z-10 mx-auto max-w-5xl px-6 py-8">
 		<QuickNav />
 
 		{#if loading}
-			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
+			<div
+				class="py-12 text-center text-[var(--tw-electric-cyan)]"
+				style="font-family: var(--font-display);"
+			>
 				Loading...
 			</div>
 		{:else if error}
-			<div class="text-center py-12">
-				<p class="text-[var(--tw-neon-pink)] text-2xl" style="font-family: var(--font-display);">{error}</p>
+			<div class="py-12 text-center">
+				<p class="text-2xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">
+					{error}
+				</p>
 			</div>
 		{:else if team}
 			<!-- Header -->
 			<header class="mb-10">
-				<h1 class="text-6xl uppercase tracking-wider text-white inline-block px-4 py-2
-				           bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)]"
-				    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+				<h1
+					class="inline-block bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)] px-4 py-2 text-6xl
+				           tracking-wider text-white uppercase"
+					style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);"
+				>
 					{team.name}
 				</h1>
-				<div class="flex gap-8 mt-6 text-lg font-mono">
-					<span class="text-[var(--tw-electric-cyan)] uppercase tracking-wider">
+				<div class="mt-6 flex gap-8 font-mono text-lg">
+					<span class="tracking-wider text-[var(--tw-electric-cyan)] uppercase">
 						{typeLabels[team.type]}
 					</span>
 					{#if team.coach}
 						<span>
 							<span class="text-white/60">Coached by</span>
-							<a href="/performers/{team.coach.slug}" class="text-[var(--nw-neon-yellow)] hover:text-[var(--tw-electric-cyan)]">
+							<a
+								href="/performers/{team.coach.slug}"
+								class="text-[var(--nw-neon-yellow)] hover:text-[var(--tw-electric-cyan)]"
+							>
 								{team.coach.name}
 							</a>
 						</span>
 					{/if}
 				</div>
 				{#if team.note}
-					<p class="mt-4 text-white/70 max-w-2xl">{team.note}</p>
+					<p class="mt-4 max-w-2xl text-white/70">{team.note}</p>
 				{/if}
 			</header>
 
 			<!-- Two-column layout -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+			<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
 				<!-- Members Section -->
 				<section>
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-						    style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Members
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"
+						></div>
 					</div>
 
 					{#if currentMembers.length > 0}
-						<div class="divide-y divide-white/10 mb-8">
+						<div class="mb-8 divide-y divide-white/10">
 							{#each currentMembers as member (member.id)}
 								<a
 									href="/performers/{member.slug}"
-									class="group flex items-center gap-3 py-3 px-3 border-l-4 border-[var(--tw-electric-cyan)]/40 hover:border-[var(--tw-electric-cyan)] hover:bg-white/5 transition-all"
+									class="group flex items-center gap-3 border-l-4 border-[var(--tw-electric-cyan)]/40 px-3 py-3 transition-all hover:border-[var(--tw-electric-cyan)] hover:bg-white/5"
 								>
-									<span class="text-xl uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors"
-									      style="font-family: var(--font-display);">
+									<span
+										class="text-xl text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)]"
+										style="font-family: var(--font-display);"
+									>
 										{member.name}
 									</span>
 								</a>
 							{/each}
 						</div>
 					{:else}
-						<p class="text-white/40 py-4 font-mono">No current members</p>
+						<p class="py-4 font-mono text-white/40">No current members</p>
 					{/if}
 
 					{#if formerMembers.length > 0}
 						<div class="relative mb-4">
-							<h3 class="text-lg uppercase tracking-wider text-white/50"
-							    style="font-family: var(--font-display);">
+							<h3
+								class="text-lg tracking-wider text-white/50 uppercase"
+								style="font-family: var(--font-display);"
+							>
 								Former Members
 							</h3>
 						</div>
@@ -182,10 +204,12 @@
 							{#each formerMembers as member (member.id)}
 								<a
 									href="/performers/{member.slug}"
-									class="group flex items-center gap-3 py-2 px-3 border-l-4 border-white/20 hover:bg-white/5 transition-all opacity-60"
+									class="group flex items-center gap-3 border-l-4 border-white/20 px-3 py-2 opacity-60 transition-all hover:bg-white/5"
 								>
-									<span class="text-lg uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors"
-									      style="font-family: var(--font-display);">
+									<span
+										class="text-lg text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)]"
+										style="font-family: var(--font-display);"
+									>
 										{member.name}
 									</span>
 								</a>
@@ -199,20 +223,29 @@
 					<!-- Upcoming House Shows (from database) -->
 					{#if isHouse && upcomingHouseShows.length > 0}
 						<div class="relative mb-6">
-							<h2 class="text-2xl uppercase tracking-wider text-[var(--nw-neon-yellow)]"
-							    style="font-family: var(--font-display);">
+							<h2
+								class="text-2xl tracking-wider text-[var(--nw-neon-yellow)] uppercase"
+								style="font-family: var(--font-display);"
+							>
 								Upcoming House Shows
 							</h2>
-							<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"></div>
+							<div
+								class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"
+							></div>
 						</div>
 
-						<div class="divide-y divide-white/10 mb-10">
+						<div class="mb-10 divide-y divide-white/10">
 							{#each upcomingHouseShows as show}
-								<div class="flex flex-col gap-1 py-3 px-3 border-l-4 border-[var(--nw-neon-yellow)]/40">
-									<span class="text-[var(--nw-neon-yellow)] font-mono">
+								<div
+									class="flex flex-col gap-1 border-l-4 border-[var(--nw-neon-yellow)]/40 px-3 py-3"
+								>
+									<span class="font-mono text-[var(--nw-neon-yellow)]">
 										{formatHouseShowDate(show.date)}
 									</span>
-									<span class="text-lg uppercase text-white" style="font-family: var(--font-display);">
+									<span
+										class="text-lg text-white uppercase"
+										style="font-family: var(--font-display);"
+									>
 										House Show
 									</span>
 								</div>
@@ -220,11 +253,13 @@
 						</div>
 
 						{#if houseTeamInfo}
-							<p class="text-white/50 text-sm font-mono mb-8">
-								{team?.name} performs on {houseTeamInfo.weeks.map(w => {
-									const ordinals = ['', '1st', '2nd', '3rd', '4th', '5th'];
-									return ordinals[w];
-								}).join(' & ')} Fridays of each month
+							<p class="mb-8 font-mono text-sm text-white/50">
+								{team?.name} performs on {houseTeamInfo.weeks
+									.map((w) => {
+										const ordinals = ['', '1st', '2nd', '3rd', '4th', '5th'];
+										return ordinals[w];
+									})
+									.join(' & ')} Fridays of each month
 							</p>
 						{/if}
 					{/if}
@@ -232,23 +267,30 @@
 					<!-- Upcoming Shows -->
 					{#if upcomingShows.length > 0}
 						<div class="relative mb-6">
-							<h2 class="text-2xl uppercase tracking-wider text-[var(--nw-neon-yellow)]"
-							    style="font-family: var(--font-display);">
+							<h2
+								class="text-2xl tracking-wider text-[var(--nw-neon-yellow)] uppercase"
+								style="font-family: var(--font-display);"
+							>
 								Upcoming Shows
 							</h2>
-							<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"></div>
+							<div
+								class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"
+							></div>
 						</div>
 
-						<div class="divide-y divide-white/10 mb-10">
+						<div class="mb-10 divide-y divide-white/10">
 							{#each upcomingShows as show (show.id)}
 								<a
 									href="/shows/{show.slug}"
-									class="group flex flex-col gap-1 py-3 px-3 border-l-4 border-[var(--nw-neon-yellow)]/40 hover:border-[var(--nw-neon-yellow)] hover:bg-white/5 transition-all"
+									class="group flex flex-col gap-1 border-l-4 border-[var(--nw-neon-yellow)]/40 px-3 py-3 transition-all hover:border-[var(--nw-neon-yellow)] hover:bg-white/5"
 								>
-									<span class="text-[var(--nw-neon-yellow)] font-mono">
+									<span class="font-mono text-[var(--nw-neon-yellow)]">
 										{formatDate(show.date)}
 									</span>
-									<span class="text-lg uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors" style="font-family: var(--font-display);">
+									<span
+										class="text-lg text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)]"
+										style="font-family: var(--font-display);"
+									>
 										{show.title}
 									</span>
 								</a>
@@ -258,11 +300,15 @@
 
 					<!-- Past Shows -->
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-neon-pink)]"
-						    style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-neon-pink)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Recent Shows
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"
+						></div>
 					</div>
 
 					{#if pastShows.length > 0}
@@ -270,21 +316,24 @@
 							{#each pastShows as show (show.id)}
 								<a
 									href="/shows/{show.slug}"
-									class="group flex flex-col gap-1 py-3 px-3 border-l-4 border-[var(--tw-neon-pink)]/30 hover:border-[var(--tw-neon-pink)] hover:bg-white/5 transition-all"
+									class="group flex flex-col gap-1 border-l-4 border-[var(--tw-neon-pink)]/30 px-3 py-3 transition-all hover:border-[var(--tw-neon-pink)] hover:bg-white/5"
 								>
-									<span class="text-[var(--nw-neon-yellow)] font-mono">
+									<span class="font-mono text-[var(--nw-neon-yellow)]">
 										{formatDate(show.date)}
 									</span>
-									<span class="text-lg uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors" style="font-family: var(--font-display);">
+									<span
+										class="text-lg text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)]"
+										style="font-family: var(--font-display);"
+									>
 										{show.title}
 									</span>
 								</a>
 							{/each}
 						</div>
 					{:else if upcomingShows.length === 0}
-						<p class="text-white/40 py-8 font-mono">No tracked shows for this team yet</p>
+						<p class="py-8 font-mono text-white/40">No tracked shows for this team yet</p>
 					{:else}
-						<p class="text-white/40 py-8 font-mono">No past shows tracked yet</p>
+						<p class="py-8 font-mono text-white/40">No past shows tracked yet</p>
 					{/if}
 				</section>
 			</div>

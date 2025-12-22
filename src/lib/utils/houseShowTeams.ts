@@ -31,7 +31,7 @@ export const HOUSE_SHOW_TEAMS: HouseTeam[] = [
 			'Kathy MacLeod',
 			'Keshia Fredua-Mensah',
 			'Pip Roper',
-			'Simone O\'Donovan',
+			"Simone O'Donovan",
 			'Tina Marie Serra',
 			'Zoe Langer'
 		]
@@ -109,7 +109,7 @@ export function getHouseShowTeams(date: Date | string): HouseTeam[] {
 	const dateStr = d.toISOString().split('T')[0];
 	const fridayOfMonth = getFridayOfMonth(d);
 
-	return HOUSE_SHOW_TEAMS.filter(team => {
+	return HOUSE_SHOW_TEAMS.filter((team) => {
 		// Check if team performs on this Friday of month
 		if (!team.weeks.includes(fridayOfMonth)) return false;
 		// Check if team had started by this date
@@ -132,7 +132,7 @@ export function formatHouseShowTeams(date: Date | string): string {
 	const teams = getHouseShowTeams(date);
 	if (teams.length === 0) return '';
 	if (teams.length === 1) return teams[0].name;
-	return teams.map(t => t.name).join(' & ');
+	return teams.map((t) => t.name).join(' & ');
 }
 
 /**
@@ -142,7 +142,7 @@ export function formatHouseShowTeams(date: Date | string): string {
  * @returns Array of upcoming Friday dates when the team performs
  */
 export function getUpcomingHouseShowDates(teamSlug: string, count = 5): Date[] {
-	const team = HOUSE_SHOW_TEAMS.find(t => t.slug === teamSlug);
+	const team = HOUSE_SHOW_TEAMS.find((t) => t.slug === teamSlug);
 	if (!team) return [];
 
 	const dates: Date[] = [];
@@ -171,12 +171,12 @@ export function getUpcomingHouseShowDates(teamSlug: string, count = 5): Date[] {
  * Check if a team is a house team
  */
 export function isHouseTeam(teamSlug: string): boolean {
-	return HOUSE_SHOW_TEAMS.some(t => t.slug === teamSlug);
+	return HOUSE_SHOW_TEAMS.some((t) => t.slug === teamSlug);
 }
 
 /**
  * Get house team by slug
  */
 export function getHouseTeamBySlug(slug: string): HouseTeam | undefined {
-	return HOUSE_SHOW_TEAMS.find(t => t.slug === slug);
+	return HOUSE_SHOW_TEAMS.find((t) => t.slug === slug);
 }

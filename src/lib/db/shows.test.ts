@@ -88,7 +88,7 @@ describe('shows utility functions', () => {
 				'Title & Symbols!!'
 			];
 
-			titles.forEach(title => {
+			titles.forEach((title) => {
 				const titleSlug = getTitleSlug(title);
 				const fullSlug = generateShowSlug('2025-01-01', title);
 				expect(fullSlug).toBe(`2025-01-01-${titleSlug}`);
@@ -249,7 +249,12 @@ describe('shows database operations', () => {
 		});
 		await db.execute({
 			sql: `INSERT INTO shows (title, slug, date, source) VALUES (?, ?, ?, ?)`,
-			args: ['Health Plan: A Deconstruction', '2025-02-15-health-plan-a-deconstruction', '2025-02-15', 'ical']
+			args: [
+				'Health Plan: A Deconstruction',
+				'2025-02-15-health-plan-a-deconstruction',
+				'2025-02-15',
+				'ical'
+			]
 		});
 
 		const result = await db.execute({

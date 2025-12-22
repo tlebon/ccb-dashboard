@@ -32,7 +32,7 @@ export const GET: RequestHandler = async ({ params }) => {
 
 				// Filter to dates where this team performs based on Friday-of-month
 				upcomingHouseShows = (result.rows as unknown as { date: string; title: string }[])
-					.filter(show => {
+					.filter((show) => {
 						const fridayOfMonth = getFridayOfMonth(new Date(show.date));
 						return houseTeam.weeks.includes(fridayOfMonth);
 					})

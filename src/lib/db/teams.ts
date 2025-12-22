@@ -30,7 +30,9 @@ export async function getTeamsByType(type: 'house' | 'indie' | 'other'): Promise
 	return result.rows as unknown as Team[];
 }
 
-export async function getTeamMembers(teamId: number): Promise<(Performer & { is_former: boolean })[]> {
+export async function getTeamMembers(
+	teamId: number
+): Promise<(Performer & { is_former: boolean })[]> {
 	const result = await db.execute({
 		sql: `
 			SELECT p.*, tm.is_former

@@ -20,18 +20,30 @@ interface ParsedShow {
 const DAYS_OF_WEEK = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 const MONTH_NAMES: Record<string, number> = {
-	'january': 0, 'jan': 0,
-	'february': 1, 'feb': 1,
-	'march': 2, 'mar': 2,
-	'april': 3, 'apr': 3,
-	'may': 4,
-	'june': 5, 'jun': 5,
-	'july': 6, 'jul': 6,
-	'august': 7, 'aug': 7,
-	'september': 8, 'sep': 8, 'sept': 8,
-	'october': 9, 'oct': 9,
-	'november': 10, 'nov': 10,
-	'december': 11, 'dec': 11
+	january: 0,
+	jan: 0,
+	february: 1,
+	feb: 1,
+	march: 2,
+	mar: 2,
+	april: 3,
+	apr: 3,
+	may: 4,
+	june: 5,
+	jun: 5,
+	july: 6,
+	jul: 6,
+	august: 7,
+	aug: 7,
+	september: 8,
+	sep: 8,
+	sept: 8,
+	october: 9,
+	oct: 9,
+	november: 10,
+	nov: 10,
+	december: 11,
+	dec: 11
 };
 
 function parseMessageDate(header: string): Date | null {
@@ -46,7 +58,9 @@ function parseMessageDate(header: string): Date | null {
 	return new Date(parseInt(year), month, parseInt(day));
 }
 
-function parseDayHeader(line: string): { dayOfWeek: number; explicitDate?: { month: number; day: number } } | null {
+function parseDayHeader(
+	line: string
+): { dayOfWeek: number; explicitDate?: { month: number; day: number } } | null {
 	// Clean up the line
 	const cleaned = line.replace(/\*/g, '').replace(/:/g, '').trim().toLowerCase();
 
@@ -98,9 +112,7 @@ function parseShowLine(line: string): { title: string; time: string } | null {
 	// "Show Title: 8:00 PM"
 
 	// Try to extract time (8:00 PM, 8:00pm, 20:00, etc.)
-	const timePatterns = [
-		/(\d{1,2}):(\d{2})\s*(pm|am)?/i,
-	];
+	const timePatterns = [/(\d{1,2}):(\d{2})\s*(pm|am)?/i];
 
 	let timeMatch = null;
 	let time24 = '';
@@ -202,10 +214,10 @@ async function main() {
 
 	// Show some examples
 	console.log('\nFirst 10 shows:');
-	shows.slice(0, 10).forEach(s => console.log(`  ${s.date} ${s.time} - ${s.title}`));
+	shows.slice(0, 10).forEach((s) => console.log(`  ${s.date} ${s.time} - ${s.title}`));
 
 	console.log('\nLast 10 shows:');
-	shows.slice(-10).forEach(s => console.log(`  ${s.date} ${s.time} - ${s.title}`));
+	shows.slice(-10).forEach((s) => console.log(`  ${s.date} ${s.time} - ${s.title}`));
 
 	// Now update the database
 	console.log('\n--- Updating database ---');
@@ -242,7 +254,7 @@ async function main() {
 		ORDER BY date
 	`);
 	console.log('\nDecember 2025 shows by date:');
-	verification.rows.forEach(r => console.log(`  ${r.date}: ${r.count} shows`));
+	verification.rows.forEach((r) => console.log(`  ${r.date}: ${r.count} shows`));
 }
 
 main().catch(console.error);

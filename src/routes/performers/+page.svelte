@@ -42,16 +42,20 @@
 	<title>Performers | CCB Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
+<div
+	class="min-h-screen bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black text-white"
+>
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-4 md:px-6 py-4 md:py-8">
+	<div class="relative z-10 mx-auto max-w-5xl px-4 py-4 md:px-6 md:py-8">
 		<!-- Header -->
 		<header class="mb-6 md:mb-10">
 			<QuickNav />
-			<h1 class="text-4xl md:text-6xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
-			           bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]"
-			    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+			<h1
+				class="inline-block bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)] px-3 py-1.5 text-4xl tracking-wider text-white uppercase
+			           md:px-4 md:py-2 md:text-6xl"
+				style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);"
+			>
 				Performers
 			</h1>
 		</header>
@@ -62,36 +66,45 @@
 		</div>
 
 		{#if loading}
-			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
+			<div
+				class="py-12 text-center text-[var(--tw-electric-cyan)]"
+				style="font-family: var(--font-display);"
+			>
 				Loading...
 			</div>
 		{:else}
 			<!-- Section heading -->
-			<div class="mb-6 relative">
-				<h2 class="text-xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-				    style="font-family: var(--font-display);">
+			<div class="relative mb-6">
+				<h2
+					class="text-xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+					style="font-family: var(--font-display);"
+				>
 					{#if showingSearch}
 						{performers.length} result{performers.length !== 1 ? 's' : ''} for "{searchQuery}"
 					{:else}
 						Top Performers
 					{/if}
 				</h2>
-				<div class="absolute -bottom-2 left-0 w-24 h-1 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"></div>
+				<div
+					class="absolute -bottom-2 left-0 h-1 w-24 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"
+				></div>
 			</div>
 
 			<!-- Performers list -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+			<div class="grid grid-cols-1 gap-1 md:grid-cols-2 lg:grid-cols-3">
 				{#each displayPerformers as performer, i (performer.id)}
 					<a
 						href="/performers/{performer.slug}"
-						class="group flex flex-col gap-1 py-3 px-3 border-l-4 border-[var(--tw-electric-cyan)]/40
-						       hover:border-[var(--tw-neon-pink)] hover:bg-[var(--tw-deep-purple)]/40 transition-all"
+						class="group flex flex-col gap-1 border-l-4 border-[var(--tw-electric-cyan)]/40 px-3 py-3
+						       transition-all hover:border-[var(--tw-neon-pink)] hover:bg-[var(--tw-deep-purple)]/40"
 					>
-						<span class="text-2xl uppercase text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors"
-						      style="font-family: var(--font-display);">
+						<span
+							class="text-2xl text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)]"
+							style="font-family: var(--font-display);"
+						>
 							{performer.name}
 						</span>
-						<span class="flex gap-3 text-sm font-mono">
+						<span class="flex gap-3 font-mono text-sm">
 							{#if performer.team_count}
 								<span class="text-[var(--tw-neon-pink)]">{performer.team_count} teams</span>
 							{/if}
@@ -104,7 +117,7 @@
 			</div>
 
 			{#if displayPerformers.length === 0 && showingSearch}
-				<div class="text-center py-12 text-white/60">
+				<div class="py-12 text-center text-white/60">
 					No performers found for "{searchQuery}"
 				</div>
 			{/if}

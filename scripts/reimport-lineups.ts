@@ -22,7 +22,10 @@ interface ShowLineup {
 }
 
 async function getOrCreatePerformer(name: string): Promise<number> {
-	const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+	const slug = name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
 
 	// Check if exists
 	const existing = await db.execute({

@@ -117,7 +117,12 @@
 
 	function formatDate(dateStr: string) {
 		const date = new Date(dateStr);
-		return date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+		return date.toLocaleDateString('en-GB', {
+			weekday: 'long',
+			day: 'numeric',
+			month: 'long',
+			year: 'numeric'
+		});
 	}
 
 	function formatShortDate(dateStr: string) {
@@ -185,9 +190,11 @@
 	// Split series shows into upcoming and past
 	$: today = new Date().toISOString().split('T')[0];
 	// Upcoming: soonest first (ascending)
-	$: upcomingSeriesShows = (series?.shows.filter(s => s.date >= today) || []).sort((a, b) => a.date.localeCompare(b.date));
+	$: upcomingSeriesShows = (series?.shows.filter((s) => s.date >= today) || []).sort((a, b) =>
+		a.date.localeCompare(b.date)
+	);
 	// Past: most recent first (descending) - already sorted this way from API
-	$: pastSeriesShows = series?.shows.filter(s => s.date < today) || [];
+	$: pastSeriesShows = series?.shows.filter((s) => s.date < today) || [];
 
 	// Pagination for past series shows
 	const PAST_PAGE_SIZE = 20;
@@ -204,30 +211,37 @@
 	<title>{show?.title || series?.title || 'Show'} | CCB Dashboard</title>
 </svelte:head>
 
-<div class="min-h-screen text-white bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black">
+<div
+	class="min-h-screen bg-gradient-to-br from-[var(--tw-midnight)] via-[var(--tw-deep-purple)] to-black text-white"
+>
 	<div class="grain-overlay"></div>
 
-	<div class="relative z-10 max-w-4xl mx-auto px-4 md:px-6 py-4 md:py-8">
+	<div class="relative z-10 mx-auto max-w-4xl px-4 py-4 md:px-6 md:py-8">
 		<QuickNav />
 
 		{#if loading}
-			<div class="text-center py-12 text-[var(--tw-electric-cyan)]" style="font-family: var(--font-display);">
+			<div
+				class="py-12 text-center text-[var(--tw-electric-cyan)]"
+				style="font-family: var(--font-display);"
+			>
 				Loading...
 			</div>
 		{:else if error}
-			<div class="text-center py-12">
-				<p class="text-[var(--tw-neon-pink)] text-2xl" style="font-family: var(--font-display);">{error}</p>
+			<div class="py-12 text-center">
+				<p class="text-2xl text-[var(--tw-neon-pink)]" style="font-family: var(--font-display);">
+					{error}
+				</p>
 			</div>
 		{:else if viewType === 'show' && show}
 			<!-- Single Show View -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-10">
+			<div class="mb-6 grid grid-cols-1 gap-4 md:mb-10 md:grid-cols-3 md:gap-8">
 				<!-- Show Image -->
 				{#if show.image_url}
 					<div class="md:col-span-1">
 						<img
 							src={proxyImageUrl(show.image_url)}
 							alt={show.title}
-							class="w-full max-w-xs mx-auto md:max-w-none rounded-lg shadow-2xl border-2 border-[var(--tw-neon-pink)]/30"
+							class="mx-auto w-full max-w-xs rounded-lg border-2 border-[var(--tw-neon-pink)]/30 shadow-2xl md:max-w-none"
 						/>
 					</div>
 				{/if}
@@ -235,12 +249,14 @@
 				<!-- Show Info -->
 				<div class={show.image_url ? 'md:col-span-2' : 'md:col-span-3'}>
 					<header>
-						<h1 class="text-2xl sm:text-3xl md:text-5xl uppercase tracking-wider text-white inline-block px-3 md:px-4 py-1.5 md:py-2
-								   bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)] break-words"
-							style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+						<h1
+							class="inline-block bg-gradient-to-r from-[var(--tw-neon-pink)] to-[var(--nw-burning-orange)] px-3 py-1.5 text-2xl tracking-wider break-words text-white uppercase
+								   sm:text-3xl md:px-4 md:py-2 md:text-5xl"
+							style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);"
+						>
 							{show.title}
 						</h1>
-						<div class="flex flex-wrap gap-6 mt-6 text-lg font-mono">
+						<div class="mt-6 flex flex-wrap gap-6 font-mono text-lg">
 							<span class="text-[var(--nw-neon-yellow)]">
 								{formatDate(show.date)}
 							</span>
@@ -250,16 +266,22 @@
 								</span>
 							{/if}
 						</div>
-						<div class="flex flex-wrap gap-4 mt-4">
+						<div class="mt-4 flex flex-wrap gap-4">
 							{#if show.url}
-								<a href={show.url} target="_blank" rel="noopener noreferrer"
-								   class="text-[var(--tw-electric-cyan)] hover:text-[var(--tw-neon-pink)] font-mono text-sm">
+								<a
+									href={show.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="font-mono text-sm text-[var(--tw-electric-cyan)] hover:text-[var(--tw-neon-pink)]"
+								>
 									View on CCB Website →
 								</a>
 							{/if}
 							{#if seriesInfo}
-								<a href="/shows/{seriesInfo.slug}"
-								   class="text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)] font-mono text-sm">
+								<a
+									href="/shows/{seriesInfo.slug}"
+									class="font-mono text-sm text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)]"
+								>
 									View all {seriesInfo.count} shows →
 								</a>
 							{/if}
@@ -272,23 +294,33 @@
 			{#if houseTeams.length > 0}
 				<section class="mb-10">
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-							style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Tonight's Teams
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"
+						></div>
 					</div>
 
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
 						{#each houseTeams as team}
-							<div class="p-3 md:p-4 border-l-4 border-[var(--tw-neon-pink)]/60 bg-white/5 min-w-0">
-								<a href="/teams/{team.slug}" class="text-xl md:text-2xl text-[var(--tw-neon-pink)] hover:text-[var(--tw-electric-cyan)] transition-colors mb-2 block break-words" style="font-family: var(--font-display);">
+							<div class="min-w-0 border-l-4 border-[var(--tw-neon-pink)]/60 bg-white/5 p-3 md:p-4">
+								<a
+									href="/teams/{team.slug}"
+									class="mb-2 block text-xl break-words text-[var(--tw-neon-pink)] transition-colors hover:text-[var(--tw-electric-cyan)] md:text-2xl"
+									style="font-family: var(--font-display);"
+								>
 									{team.name} →
 								</a>
-								<p class="text-white/80 text-sm mb-3 break-words">
+								<p class="mb-3 text-sm break-words text-white/80">
 									{team.members.join(', ')}
 								</p>
-								<p class="text-[var(--tw-electric-cyan)] text-xs font-mono uppercase tracking-wider break-words">
+								<p
+									class="font-mono text-xs tracking-wider break-words text-[var(--tw-electric-cyan)] uppercase"
+								>
 									Coached by {team.coach}
 								</p>
 							</div>
@@ -301,13 +333,17 @@
 			{#if show.description}
 				<section class="mb-10">
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-							style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							About
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"
+						></div>
 					</div>
-					<div class="text-white/80 max-w-3xl whitespace-pre-line leading-relaxed">
+					<div class="max-w-3xl leading-relaxed whitespace-pre-line text-white/80">
 						{@html safeLinkifyText(show.description)}
 					</div>
 				</section>
@@ -317,32 +353,40 @@
 			{#if parsedPerformers.length > 0}
 				<section class="mb-10">
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-							style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Cast
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"
+						></div>
 					</div>
 
-					<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+					<div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5">
 						{#each parsedPerformers as performer}
 							<a
 								href="/performers/{performer.slug}"
-								class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
+								class="group flex min-w-0 flex-col items-center gap-1 rounded p-2 text-center transition-colors hover:bg-white/5 md:gap-2 md:p-3"
 							>
 								{#if performer.image_url}
 									<img
 										src={proxyImageUrl(performer.image_url)}
 										alt={performer.name}
-										class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-electric-cyan)]/30"
+										class="h-12 w-12 flex-shrink-0 rounded-full border-2 border-[var(--tw-electric-cyan)]/30 object-cover md:h-16 md:w-16"
 									/>
 								{:else}
-									<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
+									<div
+										class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[var(--tw-electric-cyan)]/20 font-mono text-lg text-[var(--tw-electric-cyan)] md:h-16 md:w-16 md:text-xl"
+									>
 										{performer.name.charAt(0)}
 									</div>
 								{/if}
-								<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
-								      style="font-family: var(--font-display);">
+								<span
+									class="w-full text-xs leading-tight break-words text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)] md:text-sm"
+									style="font-family: var(--font-display);"
+								>
 									{performer.name}
 								</span>
 							</a>
@@ -355,48 +399,60 @@
 			{#if show.lineup && show.lineup.length > 0}
 				<section>
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-electric-cyan)]"
-						    style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--tw-electric-cyan)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Lineup
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-electric-cyan)] to-transparent"
+						></div>
 					</div>
 
 					<div class="space-y-8">
 						{#each roleOrder as role}
 							{#if grouped[role]?.length}
 								<div>
-									<h3 class="text-sm font-mono uppercase tracking-wider text-white/50 mb-3">
+									<h3 class="mb-3 font-mono text-sm tracking-wider text-white/50 uppercase">
 										{roleLabels[role] || role}
 									</h3>
 									{#each groupByTeam(grouped[role]) as teamGroup}
 										{#if teamGroup.team_name}
 											<!-- Team with members -->
-											<div class="mb-4 p-4 border-l-4 border-[var(--tw-neon-pink)]/40 bg-white/5">
-												<a href="/teams/{teamGroup.team_slug}"
-												   class="text-lg uppercase text-[var(--nw-burning-orange)] hover:text-[var(--nw-neon-yellow)] transition-colors mb-3 block"
-												   style="font-family: var(--font-display);">
+											<div class="mb-4 border-l-4 border-[var(--tw-neon-pink)]/40 bg-white/5 p-4">
+												<a
+													href="/teams/{teamGroup.team_slug}"
+													class="mb-3 block text-lg text-[var(--nw-burning-orange)] uppercase transition-colors hover:text-[var(--nw-neon-yellow)]"
+													style="font-family: var(--font-display);"
+												>
 													{teamGroup.team_name}
 												</a>
-												<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+												<div
+													class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5"
+												>
 													{#each teamGroup.performers as performer}
 														<a
 															href="/performers/{performer.performer_slug}"
-															class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
+															class="group flex min-w-0 flex-col items-center gap-1 rounded p-2 text-center transition-colors hover:bg-white/5 md:gap-2 md:p-3"
 														>
 															{#if performer.performer_image_url}
 																<img
 																	src={proxyImageUrl(performer.performer_image_url)}
 																	alt={performer.performer_name}
-																	class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-neon-pink)]/30"
+																	class="h-12 w-12 flex-shrink-0 rounded-full border-2 border-[var(--tw-neon-pink)]/30 object-cover md:h-16 md:w-16"
 																/>
 															{:else}
-																<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-neon-pink)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-neon-pink)] font-mono flex-shrink-0">
+																<div
+																	class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[var(--tw-neon-pink)]/20 font-mono text-lg text-[var(--tw-neon-pink)] md:h-16 md:w-16 md:text-xl"
+																>
 																	{performer.performer_name.charAt(0)}
 																</div>
 															{/if}
-															<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
-															      style="font-family: var(--font-display);">
+															<span
+																class="w-full text-xs leading-tight break-words text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)] md:text-sm"
+																style="font-family: var(--font-display);"
+															>
 																{performer.performer_name}
 															</span>
 														</a>
@@ -405,25 +461,31 @@
 											</div>
 										{:else}
 											<!-- Individual performers without team -->
-											<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+											<div
+												class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5"
+											>
 												{#each teamGroup.performers as performer}
 													<a
 														href="/performers/{performer.performer_slug}"
-														class="group flex flex-col items-center gap-1 md:gap-2 hover:bg-white/5 p-2 md:p-3 rounded transition-colors text-center min-w-0"
+														class="group flex min-w-0 flex-col items-center gap-1 rounded p-2 text-center transition-colors hover:bg-white/5 md:gap-2 md:p-3"
 													>
 														{#if performer.performer_image_url}
 															<img
 																src={proxyImageUrl(performer.performer_image_url)}
 																alt={performer.performer_name}
-																class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover flex-shrink-0 border-2 border-[var(--tw-electric-cyan)]/30"
+																class="h-12 w-12 flex-shrink-0 rounded-full border-2 border-[var(--tw-electric-cyan)]/30 object-cover md:h-16 md:w-16"
 															/>
 														{:else}
-															<div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[var(--tw-electric-cyan)]/20 flex items-center justify-center text-lg md:text-xl text-[var(--tw-electric-cyan)] font-mono flex-shrink-0">
+															<div
+																class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[var(--tw-electric-cyan)]/20 font-mono text-lg text-[var(--tw-electric-cyan)] md:h-16 md:w-16 md:text-xl"
+															>
 																{performer.performer_name.charAt(0)}
 															</div>
 														{/if}
-														<span class="text-white group-hover:text-[var(--tw-electric-cyan)] transition-colors text-xs md:text-sm uppercase leading-tight break-words w-full"
-														      style="font-family: var(--font-display);">
+														<span
+															class="w-full text-xs leading-tight break-words text-white uppercase transition-colors group-hover:text-[var(--tw-electric-cyan)] md:text-sm"
+															style="font-family: var(--font-display);"
+														>
 															{performer.performer_name}
 														</span>
 													</a>
@@ -437,23 +499,29 @@
 					</div>
 				</section>
 			{:else if !show.description}
-				<div class="text-white/40 py-8 font-mono">
+				<div class="py-8 font-mono text-white/40">
 					No additional information available for this show
 				</div>
 			{/if}
-
 		{:else if viewType === 'series' && series}
 			<!-- Series View -->
 			<header class="mb-10">
-				<h1 class="text-5xl uppercase tracking-wider text-white inline-block px-4 py-2
-				           bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)]"
-				    style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);">
+				<h1
+					class="inline-block bg-gradient-to-r from-[var(--tw-electric-cyan)] to-[var(--tw-neon-pink)] px-4 py-2 text-5xl
+				           tracking-wider text-white uppercase"
+					style="font-family: var(--font-black); clip-path: polygon(0 0, 98% 0, 100% 100%, 2% 100%);"
+				>
 					{series.title}
 				</h1>
-				<div class="mt-6 text-lg font-mono">
-					<span class="text-[var(--tw-neon-pink)] text-3xl" style="font-family: var(--font-display);">{series.count}</span>
-					<span class="text-white/60 ml-2">shows tracked</span>
-					<span class="text-white/40 ml-4">({upcomingSeriesShows.length} upcoming · {pastSeriesShows.length} past)</span>
+				<div class="mt-6 font-mono text-lg">
+					<span
+						class="text-3xl text-[var(--tw-neon-pink)]"
+						style="font-family: var(--font-display);">{series.count}</span
+					>
+					<span class="ml-2 text-white/60">shows tracked</span>
+					<span class="ml-4 text-white/40"
+						>({upcomingSeriesShows.length} upcoming · {pastSeriesShows.length} past)</span
+					>
 				</div>
 			</header>
 
@@ -461,33 +529,39 @@
 			{#if upcomingSeriesShows.length > 0}
 				<section class="mb-10">
 					<div class="relative mb-6">
-						<h2 class="text-2xl uppercase tracking-wider text-[var(--nw-neon-yellow)]"
-						    style="font-family: var(--font-display);">
+						<h2
+							class="text-2xl tracking-wider text-[var(--nw-neon-yellow)] uppercase"
+							style="font-family: var(--font-display);"
+						>
 							Upcoming
 						</h2>
-						<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"></div>
+						<div
+							class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--nw-neon-yellow)] to-transparent"
+						></div>
 					</div>
 
 					<div class="divide-y divide-white/10">
 						{#each upcomingSeriesShows as seriesShow}
 							<a
 								href="/shows/{seriesShow.slug}"
-								class="group flex flex-wrap items-center gap-x-4 gap-y-1 py-3 px-3 border-l-4 border-[var(--nw-neon-yellow)]/40 hover:border-[var(--nw-neon-yellow)] hover:bg-white/5 transition-all"
+								class="group flex flex-wrap items-center gap-x-4 gap-y-1 border-l-4 border-[var(--nw-neon-yellow)]/40 px-3 py-3 transition-all hover:border-[var(--nw-neon-yellow)] hover:bg-white/5"
 							>
-								<span class="text-[var(--nw-neon-yellow)] font-mono min-w-[120px]">
+								<span class="min-w-[120px] font-mono text-[var(--nw-neon-yellow)]">
 									{formatShortDate(seriesShow.date)}
 								</span>
 								{#if seriesShow.time}
-									<span class="text-[var(--tw-electric-cyan)] font-mono">
+									<span class="font-mono text-[var(--tw-electric-cyan)]">
 										{formatTime(seriesShow.time)}
 									</span>
 								{/if}
 								{#if seriesShow.teams && seriesShow.teams.length > 0}
-									<span class="text-[var(--nw-burning-orange)] font-mono text-sm">
-										{seriesShow.teams.map(t => t.name).join(' & ')}
+									<span class="font-mono text-sm text-[var(--nw-burning-orange)]">
+										{seriesShow.teams.map((t) => t.name).join(' & ')}
 									</span>
 								{/if}
-								<span class="ml-auto text-white/40 text-sm font-mono group-hover:text-[var(--tw-electric-cyan)]">
+								<span
+									class="ml-auto font-mono text-sm text-white/40 group-hover:text-[var(--tw-electric-cyan)]"
+								>
 									View →
 								</span>
 							</a>
@@ -499,11 +573,15 @@
 			<!-- Past Shows -->
 			<section>
 				<div class="relative mb-6">
-					<h2 class="text-2xl uppercase tracking-wider text-[var(--tw-neon-pink)]"
-					    style="font-family: var(--font-display);">
+					<h2
+						class="text-2xl tracking-wider text-[var(--tw-neon-pink)] uppercase"
+						style="font-family: var(--font-display);"
+					>
 						Past Shows
 					</h2>
-					<div class="absolute -bottom-2 left-0 w-16 h-1 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"></div>
+					<div
+						class="absolute -bottom-2 left-0 h-1 w-16 bg-gradient-to-r from-[var(--tw-neon-pink)] to-transparent"
+					></div>
 				</div>
 
 				{#if visiblePastShows.length > 0}
@@ -511,22 +589,24 @@
 						{#each visiblePastShows as seriesShow}
 							<a
 								href="/shows/{seriesShow.slug}"
-								class="group flex flex-wrap items-center gap-x-4 gap-y-1 py-2 px-3 border-l-4 border-[var(--tw-neon-pink)]/20 hover:border-[var(--tw-neon-pink)] hover:bg-white/5 transition-all"
+								class="group flex flex-wrap items-center gap-x-4 gap-y-1 border-l-4 border-[var(--tw-neon-pink)]/20 px-3 py-2 transition-all hover:border-[var(--tw-neon-pink)] hover:bg-white/5"
 							>
-								<span class="text-white/50 font-mono min-w-[120px]">
+								<span class="min-w-[120px] font-mono text-white/50">
 									{formatShortDate(seriesShow.date)}
 								</span>
 								{#if seriesShow.time}
-									<span class="text-white/30 font-mono">
+									<span class="font-mono text-white/30">
 										{formatTime(seriesShow.time)}
 									</span>
 								{/if}
 								{#if seriesShow.teams && seriesShow.teams.length > 0}
-									<span class="text-white/40 font-mono text-sm">
-										{seriesShow.teams.map(t => t.name).join(' & ')}
+									<span class="font-mono text-sm text-white/40">
+										{seriesShow.teams.map((t) => t.name).join(' & ')}
 									</span>
 								{/if}
-								<span class="ml-auto text-white/30 text-sm font-mono group-hover:text-[var(--tw-electric-cyan)]">
+								<span
+									class="ml-auto font-mono text-sm text-white/30 group-hover:text-[var(--tw-electric-cyan)]"
+								>
 									View →
 								</span>
 							</a>
@@ -536,13 +616,13 @@
 					{#if hasMorePast}
 						<button
 							on:click={loadMorePast}
-							class="mt-6 px-6 py-3 bg-[var(--tw-deep-purple)] text-[var(--tw-electric-cyan)] uppercase tracking-wider font-mono hover:bg-[var(--tw-neon-pink)] hover:text-white transition-colors"
+							class="mt-6 bg-[var(--tw-deep-purple)] px-6 py-3 font-mono tracking-wider text-[var(--tw-electric-cyan)] uppercase transition-colors hover:bg-[var(--tw-neon-pink)] hover:text-white"
 						>
 							Load More ({pastSeriesShows.length - pastShowsVisible} remaining)
 						</button>
 					{/if}
 				{:else}
-					<p class="text-white/40 py-4 font-mono">No past shows yet</p>
+					<p class="py-4 font-mono text-white/40">No past shows yet</p>
 				{/if}
 			</section>
 		{/if}

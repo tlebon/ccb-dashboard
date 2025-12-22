@@ -100,7 +100,9 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 		// Validate we got actual image data, not HTML error
 		const responseContentType = response.headers.get('content-type');
 		if (responseContentType && !responseContentType.startsWith('image/')) {
-			console.log(`[ImageCache] Got non-image content-type: ${responseContentType} for ${imageUrl}`);
+			console.log(
+				`[ImageCache] Got non-image content-type: ${responseContentType} for ${imageUrl}`
+			);
 			return null;
 		}
 

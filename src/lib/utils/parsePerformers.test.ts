@@ -64,16 +64,17 @@ describe('parsePerformers', () => {
 		it('should deduplicate names', () => {
 			const desc = 'Cast: John Doe, Jane Smith. Hosted by: John Doe';
 			const names = extractNameStrings(desc);
-			const johnCount = names.filter(n => n === 'John Doe').length;
+			const johnCount = names.filter((n) => n === 'John Doe').length;
 			expect(johnCount).toBe(1);
 		});
 
 		it('should filter out long strings (likely not names)', () => {
-			const desc = 'Cast: Person A, Person B, This is a really long description that is not a name and should be filtered out because it exceeds fifty characters';
+			const desc =
+				'Cast: Person A, Person B, This is a really long description that is not a name and should be filtered out because it exceeds fifty characters';
 			const names = extractNameStrings(desc);
 			expect(names).toContain('Person A');
 			expect(names).toContain('Person B');
-			expect(names.some(n => n.includes('really long description'))).toBe(false);
+			expect(names.some((n) => n.includes('really long description'))).toBe(false);
 		});
 
 		it('should filter out strings with parentheses', () => {
@@ -81,7 +82,7 @@ describe('parsePerformers', () => {
 			const names = extractNameStrings(desc);
 			expect(names).toContain('John Doe');
 			expect(names).toContain('Jane Smith');
-			expect(names.some(n => n.includes('('))).toBe(false);
+			expect(names.some((n) => n.includes('('))).toBe(false);
 		});
 
 		it('should handle "regular cast is" pattern', () => {
@@ -145,7 +146,7 @@ describe('parsePerformers', () => {
 			const names = extractNameStrings(desc);
 			expect(names).toContain('Alice');
 			expect(names).toContain('Bob');
-			expect(names.some(n => n.includes('show'))).toBe(false);
+			expect(names.some((n) => n.includes('show'))).toBe(false);
 		});
 
 		it('should stop at newline', () => {
@@ -153,7 +154,7 @@ describe('parsePerformers', () => {
 			const names = extractNameStrings(desc);
 			expect(names).toContain('Alice');
 			expect(names).toContain('Bob');
-			expect(names.some(n => n.includes('show'))).toBe(false);
+			expect(names.some((n) => n.includes('show'))).toBe(false);
 		});
 
 		it('should handle empty description', () => {
@@ -181,16 +182,16 @@ describe('parsePerformers', () => {
 			const extracted = ['John Doe', 'Jane Smith'];
 			const matched = matchPerformers(extracted, knownPerformers);
 			expect(matched).toHaveLength(2);
-			expect(matched.map(p => p.id)).toContain(1);
-			expect(matched.map(p => p.id)).toContain(2);
+			expect(matched.map((p) => p.id)).toContain(1);
+			expect(matched.map((p) => p.id)).toContain(2);
 		});
 
 		it('should match case-insensitively', () => {
 			const extracted = ['JOHN DOE', 'jane smith'];
 			const matched = matchPerformers(extracted, knownPerformers);
 			expect(matched).toHaveLength(2);
-			expect(matched.map(p => p.id)).toContain(1);
-			expect(matched.map(p => p.id)).toContain(2);
+			expect(matched.map((p) => p.id)).toContain(1);
+			expect(matched.map((p) => p.id)).toContain(2);
 		});
 
 		it('should match partial names (Josh vs Joshua)', () => {
@@ -257,8 +258,8 @@ describe('parsePerformers', () => {
 			const extracted = ['John Doe', 'Unknown Person', 'Jane Smith'];
 			const matched = matchPerformers(extracted, knownPerformers);
 			expect(matched).toHaveLength(2);
-			expect(matched.map(p => p.id)).toContain(1);
-			expect(matched.map(p => p.id)).toContain(2);
+			expect(matched.map((p) => p.id)).toContain(1);
+			expect(matched.map((p) => p.id)).toContain(2);
 		});
 
 		it('should handle partial matching when extracted name contains performer name', () => {
@@ -280,14 +281,20 @@ describe('parsePerformers', () => {
 		const knownPerformers = [
 			{ id: 1, name: 'Noah Telson', slug: 'noah-telson', image_url: null },
 			{ id: 2, name: 'Josh Telson', slug: 'josh-telson', image_url: null },
-			{ id: 3, name: 'Caroline Clifford', slug: 'caroline-clifford', image_url: 'https://example.com/caroline.jpg' }
+			{
+				id: 3,
+				name: 'Caroline Clifford',
+				slug: 'caroline-clifford',
+				image_url: 'https://example.com/caroline.jpg'
+			}
 		];
 
 		it('should extract and match performers in one call', () => {
-			const desc = 'A wonderful improv show! Coached by Noah Telson. Team members are: Josh Telson and others.';
+			const desc =
+				'A wonderful improv show! Coached by Noah Telson. Team members are: Josh Telson and others.';
 			const performers = parsePerformersFromDescription(desc, knownPerformers);
-			expect(performers.map(p => p.id)).toContain(1);
-			expect(performers.map(p => p.id)).toContain(2);
+			expect(performers.map((p) => p.id)).toContain(1);
+			expect(performers.map((p) => p.id)).toContain(2);
 		});
 
 		it('should return empty array when no matches found', () => {
@@ -318,14 +325,14 @@ describe('parsePerformers', () => {
 			const desc = 'Team members are: Noah Telson, Josh Telson';
 			const performers = parsePerformersFromDescription(desc, knownPerformers);
 			expect(performers).toHaveLength(2);
-			expect(performers.map(p => p.slug)).toContain('noah-telson');
-			expect(performers.map(p => p.slug)).toContain('josh-telson');
+			expect(performers.map((p) => p.slug)).toContain('noah-telson');
+			expect(performers.map((p) => p.slug)).toContain('josh-telson');
 		});
 
 		it('should deduplicate performers mentioned multiple times', () => {
 			const desc = 'Cast: Noah Telson, Josh Telson. Coached by Noah Telson';
 			const performers = parsePerformersFromDescription(desc, knownPerformers);
-			const noahCount = performers.filter(p => p.id === 1).length;
+			const noahCount = performers.filter((p) => p.id === 1).length;
 			expect(noahCount).toBe(1);
 		});
 	});
@@ -345,9 +352,9 @@ Team members are: Anita Waltho, Georgia Riungu and others.
 
 The show starts at 8pm.`;
 			const performers = parsePerformersFromDescription(desc, knownPerformers);
-			expect(performers.map(p => p.slug)).toContain('noah-telson');
-			expect(performers.map(p => p.slug)).toContain('anita-waltho');
-			expect(performers.map(p => p.slug)).toContain('georgia-riungu');
+			expect(performers.map((p) => p.slug)).toContain('noah-telson');
+			expect(performers.map((p) => p.slug)).toContain('anita-waltho');
+			expect(performers.map((p) => p.slug)).toContain('georgia-riungu');
 		});
 
 		it('should handle descriptions with only coach mentioned', () => {

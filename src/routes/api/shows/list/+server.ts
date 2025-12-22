@@ -17,7 +17,8 @@ export const GET: RequestHandler = async ({ url }) => {
 			whereClause = `WHERE date < '${today}'`;
 		}
 
-		const orderBy = filter === 'past' ? 'ORDER BY date DESC, time DESC' : 'ORDER BY date ASC, time ASC';
+		const orderBy =
+			filter === 'past' ? 'ORDER BY date DESC, time DESC' : 'ORDER BY date ASC, time ASC';
 
 		const shows = await db.execute(`
 			SELECT id, title, slug, date, time, description, source, url, image_url

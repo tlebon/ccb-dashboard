@@ -79,7 +79,10 @@ export const GET: RequestHandler = async ({ url }) => {
 		if (startDateParam) {
 			// Validate startDate format (YYYY-MM-DD) and bounds
 			if (!/^\d{4}-\d{2}-\d{2}$/.test(startDateParam)) {
-				return json({ error: 'Invalid startDate format. Expected YYYY-MM-DD', shows: [] }, { status: 400 });
+				return json(
+					{ error: 'Invalid startDate format. Expected YYYY-MM-DD', shows: [] },
+					{ status: 400 }
+				);
 			}
 
 			startDate = new Date(startDateParam);
@@ -96,7 +99,10 @@ export const GET: RequestHandler = async ({ url }) => {
 			twoYearsFromNow.setFullYear(today.getFullYear() + 2);
 
 			if (startDate < oneYearAgo || startDate > twoYearsFromNow) {
-				return json({ error: 'startDate must be within 1 year past to 2 years future', shows: [] }, { status: 400 });
+				return json(
+					{ error: 'startDate must be within 1 year past to 2 years future', shows: [] },
+					{ status: 400 }
+				);
 			}
 		} else {
 			// Use pastDays offset from today (can be in the past)
