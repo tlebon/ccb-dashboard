@@ -23,5 +23,9 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+# Test coverage
+coverage/
+.vitest/
+
 # Internal documentation (not for public repo)
 docs/cloudflare-testing.md

@@ -24,6 +24,99 @@ The wrapper automatically loads environment variables from `.env` file (TURSO_DA
 - **Styling**: Tailwind CSS with custom color variables
 - **Deployment**: Vercel
 
+## Automated Testing
+
+### CRITICAL: Run Tests at End of Every Iteration
+
+**IMPORTANT:** You MUST run tests automatically at the end of EVERY task or iteration to catch regressions. This is NON-NEGOTIABLE.
+
+**Workflow:**
+1. Complete your code changes (edits, new files, refactoring, etc.)
+2. IMMEDIATELY run: `pnpm test`
+3. If tests fail:
+   - DO NOT commit
+   - DO NOT move to next task
+   - FIX the failing tests or update them if behavior intentionally changed
+   - Re-run tests until all pass
+4. Only after ALL tests pass:
+   - Proceed with git commit
+   - Move to next task
+
+**Example:**
+```bash
+# After making changes to houseShowTeams.ts
+pnpm test src/lib/utils/houseShowTeams.test.ts
+
+# If all pass, run full test suite
+pnpm test
+
+# Only then commit
+git add .
+git commit -m "feat: update house team rotation logic"
+```
+
+### Running Tests
+
+This project uses Vitest for automated testing. Tests are co-located with source files (e.g., `houseShowTeams.test.ts` next to `houseShowTeams.ts`).
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode (during development)
+pnpm test:watch
+
+# Run tests with UI
+pnpm test:ui
+
+# Run tests with coverage report
+pnpm test:coverage
+
+# Run specific test suites
+pnpm test:unit        # Utility functions only
+pnpm test:integration # Database operations
+pnpm test:api         # API endpoints
+```
+
+### Writing New Tests
+
+When adding new features or modifying existing code:
+1. Create a `.test.ts` file next to the source file
+2. Follow existing test patterns (see `houseShowTeams.test.ts` as reference)
+3. Aim for high coverage of business logic and edge cases
+4. Mock external dependencies (database, APIs, environment variables)
+
+**Test File Naming:**
+- `src/lib/utils/houseShowTeams.ts` → `src/lib/utils/houseShowTeams.test.ts`
+- `src/lib/db/shows.ts` → `src/lib/db/shows.test.ts`
+- `src/routes/api/shows/+server.ts` → `src/routes/api/shows/+server.test.ts`
+
+### Test Coverage Standards
+
+- **Utility functions:** 80%+ coverage (pure logic, easy to test)
+- **Database operations:** 70%+ coverage (integration tests with mock DB)
+- **API endpoints:** 60%+ coverage (focus on critical paths)
+- **Components:** 50%+ coverage (focus on user interactions)
+
+Run `pnpm test:coverage` to see current coverage levels.
+
+### Mocking in Tests
+
+**Environment Variables:** Automatically mocked in `vitest.setup.ts`
+
+**Database:** Use in-memory SQLite for integration tests:
+```typescript
+import { createClient } from '@libsql/client';
+const db = createClient({ url: 'file::memory:?cache=shared' });
+```
+
+**Vercel Blob:** Mock the module:
+```typescript
+vi.mock('@vercel/blob', () => ({
+  put: vi.fn().mockResolvedValue({ url: 'https://blob.vercel-storage.com/test.jpg' })
+}));
+```
+
 ## Key Data Files
 
 - `src/lib/utils/houseShowTeams.ts` - House team rotation logic (which teams perform which Fridays)
