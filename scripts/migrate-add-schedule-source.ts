@@ -6,9 +6,13 @@
  */
 import { createClient } from '@libsql/client';
 
+if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+	throw new Error('Missing required environment variables: TURSO_DATABASE_URL and TURSO_AUTH_TOKEN');
+}
+
 const db = createClient({
-	url: process.env.TURSO_DATABASE_URL || 'libsql://ccb-dashboard-tlebon.aws-eu-west-1.turso.io',
-	authToken: process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjUyMzM5MTUsImlkIjoiOWU3ZjNjYmUtMzQxNi00NTBmLTg1Y2MtMTBkMjQ3ODY3MDFhIiwicmlkIjoiYWM5OWQzYzUtY2MwZi00MzQwLWJmZmMtOTQwM2UxNzIwYzM3In0.-eWYaPVjA_mjUKz51WI8PhLTH7hGhNHq8HqNqGvY9BqKYHDPzOqr-yTYSMn2nr6zy1-i2ZIyH8WtG6sPQfR0CA'
+	url: process.env.TURSO_DATABASE_URL,
+	authToken: process.env.TURSO_AUTH_TOKEN
 });
 
 async function migrate() {

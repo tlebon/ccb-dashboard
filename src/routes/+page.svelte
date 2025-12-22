@@ -78,7 +78,7 @@
   let scrollContainer = $state<HTMLElement | null>(null); // Scroll container ref for position adjustment
 
   // Viewport tracking for poster sync (manual mode only)
-  let visibleShowIds: string[] = []; // IDs of shows currently visible in viewport (populated by ShowsColumn)
+  let visibleShowIds = $state<string[]>([]); // IDs of shows currently visible in viewport (populated by ShowsColumn)
 
   const ROTATE_MS = 30000; // Auto-rotate interval
   const MAX_WEEKS = 8; // Maximum weeks to show ahead

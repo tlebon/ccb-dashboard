@@ -32,6 +32,25 @@ function datesWithinDays(date1: string, date2: string, days: number): boolean {
 	return diffDays <= days;
 }
 
+// Check if a date is in Daylight Saving Time (CEST) for Central European Time
+// DST runs from last Sunday of March (2:00 AM) to last Sunday of October (3:00 AM)
+function isDST(year: number, month: number, day: number): boolean {
+	// Get last Sunday of March
+	const marchLastDay = new Date(year, 2, 31); // March is month 2 (0-indexed)
+	const marchLastSunday = 31 - ((marchLastDay.getDay()) % 7);
+
+	// Get last Sunday of October
+	const octoberLastDay = new Date(year, 9, 31); // October is month 9 (0-indexed)
+	const octoberLastSunday = 31 - ((octoberLastDay.getDay()) % 7);
+
+	// DST starts on last Sunday of March and ends on last Sunday of October
+	const dstStart = new Date(year, 2, marchLastSunday, 2, 0, 0); // March at 2:00 AM
+	const dstEnd = new Date(year, 9, octoberLastSunday, 3, 0, 0); // October at 3:00 AM
+	const dateToCheck = new Date(year, month - 1, day, 12, 0, 0); // Use noon to avoid edge cases
+
+	return dateToCheck >= dstStart && dateToCheck < dstEnd;
+}
+
 export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const daysParam = url.searchParams.get('days');
@@ -150,9 +169,10 @@ export const GET: RequestHandler = async ({ url }) => {
 			const [hours, minutes] = row.time ? row.time.split(':').map(Number) : [0, 0];
 
 			// Database times are Berlin local time (e.g., "20:00" = 8pm Berlin)
-			// Berlin is UTC+1, so subtract 1 hour to get correct UTC time
-			// This way browser's local timezone conversion will show correct time
-			const start = new Date(Date.UTC(year, month - 1, day, hours - 1, minutes, 0));
+			// Berlin uses CET (UTC+1) in winter and CEST (UTC+2) in summer
+			// Subtract appropriate offset based on DST status
+			const utcOffset = isDST(year, month, day) ? 2 : 1; // CEST = UTC+2, CET = UTC+1
+			const start = new Date(Date.UTC(year, month - 1, day, hours - utcOffset, minutes, 0));
 			const end = new Date(start.getTime() + 90 * 60 * 1000);
 
 			return {
