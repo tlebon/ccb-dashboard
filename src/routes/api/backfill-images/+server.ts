@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 			args: []
 		});
 
-		const shows = result.rows as Array<{ id: number; url: string }>;
+		const shows = result.rows as unknown as Array<{ id: number; url: string }>;
 		console.log(`[Backfill] Processing ${shows.length} shows`);
 
 		let updated = 0;

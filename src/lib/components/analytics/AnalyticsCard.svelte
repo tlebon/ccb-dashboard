@@ -64,7 +64,7 @@
 	}
 
 	function getSlug(item: Item): string {
-		return item.slug;
+		return item.slug ?? '';
 	}
 </script>
 

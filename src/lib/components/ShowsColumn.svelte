@@ -55,7 +55,7 @@
 		topLoadTrigger?: HTMLDivElement | null;
 		pastDaysLoaded?: number;
 		visibleShowIds?: string[];
-		scrollContainer?: HTMLElement;
+		scrollContainer?: HTMLElement | null;
 	} = $props();
 	let scrollDirection: 'down' | 'up' = 'down';
 	let animationFrame: number;
@@ -303,7 +303,7 @@
 		return null;
 	}
 
-	const scrollSnap = createScrollSnap(() => scrollContainer, getSnapTargetSelector, {
+	const scrollSnap = createScrollSnap(() => scrollContainer ?? null, getSnapTargetSelector, {
 		proximityAbove: 80,
 		proximityBelow: 100
 	});
