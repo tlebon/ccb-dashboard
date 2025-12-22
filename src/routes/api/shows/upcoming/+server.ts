@@ -32,10 +32,41 @@ function datesWithinDays(date1: string, date2: string, days: number): boolean {
 	return diffDays <= days;
 }
 
+// Check if a date is in Daylight Saving Time (CEST) for Central European Time
+// DST runs from last Sunday of March (2:00 AM) to last Sunday of October (3:00 AM)
+// monthIndex: 0-11 (January = 0, December = 11) to match JavaScript Date constructor
+function isDST(year: number, monthIndex: number, day: number): boolean {
+	// Helper: Find last Sunday of a month
+	// Strategy: Start from first day of next month, go back to last day of target month,
+	// then go back to the previous Sunday
+	function getLastSundayOfMonth(year: number, month: number): number {
+		// Get first day of next month, then subtract 1 to get last day of target month
+		const lastDay = new Date(year, month + 1, 0);
+		const lastDayOfMonth = lastDay.getDate();
+		const lastDayOfWeek = lastDay.getDay(); // 0 = Sunday, 6 = Saturday
+
+		// If last day is Sunday, that's it. Otherwise subtract days to get to previous Sunday
+		const daysToSubtract = lastDayOfWeek === 0 ? 0 : lastDayOfWeek;
+		return lastDayOfMonth - daysToSubtract;
+	}
+
+	// Get last Sunday of March and October
+	const marchLastSunday = getLastSundayOfMonth(year, 2); // March is month 2
+	const octoberLastSunday = getLastSundayOfMonth(year, 9); // October is month 9
+
+	// DST starts on last Sunday of March at 2:00 AM and ends on last Sunday of October at 3:00 AM
+	const dstStart = new Date(year, 2, marchLastSunday, 2, 0, 0);
+	const dstEnd = new Date(year, 9, octoberLastSunday, 3, 0, 0);
+	const dateToCheck = new Date(year, monthIndex, day, 12, 0, 0); // Use noon to avoid edge cases
+
+	return dateToCheck >= dstStart && dateToCheck < dstEnd;
+}
+
 export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const daysParam = url.searchParams.get('days');
 		const pastDaysParam = url.searchParams.get('pastDays');
+		const startDateParam = url.searchParams.get('startDate');
 		const days = daysParam ? parseInt(daysParam, 10) : 14;
 		const pastDays = pastDaysParam ? parseInt(pastDaysParam, 10) : 0;
 
@@ -43,22 +74,48 @@ export const GET: RequestHandler = async ({ url }) => {
 		const today = new Date();
 		const todayStr = today.toISOString().split('T')[0];
 
-		// Calculate start date (can be in the past)
-		const startDate = new Date(today);
-		startDate.setDate(startDate.getDate() - pastDays);
+		// Calculate start date
+		let startDate: Date;
+		if (startDateParam) {
+			// Validate startDate format (YYYY-MM-DD) and bounds
+			if (!/^\d{4}-\d{2}-\d{2}$/.test(startDateParam)) {
+				return json({ error: 'Invalid startDate format. Expected YYYY-MM-DD', shows: [] }, { status: 400 });
+			}
+
+			startDate = new Date(startDateParam);
+
+			// Check if date is valid (not NaN)
+			if (isNaN(startDate.getTime())) {
+				return json({ error: 'Invalid startDate value', shows: [] }, { status: 400 });
+			}
+
+			// Validate reasonable bounds (1 year in past to 2 years in future)
+			const oneYearAgo = new Date(today);
+			oneYearAgo.setFullYear(today.getFullYear() - 1);
+			const twoYearsFromNow = new Date(today);
+			twoYearsFromNow.setFullYear(today.getFullYear() + 2);
+
+			if (startDate < oneYearAgo || startDate > twoYearsFromNow) {
+				return json({ error: 'startDate must be within 1 year past to 2 years future', shows: [] }, { status: 400 });
+			}
+		} else {
+			// Use pastDays offset from today (can be in the past)
+			startDate = new Date(today);
+			startDate.setDate(startDate.getDate() - pastDays);
+		}
 		const startDateStr = startDate.toISOString().split('T')[0];
 
-		// Calculate end date
-		const endDate = new Date(today);
+		// Calculate end date (N days from start date)
+		const endDate = new Date(startDate);
 		endDate.setDate(endDate.getDate() + days);
 		const endDateStr = endDate.toISOString().split('T')[0];
 
-		// Fetch all shows in range
+		// Fetch all shows in range (exclusive end date to return exactly N days)
 		const result = await db.execute({
 			sql: `
 				SELECT id, title, slug, date, time, description, source, url, image_url
 				FROM shows
-				WHERE date >= ? AND date <= ?
+				WHERE date >= ? AND date < ?
 				ORDER BY date, time
 			`,
 			args: [startDateStr, endDateStr]
@@ -140,7 +197,13 @@ export const GET: RequestHandler = async ({ url }) => {
 		const shows = mergedShows.map((row) => {
 			const [year, month, day] = row.date.split('-').map(Number);
 			const [hours, minutes] = row.time ? row.time.split(':').map(Number) : [0, 0];
-			const start = new Date(year, month - 1, day, hours, minutes);
+
+			// Database times are Berlin local time (e.g., "20:00" = 8pm Berlin)
+			// Berlin uses CET (UTC+1) in winter and CEST (UTC+2) in summer
+			// Subtract appropriate offset based on DST status
+			const monthIndex = month - 1; // Convert to 0-indexed for Date constructor
+			const utcOffset = isDST(year, monthIndex, day) ? 2 : 1; // CEST = UTC+2, CET = UTC+1
+			const start = new Date(Date.UTC(year, monthIndex, day, hours - utcOffset, minutes, 0));
 			const end = new Date(start.getTime() + 90 * 60 * 1000);
 
 			return {

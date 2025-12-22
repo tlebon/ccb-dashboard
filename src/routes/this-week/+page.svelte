@@ -5,6 +5,13 @@
   import ShowsColumn from '$lib/components/ShowsColumn.svelte';
   import ImagesColumn from '$lib/components/ImagesColumn.svelte';
 
+  // Week grouping interface (matches ShowsColumn)
+  interface WeekGroup {
+    weekLabel: string;
+    startDate: Date;
+    days: Record<string, Show[]>;
+  }
+
   let shows: Show[] = [];
   let loading = true;
   let error: string | null = null;
@@ -21,8 +28,18 @@
     }
   });
 
+  // Helper: Get Monday (start of week) for a given date
+  function getWeekStart(date: Date): Date {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const dayOfWeek = d.getDay(); // 0 (Sun) - 6 (Sat)
+    const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
+    d.setDate(d.getDate() - daysSinceMonday);
+    return d;
+  }
+
   // Group shows by day, but only for today + next 4 days
-  function groupShowsByDayLimited(shows: Show[]) {
+  function groupShowsByDayLimited(shows: Show[]): Record<string, Show[]> {
     const groups: Record<string, Show[]> = {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -41,7 +58,21 @@
     return groups;
   }
 
-  $: groupedShows = groupShowsByDayLimited(shows);
+  // Wrap day groups into WeekGroup array (ShowsColumn expects this format)
+  function groupShowsAsWeeks(shows: Show[]): WeekGroup[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekStart = getWeekStart(today);
+    const days = groupShowsByDayLimited(shows);
+
+    return [{
+      weekLabel: 'This Week',
+      startDate: weekStart,
+      days
+    }];
+  }
+
+  $: groupedShows = groupShowsAsWeeks(shows);
 
   // Find the next show
   $: now = new Date();
@@ -50,7 +81,7 @@
   // Get all shows with images for highlighting (next show + carousel shows)
   $: highlightedShowIds = shows.filter(s => s.imageUrl).map(s => s.id);
 
-  $: dayCount = Object.keys(groupedShows).length;
+  $: dayCount = groupedShows.length > 0 ? Object.keys(groupedShows[0].days).length : 0;
   $: totalShows = shows.filter(s => {
     const date = new Date(s.start);
     date.setHours(0, 0, 0, 0);

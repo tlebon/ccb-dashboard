@@ -100,6 +100,7 @@ export const GET: RequestHandler = async ({ request, url }) => {
 
 /**
  * Scrape a single schedule page (handles pagination automatically)
+ * Now uses JSON-LD structured data instead of HTML parsing
  */
 async function scrapeSchedulePage(baseUrl: string): Promise<{
 	shows: Array<{
@@ -143,64 +144,82 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 		}
 
 		const html = await response.text();
-		const root = parse(html);
 
-		// Find all event rows
-		const eventRows = root.querySelectorAll('.tribe-events-calendar-list__event-row');
-		console.log(`[Schedule] Found ${eventRows.length} events on page ${page}`);
+		// Extract JSON-LD structured data from the page
+		// Events are in a JSON array embedded in the HTML
+		let events: any[] = [];
+		const jsonStartIndex = html.indexOf('[{"@context":"http://schema.org"');
+		if (jsonStartIndex !== -1) {
+			// Find the matching closing bracket by counting depth
+			let depth = 0;
+			let jsonEndIndex = jsonStartIndex;
+			for (let i = jsonStartIndex; i < html.length; i++) {
+				if (html[i] === '[' || html[i] === '{') depth++;
+				if (html[i] === ']' || html[i] === '}') depth--;
+				if (depth === 0) {
+					jsonEndIndex = i + 1;
+					break;
+				}
+			}
 
-		for (const row of eventRows) {
 			try {
-				// Extract title and URL
-				const titleLink = row.querySelector('h3 a');
-				if (!titleLink) continue;
+				const jsonStr = html.substring(jsonStartIndex, jsonEndIndex);
+				const jsonArray = JSON.parse(jsonStr);
+				events = jsonArray.filter((item: any) => item['@type'] === 'Event');
+			} catch (e) {
+				console.error('[Schedule] Error parsing JSON array:', e);
+			}
+		}
 
-				const title = titleLink.text.trim();
-				const url = titleLink.getAttribute('href');
-				if (!url) continue;
+		if (events.length === 0) {
+			console.log(`[Schedule] No events found on page ${page}`);
+			break;
+		}
 
-				// Extract date/time
-				const timeElement = row.querySelector('time');
-				if (!timeElement) continue;
+		console.log(`[Schedule] Found ${events.length} events on page ${page}`);
 
-				const dateTimeText = timeElement.text.trim();
-				// Format: "Friday, December 12 | 9:30pm - 10:30pm"
-				const [datePart, timePart] = dateTimeText.split('|').map((s) => s.trim());
+		for (const event of events) {
+			try {
 
-				if (!datePart || !timePart) continue;
+				// Extract data from JSON-LD
+				const title = event.name?.replace(/&#\d+;/g, (match: string) => {
+					const code = parseInt(match.match(/\d+/)?.[0] || '0');
+					return String.fromCharCode(code);
+				}).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
 
-				// Parse date (e.g., "Friday, December 12")
-				const date = parseDateString(datePart);
-				if (!date) continue;
+				const url = event.url;
+				const imageUrl = event.image;
+				const description = event.description?.replace(/<[^>]*>/g, '').trim();
 
-				// Extract start time (e.g., "9:30pm" from "9:30pm - 10:30pm")
-				const time = timePart.split('-')[0].trim();
+				// Parse startDate (e.g., "2026-01-02T20:00:00+01:00")
+				// Extract time directly from ISO string to avoid timezone issues
+				const startDateStr = event.startDate;
+				if (!startDateStr) continue;
 
-				// Extract image
-				const img = row.querySelector('img');
-				const imageUrl = img?.getAttribute('src');
+				// Extract date and time from ISO format: "2026-01-02T20:00:00+01:00"
+				const [datePart, timePart] = startDateStr.split('T');
+				const date = datePart; // "2026-01-02"
+				const time = timePart.substring(0, 5); // "20:00" (HH:MM)
+
 				if (imageUrl) {
 					images.set(url, imageUrl);
 				}
 
-				// Extract description (optional)
-				const descElement = row.querySelector('p');
-				const description = descElement?.text.trim();
-
 				shows.push({
 					title,
 					date,
-					time: convertTo24Hour(time),
+					time,
 					url,
 					description
 				});
 			} catch (e) {
-				console.error('[Schedule] Error parsing event row:', e);
+				console.error('[Schedule] Error parsing JSON-LD event:', e);
 			}
 		}
 
-		// Check for next page
-		const nextLink = root.querySelector('.tribe-events-c-nav__next a');
+		// Check for next page in HTML
+		const root = parse(html);
+		const nextLink = root.querySelector('a.tribe-events-c-nav__next');
 		const nextUrl = nextLink?.getAttribute('href');
 
 		if (nextUrl && nextUrl !== currentUrl) {
@@ -212,68 +231,4 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 	}
 
 	return { shows, images };
-}
-
-/**
- * Parse date string like "Friday, December 12" to YYYY-MM-DD format
- */
-function parseDateString(dateStr: string): string | null {
-	try {
-		// Remove day of week (e.g., "Friday, ")
-		const withoutDay = dateStr.replace(/^[A-Za-z]+,\s*/, '');
-
-		// Parse "December 12" or "December 12, 2025"
-		const parts = withoutDay.split(/[\s,]+/).filter(Boolean);
-		if (parts.length < 2) return null;
-
-		const monthStr = parts[0];
-		const day = parseInt(parts[1]);
-		const year = parts[2] ? parseInt(parts[2]) : new Date().getFullYear();
-
-		const months: Record<string, number> = {
-			January: 0,
-			February: 1,
-			March: 2,
-			April: 3,
-			May: 4,
-			June: 5,
-			July: 6,
-			August: 7,
-			September: 8,
-			October: 9,
-			November: 10,
-			December: 11
-		};
-
-		const month = months[monthStr];
-		if (month === undefined) return null;
-
-		const date = new Date(year, month, day);
-		return date.toISOString().split('T')[0];
-	} catch {
-		return null;
-	}
-}
-
-/**
- * Convert 12-hour time to 24-hour format (e.g., "9:30pm" -> "21:30")
- */
-function convertTo24Hour(time12h: string): string {
-	try {
-		const match = time12h.match(/(\d+):(\d+)\s*(am|pm)/i);
-		if (!match) return time12h;
-
-		let [, hourStr, minute, period] = match;
-		let hour = parseInt(hourStr);
-
-		if (period.toLowerCase() === 'pm' && hour !== 12) {
-			hour += 12;
-		} else if (period.toLowerCase() === 'am' && hour === 12) {
-			hour = 0;
-		}
-
-		return `${hour.toString().padStart(2, '0')}:${minute}`;
-	} catch {
-		return time12h;
-	}
 }
