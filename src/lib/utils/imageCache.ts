@@ -1,4 +1,4 @@
-import { put, head } from '@vercel/blob';
+import { put, head, type PutCommandOptions } from '@vercel/blob';
 import { createHash } from 'crypto';
 import { env } from '$env/dynamic/private';
 
@@ -100,7 +100,9 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 		// Validate we got actual image data, not HTML error
 		const responseContentType = response.headers.get('content-type');
 		if (responseContentType && !responseContentType.startsWith('image/')) {
-			console.log(`[ImageCache] Got non-image content-type: ${responseContentType} for ${imageUrl}`);
+			console.log(
+				`[ImageCache] Got non-image content-type: ${responseContentType} for ${imageUrl}`
+			);
 			return null;
 		}
 
@@ -111,18 +113,13 @@ export async function cacheImageToBlob(imageUrl: string, force = false): Promise
 		const contentType = getContentTypeFromUrl(imageUrl);
 
 		// Upload to Vercel Blob with timeout
-		const uploadOptions: Record<string, unknown> = {
+		const uploadOptions: PutCommandOptions = {
 			access: 'public',
 			contentType,
 			addRandomSuffix: false // Use consistent paths for deduplication
 		};
 
-		// When force=true, allow overwriting existing blobs with correct content-type
-		if (force) {
-			uploadOptions.allowOverwrite = true;
-		}
-
-		const uploadPromise = put(blobPath, imageBytes, uploadOptions);
+		const uploadPromise = put(blobPath, imageBytes.buffer, uploadOptions);
 
 		const blob = await Promise.race([
 			uploadPromise,

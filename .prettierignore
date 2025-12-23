@@ -4,3 +4,9 @@ pnpm-lock.yaml
 yarn.lock
 bun.lock
 bun.lockb
+
+# GitHub Workflows - preserve trailing newlines for workflow validation
+.github/workflows/
+
+# Claude Code local settings
+.claude/settings.local.json

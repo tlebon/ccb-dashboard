@@ -155,7 +155,7 @@ async function scrapePerformersDirectory(): Promise<PerformerInfo[]> {
 		const nextPage = root.querySelector('.next.page-numbers');
 		if (!nextPage) break;
 
-		await new Promise(r => setTimeout(r, 300));
+		await new Promise((r) => setTimeout(r, 300));
 	}
 
 	return performers;
@@ -176,7 +176,10 @@ async function fetchPerformerDetails(slug: string): Promise<Partial<PerformerInf
 	const titleEl = root.querySelector('h1.entry-title, h1.performer-name, .post-title h1, h1');
 	let name = titleEl?.textContent?.trim() || null;
 	if (name === slug || name?.includes('-')) {
-		name = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+		name = slug
+			.split('-')
+			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+			.join(' ');
 	}
 
 	// Image
@@ -227,7 +230,9 @@ async function syncPerformers(dryRun: boolean, limit: number) {
 	}
 
 	// Get existing performers
-	const dbResult = await db.execute('SELECT id, name, slug, image_url, bio, instagram FROM performers');
+	const dbResult = await db.execute(
+		'SELECT id, name, slug, image_url, bio, instagram FROM performers'
+	);
 	const dbBySlug = new Map<string, any>();
 	const dbByNormalized = new Map<string, any>();
 
@@ -291,12 +296,12 @@ async function syncPerformers(dryRun: boolean, limit: number) {
 					}
 
 					if (updates.length > 0) {
-						console.log(`  ✓ Updated: ${updates.map(u => u.split(' ')[0]).join(', ')}`);
+						console.log(`  ✓ Updated: ${updates.map((u) => u.split(' ')[0]).join(', ')}`);
 						updated++;
 					}
 				}
 
-				await new Promise(r => setTimeout(r, 300));
+				await new Promise((r) => setTimeout(r, 300));
 			}
 		} else {
 			// New performer
@@ -319,7 +324,7 @@ async function syncPerformers(dryRun: boolean, limit: number) {
 			console.log(`  ✓ Added: ${finalName}`);
 			added++;
 
-			await new Promise(r => setTimeout(r, 300));
+			await new Promise((r) => setTimeout(r, 300));
 		}
 	}
 
@@ -412,7 +417,7 @@ async function syncShows(dryRun: boolean, limit: number) {
 				console.log(`  ✗ ${show.date}: not found`);
 			}
 
-			await new Promise(r => setTimeout(r, 50));
+			await new Promise((r) => setTimeout(r, 50));
 		}
 	}
 
@@ -456,7 +461,10 @@ async function syncLineups(dryRun: boolean, limit: number) {
 
 	for (const row of performersResult.rows) {
 		performerBySlug.set(row.slug as string, { id: row.id as number, name: row.name as string });
-		performerByNormalized.set(normalizeName(row.name as string), { id: row.id as number, name: row.name as string });
+		performerByNormalized.set(normalizeName(row.name as string), {
+			id: row.id as number,
+			name: row.name as string
+		});
 	}
 
 	console.log(`Loaded ${performerBySlug.size} performers for matching`);
@@ -489,7 +497,7 @@ async function syncLineups(dryRun: boolean, limit: number) {
 
 		if (performerSlugs.length === 0) {
 			console.log(`  ✗ No performers found on page`);
-			await new Promise(r => setTimeout(r, 100));
+			await new Promise((r) => setTimeout(r, 100));
 			continue;
 		}
 
@@ -506,7 +514,9 @@ async function syncLineups(dryRun: boolean, limit: number) {
 		}
 
 		if (matchedPerformers.length > 0) {
-			console.log(`  ✓ Found ${matchedPerformers.length} performers: ${matchedPerformers.map(p => p.name).join(', ')}`);
+			console.log(
+				`  ✓ Found ${matchedPerformers.length} performers: ${matchedPerformers.map((p) => p.name).join(', ')}`
+			);
 
 			if (!dryRun) {
 				for (const performer of matchedPerformers) {
@@ -525,10 +535,12 @@ async function syncLineups(dryRun: boolean, limit: number) {
 			console.log(`  ? Unmatched slugs: ${unmatchedSlugs.join(', ')}`);
 		}
 
-		await new Promise(r => setTimeout(r, 200));
+		await new Promise((r) => setTimeout(r, 200));
 	}
 
-	console.log(`\nLineups: ${updated} shows updated, ${totalPerformersLinked} performer links added`);
+	console.log(
+		`\nLineups: ${updated} shows updated, ${totalPerformersLinked} performer links added`
+	);
 }
 
 // ============ Main ============
@@ -540,7 +552,8 @@ async function main() {
 	const syncPerformersFlag = args.includes('--performers');
 	const syncShowsFlag = args.includes('--shows');
 	const syncLineupsFlag = args.includes('--lineups');
-	const limit = parseInt(args.find(a => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
+	const limit =
+		parseInt(args.find((a) => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
 
 	console.log('CCB Sync');
 	console.log('========');

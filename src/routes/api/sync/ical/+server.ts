@@ -10,7 +10,9 @@ import { cacheImagesToBlob } from '$lib/utils/imageCache';
 const getIcalUrl = () => {
 	const proxyUrl = process.env.VITE_PROXY_ICAL_URL;
 	if (!proxyUrl) {
-		throw new Error('VITE_PROXY_ICAL_URL environment variable is required. Direct CCB access blocked by Cloudflare.');
+		throw new Error(
+			'VITE_PROXY_ICAL_URL environment variable is required. Direct CCB access blocked by Cloudflare.'
+		);
 	}
 	return proxyUrl;
 };
@@ -42,7 +44,7 @@ async function fetchImageUrls(eventUrls: string[]): Promise<Map<string, string>>
 		const url = eventUrls[idx++];
 		try {
 			const proxyUrl = `${eventProxyBase}?url=${encodeURIComponent(url)}`;
-			const eventResponse = await fetchWithTimeout(proxyUrl, {}, 5000) as Response;
+			const eventResponse = (await fetchWithTimeout(proxyUrl, {}, 5000)) as Response;
 
 			if (eventResponse.ok) {
 				const html = await eventResponse.text();
@@ -90,9 +92,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		const vevents = comp.getAllSubcomponents('vevent');
 
 		// Extract VEVENT blocks for URL parsing
-		const veventBlocks = icalData.split('BEGIN:VEVENT').slice(1).map(block =>
-			'BEGIN:VEVENT' + block.split('END:VEVENT')[0]
-		);
+		const veventBlocks = icalData
+			.split('BEGIN:VEVENT')
+			.slice(1)
+			.map((block) => 'BEGIN:VEVENT' + block.split('END:VEVENT')[0]);
 
 		// Extract event URLs for image fetching
 		const eventUrls: string[] = [];
@@ -214,7 +217,9 @@ export const GET: RequestHandler = async ({ request }) => {
 
 		// Fetch images from event pages
 		const originalImageUrls = await fetchImageUrls(eventUrls);
-		console.log(`[Cron] Fetched ${originalImageUrls.size} images from ${eventUrls.length} event pages`);
+		console.log(
+			`[Cron] Fetched ${originalImageUrls.size} images from ${eventUrls.length} event pages`
+		);
 
 		// Cache images to Vercel Blob
 		const imageUrls = await cacheImagesToBlob(originalImageUrls);

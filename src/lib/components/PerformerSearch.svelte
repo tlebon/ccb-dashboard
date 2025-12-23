@@ -30,15 +30,15 @@
 		{placeholder}
 		{value}
 		on:input={handleInput}
-		class="w-full px-4 py-3 bg-[var(--tw-deep-purple)]/60 border-2 border-[var(--tw-electric-cyan)]/50 rounded-lg
-		       text-[var(--tw-electric-cyan)] placeholder-[var(--tw-electric-cyan)]/40
-		       focus:outline-none focus:border-[var(--tw-neon-pink)] focus:shadow-[0_0_15px_var(--tw-neon-pink)]
-		       font-mono transition-all"
+		class="w-full rounded-lg border-2 border-[var(--tw-electric-cyan)]/50 bg-[var(--tw-deep-purple)]/60 px-4 py-3
+		       font-mono text-[var(--tw-electric-cyan)]
+		       placeholder-[var(--tw-electric-cyan)]/40 transition-all focus:border-[var(--tw-neon-pink)]
+		       focus:shadow-[0_0_15px_var(--tw-neon-pink)] focus:outline-none"
 	/>
 	{#if value}
 		<button
 			on:click={handleClear}
-			class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--tw-neon-pink)] hover:text-[var(--nw-neon-yellow)]"
+			class="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--tw-neon-pink)] hover:text-[var(--nw-neon-yellow)]"
 		>
 			✕
 		</button>

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler} from './$types';
+import type { RequestHandler } from './$types';
 import { upsertShow } from '$lib/db';
 import { parse } from 'node-html-parser';
 import { cacheImagesToBlob } from '$lib/utils/imageCache';
@@ -33,9 +33,7 @@ export const GET: RequestHandler = async ({ request, url }) => {
 
 		// Fetch future events
 		console.log('[Schedule] Fetching future events...');
-		const futureShows = await scrapeSchedulePage(
-			'https://www.comedycafeberlin.com/schedule/list/'
-		);
+		const futureShows = await scrapeSchedulePage('https://www.comedycafeberlin.com/schedule/list/');
 		allShows.push(...futureShows.shows);
 		for (const [url, imgUrl] of futureShows.images) {
 			imageUrls.set(url, imgUrl);
@@ -130,9 +128,7 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 
 		// Use proxy to bypass Cloudflare's cloud IP blocking
 		const proxyBase = process.env.VITE_PROXY_EVENT_URL;
-		const fetchUrl = proxyBase
-			? `${proxyBase}?url=${encodeURIComponent(currentUrl)}`
-			: currentUrl;
+		const fetchUrl = proxyBase ? `${proxyBase}?url=${encodeURIComponent(currentUrl)}` : currentUrl;
 
 		const response = await fetch(fetchUrl, {
 			signal: AbortSignal.timeout(15000)
@@ -180,12 +176,14 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 
 		for (const event of events) {
 			try {
-
 				// Extract data from JSON-LD
-				const title = event.name?.replace(/&#\d+;/g, (match: string) => {
-					const code = parseInt(match.match(/\d+/)?.[0] || '0');
-					return String.fromCharCode(code);
-				}).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+				const title = event.name
+					?.replace(/&#\d+;/g, (match: string) => {
+						const code = parseInt(match.match(/\d+/)?.[0] || '0');
+						return String.fromCharCode(code);
+					})
+					.replace(/&quot;/g, '"')
+					.replace(/&amp;/g, '&');
 
 				const url = event.url;
 				const imageUrl = event.image;

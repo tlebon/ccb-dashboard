@@ -157,7 +157,7 @@ async function scrapePerformersDirectory(): Promise<PerformerInfo[]> {
 			break;
 		}
 
-		await new Promise(r => setTimeout(r, 300));
+		await new Promise((r) => setTimeout(r, 300));
 	}
 
 	return performers;
@@ -224,7 +224,10 @@ async function main() {
 				break;
 			}
 			// First name from slug matches (fallback when name wasn't extracted)
-			if (slugFirstName.length > 3 && (dbNorm.startsWith(slugFirstName + ' ') || dbNorm === slugFirstName)) {
+			if (
+				slugFirstName.length > 3 &&
+				(dbNorm.startsWith(slugFirstName + ' ') || dbNorm === slugFirstName)
+			) {
 				existingMatches.push(`${ccb.name} -> ${dbPerf.name} (slug partial match)`);
 				foundPartial = true;
 				break;
@@ -236,22 +239,31 @@ async function main() {
 				break;
 			}
 			// CCB name starts with DB name
-			if (normalized.startsWith(dbNorm + ' ') || (normalized.startsWith(dbNorm) && dbNorm.length > 5)) {
+			if (
+				normalized.startsWith(dbNorm + ' ') ||
+				(normalized.startsWith(dbNorm) && dbNorm.length > 5)
+			) {
 				existingMatches.push(`${ccb.name} -> ${dbPerf.name} (reverse prefix match)`);
 				foundPartial = true;
 				break;
 			}
 			// Normalized slug matches DB name
-			if (normalizedSlug === dbNorm || dbNorm.startsWith(normalizedSlug + ' ') || normalizedSlug.startsWith(dbNorm + ' ')) {
+			if (
+				normalizedSlug === dbNorm ||
+				dbNorm.startsWith(normalizedSlug + ' ') ||
+				normalizedSlug.startsWith(dbNorm + ' ')
+			) {
 				existingMatches.push(`${ccb.name} -> ${dbPerf.name} (slug match)`);
 				foundPartial = true;
 				break;
 			}
 			// Normalize the DB slug and compare (handles 'marie-laure-gagn' vs 'marie-laure-gagne')
 			const dbSlugNormalized = dbPerf.slug.replace(/-/g, ' ').trim();
-			if (normalizedSlug === dbSlugNormalized ||
+			if (
+				normalizedSlug === dbSlugNormalized ||
 				normalizedSlug.startsWith(dbSlugNormalized) ||
-				dbSlugNormalized.startsWith(normalizedSlug)) {
+				dbSlugNormalized.startsWith(normalizedSlug)
+			) {
 				existingMatches.push(`${ccb.name} -> ${dbPerf.name} (slug prefix match)`);
 				foundPartial = true;
 				break;
@@ -284,7 +296,12 @@ async function main() {
 		console.log('New performers found - fetching full details...\n');
 
 		// Fetch actual names from performer pages
-		const performersToAdd: { name: string; slug: string; imageUrl: string | null; bio: string | null }[] = [];
+		const performersToAdd: {
+			name: string;
+			slug: string;
+			imageUrl: string | null;
+			bio: string | null;
+		}[] = [];
 
 		for (const p of newPerformers) {
 			console.log(`  Fetching ${p.slug}...`);
@@ -304,7 +321,7 @@ async function main() {
 					// Convert slug to title case
 					name = p.slug
 						.split('-')
-						.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 						.join(' ');
 				}
 
@@ -338,18 +355,20 @@ async function main() {
 				// Use title-cased slug as fallback
 				const name = p.slug
 					.split('-')
-					.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 					.join(' ');
 				console.log(`    Using fallback name: ${name}`);
 				performersToAdd.push({ name, slug: p.slug, imageUrl: p.imageUrl, bio: null });
 			}
 
-			await new Promise(r => setTimeout(r, 300));
+			await new Promise((r) => setTimeout(r, 300));
 		}
 
 		console.log('\nNew performers to add:');
 		for (const p of performersToAdd) {
-			console.log(`  + ${p.name} (${p.slug}) - image: ${p.imageUrl ? 'yes' : 'no'}, bio: ${p.bio ? 'yes' : 'no'}`);
+			console.log(
+				`  + ${p.name} (${p.slug}) - image: ${p.imageUrl ? 'yes' : 'no'}, bio: ${p.bio ? 'yes' : 'no'}`
+			);
 		}
 		console.log('');
 

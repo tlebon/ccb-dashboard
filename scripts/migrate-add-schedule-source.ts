@@ -7,7 +7,9 @@
 import { createClient } from '@libsql/client';
 
 if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
-	throw new Error('Missing required environment variables: TURSO_DATABASE_URL and TURSO_AUTH_TOKEN');
+	throw new Error(
+		'Missing required environment variables: TURSO_DATABASE_URL and TURSO_AUTH_TOKEN'
+	);
 }
 
 const db = createClient({

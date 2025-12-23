@@ -7,8 +7,8 @@ const db = createClient({
 
 async function main() {
 	// Check if slug column exists
-	const tableInfo = await db.execute("PRAGMA table_info(shows)");
-	const hasSlug = tableInfo.rows.some(row => row.name === 'slug');
+	const tableInfo = await db.execute('PRAGMA table_info(shows)');
+	const hasSlug = tableInfo.rows.some((row) => row.name === 'slug');
 
 	if (!hasSlug) {
 		console.log('Adding slug column to shows table...');
@@ -34,7 +34,9 @@ async function main() {
 	console.log('Done!');
 
 	// Show some examples
-	const examples = await db.execute('SELECT slug, title, date FROM shows ORDER BY date DESC LIMIT 5');
+	const examples = await db.execute(
+		'SELECT slug, title, date FROM shows ORDER BY date DESC LIMIT 5'
+	);
 	console.log('\nExample slugs:');
 	for (const row of examples.rows) {
 		console.log(`  ${row.slug}`);

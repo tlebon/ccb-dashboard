@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		const availableYearsResult = await db.execute(`
 			SELECT DISTINCT strftime('%Y', date) as year FROM shows ORDER BY year DESC
 		`);
-		const availableYears = availableYearsResult.rows.map(r => String(r.year));
+		const availableYears = availableYearsResult.rows.map((r) => String(r.year));
 
 		// Basic stats (filtered by year)
 		const statsResult = await db.execute(`
@@ -271,12 +271,15 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		// Aggregate by normalized title, tracking highest iteration and date range
-		const showLongevity = new Map<string, {
-			maxIteration: number;
-			displayTitle: string;
-			firstDate: string;
-			lastDate: string;
-		}>();
+		const showLongevity = new Map<
+			string,
+			{
+				maxIteration: number;
+				displayTitle: string;
+				firstDate: string;
+				lastDate: string;
+			}
+		>();
 
 		for (const row of rawLongevityResult.rows) {
 			const normalized = normalizeTitle(row.title as string);
@@ -342,7 +345,7 @@ export const GET: RequestHandler = async ({ url }) => {
 			ORDER BY team_count DESC, p.name
 		`);
 
-		const multiTeamPerformers = multiTeamPerformersResult.rows.map(r => ({
+		const multiTeamPerformers = multiTeamPerformersResult.rows.map((r) => ({
 			id: r.id as number,
 			name: r.name as string,
 			slug: r.slug as string,
@@ -375,9 +378,17 @@ export const GET: RequestHandler = async ({ url }) => {
 			ORDER BY shared_members DESC, t1.name, t2.name
 		`);
 
-		const teamPairings = teamPairingsResult.rows.map(r => ({
-			team1: { id: r.team1_id as number, name: r.team1_name as string, slug: r.team1_slug as string },
-			team2: { id: r.team2_id as number, name: r.team2_name as string, slug: r.team2_slug as string },
+		const teamPairings = teamPairingsResult.rows.map((r) => ({
+			team1: {
+				id: r.team1_id as number,
+				name: r.team1_name as string,
+				slug: r.team1_slug as string
+			},
+			team2: {
+				id: r.team2_id as number,
+				name: r.team2_name as string,
+				slug: r.team2_slug as string
+			},
 			sharedMembers: r.shared_members as number,
 			performers: (r.performer_names as string).split(', ')
 		}));
@@ -388,7 +399,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		rookieCutoffDate.setMonth(rookieCutoffDate.getMonth() - 3);
 		const rookieCutoff = rookieCutoffDate.toISOString().split('T')[0];
 
-		const rookiesResult = await db.execute(`
+		const rookiesResult = await db.execute(
+			`
 			SELECT
 				p.id,
 				p.name,
@@ -403,9 +415,11 @@ export const GET: RequestHandler = async ({ url }) => {
 			HAVING MIN(s.date) >= ?
 			ORDER BY MIN(s.date) DESC
 			LIMIT 10
-		`, [rookieCutoff]);
+		`,
+			[rookieCutoff]
+		);
 
-		const rookies = rookiesResult.rows.map(r => ({
+		const rookies = rookiesResult.rows.map((r) => ({
 			id: r.id as number,
 			name: r.name as string,
 			slug: r.slug as string,
@@ -424,27 +438,27 @@ export const GET: RequestHandler = async ({ url }) => {
 				showsWithLineup: lineupCoverage.rows[0].shows_with_lineup,
 				monthsTracked: monthlyResult.rows.length
 			},
-			topShows: topShowsResult.map(r => ({
+			topShows: topShowsResult.map((r) => ({
 				title: r.normalized_title,
 				slug: generateSlug(String(r.normalized_title)),
 				count: r.count
 			})),
-			dayDistribution: dayDistResult.rows.map(r => ({
+			dayDistribution: dayDistResult.rows.map((r) => ({
 				day: r.day_name,
 				count: r.count
 			})),
-			monthlyActivity: monthlyResult.rows.map(r => ({
+			monthlyActivity: monthlyResult.rows.map((r) => ({
 				month: r.month,
 				count: r.count
 			})),
-			topPerformers: topPerformersResult.rows.map(r => ({
+			topPerformers: topPerformersResult.rows.map((r) => ({
 				id: r.id,
 				name: r.name,
 				slug: r.slug,
 				showCount: r.show_count,
 				teams: r.teams ? String(r.teams).split(', ') : []
 			})),
-			topTeams: topTeamsResult.rows.map(r => ({
+			topTeams: topTeamsResult.rows.map((r) => ({
 				id: r.id,
 				name: r.name,
 				slug: r.slug,

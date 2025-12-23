@@ -44,10 +44,10 @@ function slugify(title: string): string {
 // Normalize title for grouping (remove parenthetical hosts, etc.)
 function normalizeTitle(title: string): string {
 	return title
-		.replace(/\s*\([^)]*\)\s*/g, ' ')  // Remove (hosted by X)
-		.replace(/\s*@\s*[^@]+$/i, '')      // Remove @ Location
-		.replace(/:+\s*$/, '')              // Remove trailing colons
-		.replace(/!+/g, '')                 // Remove exclamation marks
+		.replace(/\s*\([^)]*\)\s*/g, ' ') // Remove (hosted by X)
+		.replace(/\s*@\s*[^@]+$/i, '') // Remove @ Location
+		.replace(/:+\s*$/, '') // Remove trailing colons
+		.replace(/!+/g, '') // Remove exclamation marks
 		.trim();
 }
 
@@ -89,7 +89,8 @@ async function fetchImageFromUrl(url: string): Promise<string | null> {
 async function main() {
 	const dryRun = process.argv.includes('--dry-run');
 	const withImages = process.argv.includes('--with-images');
-	const limit = parseInt(process.argv.find(a => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
+	const limit =
+		parseInt(process.argv.find((a) => a.startsWith('--limit='))?.split('=')[1] || '0') || Infinity;
 
 	console.log(`Mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
 	console.log(`Fetch images: ${withImages}`);
@@ -104,13 +105,16 @@ async function main() {
 	`);
 
 	// Group shows by normalized title
-	const showGroups = new Map<string, Array<{
-		id: number;
-		title: string;
-		date: string;
-		url: string | null;
-		image_url: string | null;
-	}>>();
+	const showGroups = new Map<
+		string,
+		Array<{
+			id: number;
+			title: string;
+			date: string;
+			url: string | null;
+			image_url: string | null;
+		}>
+	>();
 
 	for (const row of allShows.rows) {
 		const normalizedTitle = normalizeTitle(row.title as string);
@@ -140,8 +144,8 @@ async function main() {
 		shows.sort((a, b) => b.date.localeCompare(a.date));
 
 		// Find shows with URLs to establish the pattern
-		const showsWithUrls = shows.filter(s => s.url);
-		const showsWithoutUrls = shows.filter(s => !s.url);
+		const showsWithUrls = shows.filter((s) => s.url);
+		const showsWithoutUrls = shows.filter((s) => !s.url);
 
 		if (showsWithoutUrls.length === 0) {
 			continue; // All shows have URLs
@@ -167,10 +171,12 @@ async function main() {
 			baseSlug = slugify(normalizedTitle);
 		}
 
-		console.log(`\n[${normalizedTitle}] - ${shows.length} total, ${showsWithoutUrls.length} missing URLs`);
+		console.log(
+			`\n[${normalizedTitle}] - ${shows.length} total, ${showsWithoutUrls.length} missing URLs`
+		);
 		console.log(`  Base slug: ${baseSlug}`);
 		if (knownNumbers.length > 0) {
-			console.log(`  Known numbers: ${knownNumbers.sort((a,b) => a-b).join(', ')}`);
+			console.log(`  Known numbers: ${knownNumbers.sort((a, b) => a - b).join(', ')}`);
 		}
 
 		// Strategy:
@@ -211,8 +217,8 @@ async function main() {
 			}
 
 			// Remove any URLs we already know about
-			const existingUrls = new Set(showsWithUrls.map(s => s.url));
-			const uniqueUrls = urlsToTry.filter(u => !existingUrls.has(u));
+			const existingUrls = new Set(showsWithUrls.map((s) => s.url));
+			const uniqueUrls = urlsToTry.filter((u) => !existingUrls.has(u));
 
 			let foundUrl: string | null = null;
 			let foundImage: string | null = null;
@@ -267,7 +273,7 @@ async function main() {
 			}
 
 			// Small delay
-			await new Promise(r => setTimeout(r, 50));
+			await new Promise((r) => setTimeout(r, 50));
 		}
 	}
 

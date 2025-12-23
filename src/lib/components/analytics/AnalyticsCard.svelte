@@ -64,20 +64,26 @@
 	}
 
 	function getSlug(item: Item): string {
-		return item.slug;
+		return item.slug ?? '';
 	}
 </script>
 
 <div class="brutalist-border bg-[var(--tw-deep-purple)] p-4 md:p-5">
 	{#if onViewAll}
-		<button onclick={onViewAll} class="w-full text-left group mb-4">
-			<h2 class="text-xl md:text-2xl text-[var(--nw-burning-orange)] group-hover:text-[var(--nw-hot-pink)] transition-colors flex items-center gap-2" style="font-family: var(--font-display);">
+		<button onclick={onViewAll} class="group mb-4 w-full text-left">
+			<h2
+				class="flex items-center gap-2 text-xl text-[var(--nw-burning-orange)] transition-colors group-hover:text-[var(--nw-hot-pink)] md:text-2xl"
+				style="font-family: var(--font-display);"
+			>
 				{title}
 				<span class="text-sm opacity-50">↗</span>
 			</h2>
 		</button>
 	{:else}
-		<h2 class="text-xl md:text-2xl text-[var(--nw-burning-orange)] mb-4" style="font-family: var(--font-display);">
+		<h2
+			class="mb-4 text-xl text-[var(--nw-burning-orange)] md:text-2xl"
+			style="font-family: var(--font-display);"
+		>
 			{title}
 		</h2>
 	{/if}
@@ -87,26 +93,38 @@
 			{@const value = getValue(item)}
 			{@const width = (value / maxValue) * 100}
 			{#if isTeamOverlap && item.team1 && item.team2}
-				<button onclick={onViewAll} class="block w-full text-left group">
-					<div class="flex justify-between items-center mb-0.5">
-						<span class="text-xs truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+				<button onclick={onViewAll} class="group block w-full text-left">
+					<div class="mb-0.5 flex items-center justify-between">
+						<span
+							class="truncate pr-2 text-xs transition-colors group-hover:text-[var(--nw-hot-pink)]"
+							style="font-family: var(--font-mono);"
+						>
 							{item.team1.name} ∩ {item.team2.name}
 						</span>
-						<span class="text-sm text-[var(--tw-electric-cyan)] flex-shrink-0" style="font-family: var(--font-display);">{getValueDisplay(item)}</span>
+						<span
+							class="flex-shrink-0 text-sm text-[var(--tw-electric-cyan)]"
+							style="font-family: var(--font-display);">{getValueDisplay(item)}</span
+						>
 					</div>
-					<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+					<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
 						<div class="h-full bg-gradient-to-r {gradient}" style="width: {width}%"></div>
 					</div>
 				</button>
 			{:else}
-				<a href="{linkPrefix}{getSlug(item)}" class="block group">
-					<div class="flex justify-between items-center mb-0.5">
-						<span class="text-xs truncate pr-2 group-hover:text-[var(--nw-hot-pink)] transition-colors" style="font-family: var(--font-mono);">
+				<a href="{linkPrefix}{getSlug(item)}" class="group block">
+					<div class="mb-0.5 flex items-center justify-between">
+						<span
+							class="truncate pr-2 text-xs transition-colors group-hover:text-[var(--nw-hot-pink)]"
+							style="font-family: var(--font-mono);"
+						>
 							{getLabel(item, i)}
 						</span>
-						<span class="text-sm text-[var(--nw-hot-pink)] flex-shrink-0" style="font-family: var(--font-display);">{getValueDisplay(item)}</span>
+						<span
+							class="flex-shrink-0 text-sm text-[var(--nw-hot-pink)]"
+							style="font-family: var(--font-display);">{getValueDisplay(item)}</span
+						>
 					</div>
-					<div class="h-1.5 bg-[var(--tw-concrete)] overflow-hidden">
+					<div class="h-1.5 overflow-hidden bg-[var(--tw-concrete)]">
 						<div class="h-full bg-gradient-to-r {gradient}" style="width: {width}%"></div>
 					</div>
 				</a>
@@ -117,7 +135,7 @@
 	{#if onViewAll && items.length > listLimit}
 		<button
 			onclick={onViewAll}
-			class="mt-3 text-xs text-[var(--nw-burning-orange)] hover:text-[var(--nw-hot-pink)] transition-colors uppercase tracking-wider"
+			class="mt-3 text-xs tracking-wider text-[var(--nw-burning-orange)] uppercase transition-colors hover:text-[var(--nw-hot-pink)]"
 			style="font-family: var(--font-mono);"
 		>
 			View all {items.length} →

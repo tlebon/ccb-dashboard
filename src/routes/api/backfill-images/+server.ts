@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 			args: []
 		});
 
-		const shows = result.rows as Array<{ id: number; url: string }>;
+		const shows = result.rows as unknown as Array<{ id: number; url: string }>;
 		console.log(`[Backfill] Processing ${shows.length} shows`);
 
 		let updated = 0;
@@ -61,9 +61,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 				// Use proxy to bypass Cloudflare's cloud IP blocking
 				const proxyBase = process.env.VITE_PROXY_EVENT_URL;
-				const fetchUrl = proxyBase
-					? `${proxyBase}?url=${encodeURIComponent(show.url)}`
-					: show.url;
+				const fetchUrl = proxyBase ? `${proxyBase}?url=${encodeURIComponent(show.url)}` : show.url;
 
 				const response = await fetch(fetchUrl, {
 					signal: AbortSignal.timeout(10000)
