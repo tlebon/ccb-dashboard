@@ -17,7 +17,7 @@ export default defineConfig({
 		// Coverage
 		coverage: {
 			provider: 'v8',
-			reporter: ['text', 'json', 'html'],
+			reporter: ['text', 'json', 'json-summary', 'html'],
 			// Only measure coverage for files that were actually imported in tests
 			all: false,
 			include: [
