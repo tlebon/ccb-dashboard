@@ -1,8 +1,9 @@
 <script lang="ts">
 	import QrCode from 'svelte-qrcode';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, getContext } from 'svelte';
 
 	const dispatch = createEventDispatcher();
+	const hasAnalyticsAccess = getContext<boolean>('analyticsAccess') ?? false;
 
 	let logoError = false;
 	let showCredits = false;
@@ -217,16 +218,18 @@
 						<span class="text-sm tracking-wider uppercase">Performers</span>
 					</a>
 
-					<a
-						href="/analytics"
-						class="flex items-center gap-2 rounded px-3 py-2 transition-all {theme === 'orange'
-							? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
-							: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
-						style="font-family: var(--font-display);"
-					>
-						<span class="text-sm opacity-70">◎</span>
-						<span class="text-sm tracking-wider uppercase">Analytics</span>
-					</a>
+					{#if hasAnalyticsAccess}
+						<a
+							href="/analytics"
+							class="flex items-center gap-2 rounded px-3 py-2 transition-all {theme === 'orange'
+								? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
+								: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'}"
+							style="font-family: var(--font-display);"
+						>
+							<span class="text-sm opacity-70">◎</span>
+							<span class="text-sm tracking-wider uppercase">Analytics</span>
+						</a>
+					{/if}
 				</div>
 
 				<!-- Divider -->
