@@ -266,6 +266,17 @@
 		}
 	});
 
+	// Fallback: ensure content becomes visible even if scroll positioning doesn't happen
+	// This handles cases where scrollContainer binding isn't ready when effects run (e.g., on mobile)
+	$effect(() => {
+		if (!contentVisible && !loading) {
+			const timeout = setTimeout(() => {
+				contentVisible = true;
+			}, 300);
+			return () => clearTimeout(timeout);
+		}
+	});
+
 	// Track when we should scroll - once per data load
 	let lastScrolledForShowId: string | null = null;
 
@@ -320,6 +331,19 @@
 		if (monitorMode) {
 			setTimeout(startAutoScroll, 800);
 		}
+
+		// Fallback for initial mount: ensure day sections become visible
+		// This catches edge cases where effects don't run in time (e.g., mobile timing issues)
+		setTimeout(() => {
+			if (scrollContainer) {
+				const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+				daySections.forEach((section) => {
+					if (!section.classList.contains('reveal-up')) {
+						section.classList.add('reveal-up');
+					}
+				});
+			}
+		}, 600);
 	});
 
 	// Viewport tracking for poster sync (manual mode only)
@@ -437,6 +461,19 @@
 			tick().then(() => {
 				viewportObserver = setupViewportTracking();
 				animationObserver = setupAnimationObserver();
+
+				// Fallback: ensure day sections become visible even if IntersectionObserver doesn't fire
+				// This handles edge cases on mobile where elements might not trigger intersection callbacks
+				setTimeout(() => {
+					if (scrollContainer) {
+						const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+						daySections.forEach((section) => {
+							if (!section.classList.contains('reveal-up')) {
+								section.classList.add('reveal-up');
+							}
+						});
+					}
+				}, 500);
 			});
 		}
 
