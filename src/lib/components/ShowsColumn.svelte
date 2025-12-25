@@ -69,6 +69,11 @@
 	const PAUSE_DURATION = 2000; // pause at top/bottom in ms
 	const SCROLL_THRESHOLD_SHOW_TODAY = 0.95; // Show "Back to Today" when scrolled past 95% of content
 
+	// Fallback timeout constants for mobile timing issues
+	const CONTENT_VISIBILITY_FALLBACK_MS = 300; // Show content if scroll positioning doesn't complete
+	const ANIMATION_FALLBACK_SHORT_MS = 500; // Ensure animations trigger (effect re-runs)
+	const ANIMATION_FALLBACK_LONG_MS = 600; // Ensure animations trigger (initial mount)
+
 	function checkOverflow() {
 		if (scrollContainer) {
 			hasOverflow = scrollContainer.scrollHeight > scrollContainer.clientHeight;
@@ -109,6 +114,21 @@
 			}
 		} else {
 			showTodayButton = false;
+		}
+	}
+
+	/**
+	 * Fallback helper: Ensures day sections become visible if IntersectionObserver doesn't fire
+	 * Used for mobile timing issues where DOM/effects aren't ready when expected
+	 */
+	function ensureDaySectionsVisible() {
+		if (scrollContainer) {
+			const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
+			daySections.forEach((section) => {
+				if (!section.classList.contains('reveal-up')) {
+					section.classList.add('reveal-up');
+				}
+			});
 		}
 	}
 
@@ -272,7 +292,7 @@
 		if (!contentVisible && !loading) {
 			const timeout = setTimeout(() => {
 				contentVisible = true;
-			}, 300);
+			}, CONTENT_VISIBILITY_FALLBACK_MS);
 			return () => clearTimeout(timeout);
 		}
 	});
@@ -334,16 +354,7 @@
 
 		// Fallback for initial mount: ensure day sections become visible
 		// This catches edge cases where effects don't run in time (e.g., mobile timing issues)
-		setTimeout(() => {
-			if (scrollContainer) {
-				const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
-				daySections.forEach((section) => {
-					if (!section.classList.contains('reveal-up')) {
-						section.classList.add('reveal-up');
-					}
-				});
-			}
-		}, 600);
+		setTimeout(ensureDaySectionsVisible, ANIMATION_FALLBACK_LONG_MS);
 	});
 
 	// Viewport tracking for poster sync (manual mode only)
@@ -464,16 +475,7 @@
 
 				// Fallback: ensure day sections become visible even if IntersectionObserver doesn't fire
 				// This handles edge cases on mobile where elements might not trigger intersection callbacks
-				setTimeout(() => {
-					if (scrollContainer) {
-						const daySections = scrollContainer.querySelectorAll('[data-day-shows]');
-						daySections.forEach((section) => {
-							if (!section.classList.contains('reveal-up')) {
-								section.classList.add('reveal-up');
-							}
-						});
-					}
-				}, 500);
+				setTimeout(ensureDaySectionsVisible, ANIMATION_FALLBACK_SHORT_MS);
 			});
 		}
 
