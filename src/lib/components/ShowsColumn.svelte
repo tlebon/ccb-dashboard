@@ -128,8 +128,6 @@
 				if (!section.classList.contains('reveal-up')) {
 					section.classList.add('reveal-up');
 				}
-				// Remove opacity-0 class so animation can work
-				section.classList.remove('opacity-0');
 			});
 		}
 	}
@@ -427,9 +425,8 @@
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
 						// Add reveal-up class when element enters viewport
+						// The animation will handle opacity transition from 0 to 1
 						entry.target.classList.add('reveal-up');
-						// Remove opacity-0 class so animation can work
-						entry.target.classList.remove('opacity-0');
 						// Unobserve after animating (one-time animation)
 						observer.unobserve(entry.target);
 					}
