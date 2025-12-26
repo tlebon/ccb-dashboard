@@ -128,6 +128,8 @@
 				if (!section.classList.contains('reveal-up')) {
 					section.classList.add('reveal-up');
 				}
+				// Remove inline opacity style - it has higher specificity than the animation
+				(section as HTMLElement).style.removeProperty('opacity');
 			});
 		}
 	}
@@ -426,6 +428,8 @@
 					if (entry.isIntersecting) {
 						// Add reveal-up class when element enters viewport
 						entry.target.classList.add('reveal-up');
+						// Remove inline opacity style - it has higher specificity than the animation
+						(entry.target as HTMLElement).style.removeProperty('opacity');
 						// Unobserve after animating (one-time animation)
 						observer.unobserve(entry.target);
 					}
