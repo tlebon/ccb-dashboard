@@ -425,6 +425,7 @@
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
 						// Add reveal-up class when element enters viewport
+						// The animation will handle opacity transition from 0 to 1
 						entry.target.classList.add('reveal-up');
 						// Unobserve after animating (one-time animation)
 						observer.unobserve(entry.target);
@@ -581,7 +582,7 @@
 			{#each groupedShows as week, weekIndex (week.weekLabel)}
 				{#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
 					{@const dayShowIds = dayShows.map((s) => s.id)}
-					<div style="opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
+					<div class="md:opacity-0" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
 						<!-- Day heading with brutalist style -->
 						<div class="relative mb-2">
 							<h2

@@ -155,8 +155,8 @@ export function getUpcomingHouseShowDates(teamSlug: string, count = 5): Date[] {
 	const daysUntilFriday = (5 - dayOfWeek + 7) % 7 || 7; // 5 = Friday
 	current.setDate(current.getDate() + daysUntilFriday);
 
-	// Search through the next 20 weeks to find enough dates
-	for (let i = 0; i < 20 && dates.length < count; i++) {
+	// Search through the next 30 weeks to find enough dates (guarantees finding 10+ shows)
+	for (let i = 0; i < 30 && dates.length < count; i++) {
 		const fridayOfMonth = getFridayOfMonth(current);
 		if (team.weeks.includes(fridayOfMonth)) {
 			dates.push(new Date(current));
