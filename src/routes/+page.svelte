@@ -246,14 +246,24 @@
 
 	// Setup Intersection Observer for infinite scroll when loadTrigger becomes available
 	$effect(() => {
-		if (!monitorMode && loadTrigger) {
+		if (!monitorMode && loadTrigger && scrollContainer) {
+			console.log('[InfiniteScroll] Setting up observer for loadTrigger');
 			const observer = new IntersectionObserver(
 				(entries) => {
+					console.log('[InfiniteScroll] Observer fired:', {
+						isIntersecting: entries[0].isIntersecting,
+						loadingMore,
+						hasMore
+					});
 					if (entries[0].isIntersecting && !loadingMore && hasMore) {
+						console.log('[InfiniteScroll] Loading more shows...');
 						loadMoreShows();
 					}
 				},
-				{ rootMargin: '500px' }
+				{
+					root: scrollContainer,
+					rootMargin: '500px'
+				}
 			);
 			observer.observe(loadTrigger);
 
@@ -263,14 +273,17 @@
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll)
 	$effect(() => {
-		if (!monitorMode && topLoadTrigger) {
+		if (!monitorMode && topLoadTrigger && scrollContainer) {
 			const observer = new IntersectionObserver(
 				(entries) => {
 					if (entries[0].isIntersecting && !loadingMore && hasPastShows) {
 						loadPastShows();
 					}
 				},
-				{ rootMargin: '500px' }
+				{
+					root: scrollContainer,
+					rootMargin: '500px'
+				}
 			);
 			observer.observe(topLoadTrigger);
 
