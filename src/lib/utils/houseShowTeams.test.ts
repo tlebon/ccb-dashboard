@@ -225,8 +225,13 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should return correct number based on count parameter', () => {
+			// Use a fixed date to avoid flakiness as time passes
+			vi.setSystemTime(new Date('2025-01-01'));
+
 			expect(getUpcomingHouseShowDates('thunderclap', 3)).toHaveLength(3);
 			expect(getUpcomingHouseShowDates('handshake', 10)).toHaveLength(10);
+
+			vi.useRealTimers();
 		});
 
 		it('should return dates in chronological order', () => {

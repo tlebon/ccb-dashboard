@@ -128,8 +128,8 @@
 				if (!section.classList.contains('reveal-up')) {
 					section.classList.add('reveal-up');
 				}
-				// Remove inline opacity style - it has higher specificity than the animation
-				(section as HTMLElement).style.removeProperty('opacity');
+				// Remove opacity-0 class so animation can work
+				section.classList.remove('opacity-0');
 			});
 		}
 	}
@@ -428,8 +428,8 @@
 					if (entry.isIntersecting) {
 						// Add reveal-up class when element enters viewport
 						entry.target.classList.add('reveal-up');
-						// Remove inline opacity style - it has higher specificity than the animation
-						(entry.target as HTMLElement).style.removeProperty('opacity');
+						// Remove opacity-0 class so animation can work
+						entry.target.classList.remove('opacity-0');
 						// Unobserve after animating (one-time animation)
 						observer.unobserve(entry.target);
 					}
@@ -585,7 +585,7 @@
 			{#each groupedShows as week, weekIndex (week.weekLabel)}
 				{#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
 					{@const dayShowIds = dayShows.map((s) => s.id)}
-					<div style="opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
+					<div class="opacity-0" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
 						<!-- Day heading with brutalist style -->
 						<div class="relative mb-2">
 							<h2
