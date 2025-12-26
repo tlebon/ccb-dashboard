@@ -244,18 +244,35 @@
 		}
 	});
 
+	// Debug state
+	let debugInfo = $state({
+		observerSetup: false,
+		observerFired: 0,
+		loadTriggered: 0,
+		isIntersecting: false
+	});
+
 	// Setup Intersection Observer for infinite scroll when loadTrigger becomes available
 	$effect(() => {
 		if (!monitorMode && loadTrigger && scrollContainer) {
-			console.log('[InfiniteScroll] Setting up observer for loadTrigger');
+			debugInfo.observerSetup = true;
+			console.log('[InfiniteScroll] Setting up observer for loadTrigger', {
+				scrollContainerHeight: scrollContainer.clientHeight,
+				scrollContainerScrollHeight: scrollContainer.scrollHeight,
+				loadTriggerExists: !!loadTrigger
+			});
 			const observer = new IntersectionObserver(
 				(entries) => {
+					debugInfo.observerFired++;
+					debugInfo.isIntersecting = entries[0].isIntersecting;
 					console.log('[InfiniteScroll] Observer fired:', {
 						isIntersecting: entries[0].isIntersecting,
 						loadingMore,
-						hasMore
+						hasMore,
+						fireCount: debugInfo.observerFired
 					});
 					if (entries[0].isIntersecting && !loadingMore && hasMore) {
+						debugInfo.loadTriggered++;
 						console.log('[InfiniteScroll] Loading more shows...');
 						loadMoreShows();
 					}
@@ -990,4 +1007,15 @@
 			</main>
 		</div>
 	{/if}
+
+<!-- Debug Overlay -->
+<div class="fixed bottom-2 left-2 z-50 rounded bg-black/90 p-2 text-xs text-white font-mono">
+	<div>Observer Setup: {debugInfo.observerSetup ? '✓' : '✗'}</div>
+	<div>Observer Fired: {debugInfo.observerFired}x</div>
+	<div>Load Triggered: {debugInfo.loadTriggered}x</div>
+	<div>IsIntersecting: {debugInfo.isIntersecting ? 'YES' : 'NO'}</div>
+	<div>LoadingMore: {loadingMore ? 'YES' : 'NO'}</div>
+	<div>HasMore: {hasMore ? 'YES' : 'NO'}</div>
+	<div>DisplayedDays: {displayedDays}</div>
+</div>
 </div>
