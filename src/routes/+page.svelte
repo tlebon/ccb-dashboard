@@ -5,7 +5,12 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { fetchShowsFromDB, type Show } from '$lib/utils/icalParser';
-	import { createScrollDirectionTracker, createScrollObserver } from '$lib/utils/scrollObserver';
+	import {
+		createScrollDirectionTracker,
+		createScrollObserver,
+		INFINITE_SCROLL_PRELOAD_DISTANCE,
+		SCROLL_DIRECTION_MARGIN
+	} from '$lib/utils/scrollObserver';
 	import BrandingColumn from '$lib/components/BrandingColumn.svelte';
 	import ShowsColumn from '$lib/components/ShowsColumn.svelte';
 	import ImagesColumn from '$lib/components/ImagesColumn.svelte';
@@ -143,10 +148,9 @@
 				// Use last show's date + 1 day to avoid gaps in schedule
 				let nextStartDate;
 				if (shows.length > 0) {
-					// Find the chronologically last show (max date)
-					const lastShow = shows.reduce((latest, show) =>
-						show.start > latest.start ? show : latest
-					);
+					// Shows are sorted chronologically (ORDER BY date, time from API)
+					// Last element is the chronologically latest show
+					const lastShow = shows[shows.length - 1];
 					nextStartDate = new Date(lastShow.start);
 					nextStartDate.setUTCHours(0, 0, 0, 0);
 					nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
@@ -298,8 +302,6 @@
 	});
 
 	// Setup infinite scroll with IntersectionObserver for mobile (scroll down to load future shows)
-	// rootMargin: 2000px = start loading when user is 2000px away from bottom
-	// This creates a smooth infinite scroll experience by preloading before user reaches the end
 	$effect(() => {
 		if (!monitorMode && mobileScrollContainer && mobileLoadTrigger && !loading) {
 			const observer = createScrollObserver(
@@ -312,7 +314,7 @@
 						}
 					});
 				},
-				'2000px' // Preload distance before trigger
+				INFINITE_SCROLL_PRELOAD_DISTANCE
 			);
 
 			return () => {
@@ -322,8 +324,6 @@
 	});
 
 	// Setup infinite scroll with IntersectionObserver for desktop (scroll down to load future shows)
-	// rootMargin: 2000px = start loading when user is 2000px away from bottom
-	// This creates a smooth infinite scroll experience by preloading before user reaches the end
 	$effect(() => {
 		if (!monitorMode && desktopScrollContainer && desktopLoadTrigger && !loading) {
 			const observer = createScrollObserver(
@@ -336,7 +336,7 @@
 						}
 					});
 				},
-				'2000px' // Preload distance before trigger
+				INFINITE_SCROLL_PRELOAD_DISTANCE
 			);
 
 			return () => {
@@ -346,7 +346,6 @@
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
-	// rootMargin: 10px = small margin to avoid false triggers when scrolling down
 	// Scroll direction tracking ensures we only load when user intentionally scrolls up
 	$effect(() => {
 		if (!monitorMode && mobileTopLoadTrigger && mobileScrollContainer) {
@@ -364,7 +363,7 @@
 						}
 					});
 				},
-				'10px' // Small margin to avoid false triggers
+				SCROLL_DIRECTION_MARGIN
 			);
 
 			return () => {
@@ -375,7 +374,6 @@
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Desktop
-	// rootMargin: 10px = small margin to avoid false triggers when scrolling down
 	// Scroll direction tracking ensures we only load when user intentionally scrolls up
 	$effect(() => {
 		if (!monitorMode && desktopTopLoadTrigger && desktopScrollContainer) {
@@ -393,7 +391,7 @@
 						}
 					});
 				},
-				'10px' // Small margin to avoid false triggers
+				SCROLL_DIRECTION_MARGIN
 			);
 
 			return () => {

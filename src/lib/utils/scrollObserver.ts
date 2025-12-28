@@ -2,6 +2,10 @@
  * Utilities for setting up scroll observers and tracking scroll direction
  */
 
+// Infinite scroll configuration
+export const INFINITE_SCROLL_PRELOAD_DISTANCE = '2000px'; // Load when user is 2000px from trigger
+export const SCROLL_DIRECTION_MARGIN = '10px'; // Small margin to avoid false triggers
+
 /**
  * Creates a scroll direction tracker that monitors whether user is scrolling up or down
  * @param container The scroll container to track (may become null if removed from DOM)
@@ -35,11 +39,11 @@ export function createScrollObserver(
 	trigger: HTMLElement,
 	container: HTMLElement,
 	callback: () => void,
-	rootMargin: string = '2000px'
+	rootMargin: string = INFINITE_SCROLL_PRELOAD_DISTANCE
 ) {
 	const observer = new IntersectionObserver(
 		(entries) => {
-			if (entries[0].isIntersecting) {
+			if (entries.length > 0 && entries[0].isIntersecting) {
 				callback();
 			}
 		},
