@@ -70,12 +70,12 @@ describe('createScrollDirectionTracker', () => {
 describe('createScrollObserver', () => {
 	let trigger: HTMLDivElement;
 	let container: HTMLDivElement;
-	let callback: ReturnType<typeof vi.fn>;
+	let callback: () => void;
 
 	beforeEach(() => {
 		trigger = document.createElement('div');
 		container = document.createElement('div');
-		callback = vi.fn();
+		callback = vi.fn() as () => void;
 
 		// Mock IntersectionObserver as a class
 		global.IntersectionObserver = class IntersectionObserver {
@@ -90,7 +90,7 @@ describe('createScrollObserver', () => {
 			disconnect = vi.fn();
 			unobserve = vi.fn();
 			takeRecords = vi.fn(() => []);
-			root: Element | null;
+			root: Element | Document | null;
 			rootMargin: string;
 			thresholds: number[];
 
