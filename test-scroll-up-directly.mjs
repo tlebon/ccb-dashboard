@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 	const page = await context.newPage();
 
 	const logs = [];
-	page.on('console', msg => {
+	page.on('console', (msg) => {
 		const text = msg.text();
 		console.log(text);
 		logs.push(text);
@@ -18,7 +18,7 @@ import { chromium } from 'playwright';
 	console.log('\n=== Initial state ===');
 	const initialShows = await page.evaluate(() => {
 		const dateHeaders = document.querySelectorAll('[data-date]');
-		return Array.from(dateHeaders).map(h => h.getAttribute('data-date'));
+		return Array.from(dateHeaders).map((h) => h.getAttribute('data-date'));
 	});
 	console.log('Dates visible:', initialShows.slice(0, 5).join(', '), '...');
 	console.log('Oldest date:', initialShows[0]);
@@ -39,12 +39,12 @@ import { chromium } from 'playwright';
 	console.log('\n=== After scrolling up ===');
 	const finalShows = await page.evaluate(() => {
 		const dateHeaders = document.querySelectorAll('[data-date]');
-		return Array.from(dateHeaders).map(h => h.getAttribute('data-date'));
+		return Array.from(dateHeaders).map((h) => h.getAttribute('data-date'));
 	});
 	console.log('Dates visible:', finalShows.slice(0, 5).join(', '), '...');
 	console.log('Oldest date:', finalShows[0]);
 
-	const loadPastCalls = logs.filter(log => log.includes('[LoadPast]')).length;
+	const loadPastCalls = logs.filter((log) => log.includes('[LoadPast]')).length;
 	console.log(`\n=== Result ===`);
 	console.log(`LoadPast called: ${loadPastCalls} times`);
 	console.log(`Did oldest date change? ${initialShows[0] !== finalShows[0] ? 'YES' : 'NO'}`);

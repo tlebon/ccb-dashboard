@@ -153,37 +153,37 @@
 			try {
 				loadingMore = true;
 
-			// Calculate start date for next chunk based on the chronologically last show
-			// Use last show's date + 1 day to avoid gaps in schedule
-			let nextStartDate;
-			if (shows.length > 0) {
-				// Find the chronologically last show (max date)
-				const lastShow = shows.reduce((latest, show) =>
-					show.start > latest.start ? show : latest
-				);
-				nextStartDate = new Date(lastShow.start);
-				nextStartDate.setUTCHours(0, 0, 0, 0);
-				nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
-			} else {
-				// Fallback to today + displayedDays if no shows loaded yet
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				nextStartDate = new Date(today);
-				nextStartDate.setDate(today.getDate() + displayedDays);
-			}
+				// Calculate start date for next chunk based on the chronologically last show
+				// Use last show's date + 1 day to avoid gaps in schedule
+				let nextStartDate;
+				if (shows.length > 0) {
+					// Find the chronologically last show (max date)
+					const lastShow = shows.reduce((latest, show) =>
+						show.start > latest.start ? show : latest
+					);
+					nextStartDate = new Date(lastShow.start);
+					nextStartDate.setUTCHours(0, 0, 0, 0);
+					nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
+				} else {
+					// Fallback to today + displayedDays if no shows loaded yet
+					const today = new Date();
+					today.setHours(0, 0, 0, 0);
+					nextStartDate = new Date(today);
+					nextStartDate.setDate(today.getDate() + displayedDays);
+				}
 
-			// Guard: Don't load the same date twice
-			const nextStartDateStr = nextStartDate.toISOString().split('T')[0];
-			if (lastLoadedDate === nextStartDateStr) {
-				hasMore = false;
-				loadingMore = false;
-				loadingPromise = null;
-				return;
-			}
-			lastLoadedDate = nextStartDateStr;
+				// Guard: Don't load the same date twice
+				const nextStartDateStr = nextStartDate.toISOString().split('T')[0];
+				if (lastLoadedDate === nextStartDateStr) {
+					hasMore = false;
+					loadingMore = false;
+					loadingPromise = null;
+					return;
+				}
+				lastLoadedDate = nextStartDateStr;
 
-			// Load next chunk
-			const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
+				// Load next chunk
+				const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
 
 				// Always increment displayedDays, even if chunk is empty (to skip gaps)
 				displayedDays += CHUNK_SIZE_DAYS;
@@ -198,8 +198,8 @@
 					// Reset empty chunk counter when we find shows
 					consecutiveEmptyChunks = 0;
 					// Filter out any duplicates (by id) before appending
-					const existingIds = new Set(shows.map(s => s.id));
-					const uniqueNewShows = newShows.filter(show => !existingIds.has(show.id));
+					const existingIds = new Set(shows.map((s) => s.id));
+					const uniqueNewShows = newShows.filter((show) => !existingIds.has(show.id));
 					// Append new shows to existing list
 					shows = [...shows, ...uniqueNewShows];
 				}
@@ -311,7 +311,6 @@
 		}
 	});
 
-
 	// Setup infinite scroll with IntersectionObserver for mobile
 	$effect(() => {
 		if (!monitorMode && mobileScrollContainer && mobileLoadTrigger && !loading) {
@@ -363,7 +362,6 @@
 			};
 		}
 	});
-
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
 	$effect(() => {
@@ -886,7 +884,7 @@
 						on:next={nextWeek}
 						on:today={goToToday}
 					/>
-					<main class="relative z-10 flex-1 min-h-0 px-3 py-3">
+					<main class="relative z-10 min-h-0 flex-1 px-3 py-3">
 						<ShowsColumn
 							{groupedShows}
 							{loading}
@@ -1127,5 +1125,4 @@
 			</main>
 		</div>
 	{/if}
-
 </div>

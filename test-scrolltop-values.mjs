@@ -21,7 +21,9 @@ import { chromium } from 'playwright';
 			clientHeight: container?.clientHeight,
 			topTriggerTop: topTriggerRect?.top,
 			containerTop: containerRect?.top,
-			topTriggerOffsetFromContainerTop: topTriggerRect ? topTriggerRect.top - containerRect.top : null
+			topTriggerOffsetFromContainerTop: topTriggerRect
+				? topTriggerRect.top - containerRect.top
+				: null
 		};
 	});
 	console.log(initial);

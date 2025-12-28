@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 	const page = await context.newPage();
 
 	const logs = [];
-	page.on('console', msg => {
+	page.on('console', (msg) => {
 		const text = msg.text();
 		if (text.includes('[TopObserver') || text.includes('[LoadPast')) {
 			console.log(text);
@@ -21,7 +21,8 @@ import { chromium } from 'playwright';
 	for (let i = 1; i <= 5; i++) {
 		await page.evaluate(() => {
 			const containers = document.querySelectorAll('section.overflow-y-auto');
-			if (containers[1]) { // Middle column on desktop
+			if (containers[1]) {
+				// Middle column on desktop
 				containers[1].scrollTop += 500;
 			}
 		});
@@ -32,7 +33,8 @@ import { chromium } from 'playwright';
 	for (let i = 1; i <= 10; i++) {
 		await page.evaluate(() => {
 			const containers = document.querySelectorAll('section.overflow-y-auto');
-			if (containers[1]) { // Middle column on desktop
+			if (containers[1]) {
+				// Middle column on desktop
 				containers[1].scrollTop = Math.max(0, containers[1].scrollTop - 300);
 			}
 		});
@@ -42,7 +44,7 @@ import { chromium } from 'playwright';
 	await page.waitForTimeout(2000);
 
 	console.log('\n=== Summary ===');
-	const loadPastCalls = logs.filter(log => log.includes('[LoadPast] Starting')).length;
+	const loadPastCalls = logs.filter((log) => log.includes('[LoadPast] Starting')).length;
 	console.log(`LoadPast called: ${loadPastCalls} times`);
 
 	await browser.close();
