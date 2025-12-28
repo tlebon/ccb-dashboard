@@ -22,7 +22,7 @@
 			visibleShowIds.length !== prevVisibleShowIds.length ||
 			visibleShowIds.some((id, i) => id !== prevVisibleShowIds[i]);
 
-		if (idsChanged || prevVisibleShowIds.length === 0) {
+		if (idsChanged) {
 			if (monitorMode) {
 				cachedCarouselShows = shows;
 			} else if (visibleShowIds.length === 0) {

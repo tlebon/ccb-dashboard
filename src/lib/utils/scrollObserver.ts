@@ -4,11 +4,11 @@
 
 /**
  * Creates a scroll direction tracker that monitors whether user is scrolling up or down
- * @param container The scroll container to track
+ * @param container The scroll container to track (may become null if removed from DOM)
  * @returns Object with handleScroll function and getDirection getter
  */
-export function createScrollDirectionTracker(container: HTMLElement) {
-	let lastScrollTop = container.scrollTop;
+export function createScrollDirectionTracker(container: HTMLElement | null) {
+	let lastScrollTop = container?.scrollTop || 0;
 	let isScrollingUp = false;
 
 	const handleScroll = () => {
