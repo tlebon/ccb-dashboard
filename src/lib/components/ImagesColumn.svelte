@@ -12,12 +12,14 @@
 	export let monitorMode: boolean = false; // In monitor mode, don't filter carousel
 	import ShowCarousel from './ShowCarousel.svelte';
 
-	// Memoize carousel shows to only update when visibleShowIds changes, not when shows array ref changes
+	// Memoization prevents poster flickering during infinite scroll
+	// Problem: When prepending past shows, 'shows' array ref changes but visibleShowIds doesn't
+	// Solution: Only recalculate when visibleShowIds actually changes (value comparison, not ref)
 	let prevVisibleShowIds: string[] = [];
 	let cachedCarouselShows: Show[] = [];
 
 	$: {
-		// Only recalculate if monitorMode changed, or visibleShowIds actually changed (not just reference)
+		// Check if visibleShowIds values changed (not just reference)
 		const idsChanged =
 			visibleShowIds.length !== prevVisibleShowIds.length ||
 			visibleShowIds.some((id, i) => id !== prevVisibleShowIds[i]);

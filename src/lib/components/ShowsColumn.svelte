@@ -583,6 +583,7 @@
 			{#each groupedShows as week, weekIndex (week.weekLabel)}
 				{#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
 					{@const dayShowIds = dayShows.map((s) => s.id)}
+					<!-- md:opacity-0 only on desktop - animations were breaking on mobile -->
 					<div class="md:opacity-0" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
 						<!-- Day heading with brutalist style -->
 						<div class="relative mb-2">

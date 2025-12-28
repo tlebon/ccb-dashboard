@@ -69,37 +69,22 @@
 	let displayedDays = $state(21); // Days loaded so far (matches initial load of 21 days)
 	let loadingMore = $state(false);
 	let hasMore = $state(true);
-	let mobileLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile load trigger
-	let desktopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop load trigger
-	let loadTrigger = $state<HTMLDivElement | null>(null); // For backwards compat
+	// Infinite scroll triggers - separate for mobile/desktop since they're different DOM elements
+	let mobileLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile bottom trigger
+	let desktopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop bottom trigger
+	let mobileTopLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile top trigger
+	let desktopTopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop top trigger
 
-	// Update loadTrigger for backwards compat
-	$effect(() => {
-		loadTrigger = mobileLoadTrigger || desktopLoadTrigger;
-	});
+	// Scroll containers - separate for mobile/desktop since CSS shows only one at a time
+	let mobileScrollContainer = $state<HTMLElement | null>(null);
+	let desktopScrollContainer = $state<HTMLElement | null>(null);
+
 	let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
 	let lastLoadedDate = $state<string | null>(null); // Track last date we tried to load to prevent duplicates
 
 	// Bidirectional scroll state (past shows)
 	let pastDaysLoaded = $state(0); // How many days into past we've loaded
 	let hasPastShows = $state(true); // Whether more past shows exist
-	let mobileTopLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile top load trigger
-	let desktopTopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop top load trigger
-	let topLoadTrigger = $state<HTMLDivElement | null>(null); // For backwards compat
-
-	// Update topLoadTrigger for backwards compat
-	$effect(() => {
-		topLoadTrigger = mobileTopLoadTrigger || desktopTopLoadTrigger;
-	});
-	let mobileScrollContainer = $state<HTMLElement | null>(null); // Mobile scroll container
-	let desktopScrollContainer = $state<HTMLElement | null>(null); // Desktop scroll container
-	// For backwards compatibility with code that references scrollContainer
-	let scrollContainer = $state<HTMLElement | null>(null);
-
-	// Update scrollContainer for backwards compat (used in loadPastShows, etc.)
-	$effect(() => {
-		scrollContainer = mobileScrollContainer || desktopScrollContainer;
-	});
 
 	// Viewport tracking for poster sync (manual mode only)
 	let visibleShowIds = $state<string[]>([]); // IDs of shows currently visible in viewport (populated by ShowsColumn)
