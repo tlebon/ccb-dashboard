@@ -12,12 +12,29 @@
 	export let monitorMode: boolean = false; // In monitor mode, don't filter carousel
 	import ShowCarousel from './ShowCarousel.svelte';
 
-	// Filter carousel shows to only visible shows in manual mode
-	$: carouselShows = monitorMode
-		? shows // Monitor mode: show all shows
-		: visibleShowIds.length === 0
-			? shows.filter((show) => new Date(show.start) > new Date()) // No tracking yet: show only upcoming shows
-			: shows.filter((show) => visibleShowIds.includes(show.id)); // Manual mode: show only visible shows
+	// Memoize carousel shows to only update when visibleShowIds changes, not when shows array ref changes
+	let prevVisibleShowIds: string[] = [];
+	let cachedCarouselShows: Show[] = [];
+
+	$: {
+		// Only recalculate if monitorMode changed, or visibleShowIds actually changed (not just reference)
+		const idsChanged =
+			visibleShowIds.length !== prevVisibleShowIds.length ||
+			visibleShowIds.some((id, i) => id !== prevVisibleShowIds[i]);
+
+		if (idsChanged || prevVisibleShowIds === []) {
+			if (monitorMode) {
+				cachedCarouselShows = shows;
+			} else if (visibleShowIds.length === 0) {
+				cachedCarouselShows = shows.filter((show) => new Date(show.start) > new Date());
+			} else {
+				cachedCarouselShows = shows.filter((show) => visibleShowIds.includes(show.id));
+			}
+			prevVisibleShowIds = [...visibleShowIds];
+		}
+	}
+
+	$: carouselShows = cachedCarouselShows;
 
 	// Format show title - add team names for House Show
 	function getDisplayTitle(show: Show): string {

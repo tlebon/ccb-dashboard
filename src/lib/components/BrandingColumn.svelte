@@ -45,49 +45,60 @@
 			</div>
 		{/if}
 
-		<!-- Week Navigation -->
-		<div class="reveal-up mt-3 flex items-center gap-2 delay-300">
-			<button
-				on:click={() => dispatch('prev')}
-				disabled={!canGoPrev || monitorMode}
-				title={canGoPrev && !monitorMode ? `← ${prevWeekLabel}` : ''}
-				class="flex h-8 w-8 items-center justify-center rounded transition-all
-               {monitorMode ? 'invisible' : ''}
+		<!-- Week Navigation (monitor mode only) or Title (manual nav mode) -->
+		{#if monitorMode}
+			<div class="reveal-up mt-3 flex items-center gap-2 delay-300">
+				<button
+					on:click={() => dispatch('prev')}
+					disabled={!canGoPrev}
+					title={canGoPrev ? `← ${prevWeekLabel}` : ''}
+					class="flex h-8 w-8 items-center justify-center rounded transition-all
                {canGoPrev
-					? theme === 'orange'
-						? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20'
-						: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20'
-					: 'cursor-not-allowed text-white/20'}"
-				style="font-family: var(--font-mono);"
-			>
-				←
-			</button>
+						? theme === 'orange'
+							? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20'
+							: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20'
+						: 'cursor-not-allowed text-white/20'}"
+					style="font-family: var(--font-mono);"
+				>
+					←
+				</button>
 
-			<div
-				class="text-sm tracking-[0.3em] uppercase {theme === 'orange'
-					? 'text-[var(--nw-neon-yellow)]'
-					: 'text-[var(--tw-electric-cyan)]'}"
-				style="font-family: var(--font-mono);"
-			>
-				{weekLabel}
-			</div>
+				<div
+					class="text-sm tracking-[0.3em] uppercase {theme === 'orange'
+						? 'text-[var(--nw-neon-yellow)]'
+						: 'text-[var(--tw-electric-cyan)]'}"
+					style="font-family: var(--font-mono);"
+				>
+					{weekLabel}
+				</div>
 
-			<button
-				on:click={() => dispatch('next')}
-				disabled={!canGoNext || monitorMode}
-				title={canGoNext && !monitorMode ? `→ ${nextWeekLabel}` : ''}
-				class="flex h-8 w-8 items-center justify-center rounded transition-all
-               {monitorMode ? 'invisible' : ''}
+				<button
+					on:click={() => dispatch('next')}
+					disabled={!canGoNext}
+					title={canGoNext ? `→ ${nextWeekLabel}` : ''}
+					class="flex h-8 w-8 items-center justify-center rounded transition-all
                {canGoNext
-					? theme === 'orange'
-						? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20'
-						: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20'
-					: 'cursor-not-allowed text-white/20'}"
-				style="font-family: var(--font-mono);"
-			>
-				→
-			</button>
-		</div>
+						? theme === 'orange'
+							? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/20'
+							: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/20'
+						: 'cursor-not-allowed text-white/20'}"
+					style="font-family: var(--font-mono);"
+				>
+					→
+				</button>
+			</div>
+		{:else}
+			<div class="reveal-up mt-3 delay-300">
+				<div
+					class="neon-glow text-sm font-bold tracking-[0.2em] uppercase {theme === 'orange'
+						? 'text-[var(--nw-neon-yellow)]'
+						: 'text-[var(--tw-electric-cyan)]'}"
+					style="font-family: var(--font-display);"
+				>
+					CCB Dashboard
+				</div>
+			</div>
+		{/if}
 
 		<!-- Today button - always rendered to prevent layout shift, invisible when on current week or in monitor mode -->
 		<button

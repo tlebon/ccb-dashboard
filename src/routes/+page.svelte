@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy, tick } from 'svelte';
+	import { onMount, onDestroy, tick, untrack } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { page } from '$app/stores';
@@ -68,14 +68,37 @@
 	let displayedDays = $state(21); // Days loaded so far (matches initial load of 21 days)
 	let loadingMore = $state(false);
 	let hasMore = $state(true);
-	let loadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading more
+	let mobileLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile load trigger
+	let desktopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop load trigger
+	let loadTrigger = $state<HTMLDivElement | null>(null); // For backwards compat
+
+	// Update loadTrigger for backwards compat
+	$effect(() => {
+		loadTrigger = mobileLoadTrigger || desktopLoadTrigger;
+	});
 	let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
+	let lastLoadedDate = $state<string | null>(null); // Track last date we tried to load to prevent duplicates
 
 	// Bidirectional scroll state (past shows)
 	let pastDaysLoaded = $state(0); // How many days into past we've loaded
 	let hasPastShows = $state(true); // Whether more past shows exist
-	let topLoadTrigger = $state<HTMLDivElement | null>(null); // Element to observe for loading past shows
-	let scrollContainer = $state<HTMLElement | null>(null); // Scroll container ref for position adjustment
+	let mobileTopLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile top load trigger
+	let desktopTopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop top load trigger
+	let topLoadTrigger = $state<HTMLDivElement | null>(null); // For backwards compat
+
+	// Update topLoadTrigger for backwards compat
+	$effect(() => {
+		topLoadTrigger = mobileTopLoadTrigger || desktopTopLoadTrigger;
+	});
+	let mobileScrollContainer = $state<HTMLElement | null>(null); // Mobile scroll container
+	let desktopScrollContainer = $state<HTMLElement | null>(null); // Desktop scroll container
+	// For backwards compatibility with code that references scrollContainer
+	let scrollContainer = $state<HTMLElement | null>(null);
+
+	// Update scrollContainer for backwards compat (used in loadPastShows, etc.)
+	$effect(() => {
+		scrollContainer = mobileScrollContainer || desktopScrollContainer;
+	});
 
 	// Viewport tracking for poster sync (manual mode only)
 	let visibleShowIds = $state<string[]>([]); // IDs of shows currently visible in viewport (populated by ShowsColumn)
@@ -130,15 +153,37 @@
 			try {
 				loadingMore = true;
 
-				// Calculate start date for next chunk based on days already loaded
-				// Always calculate from today + displayedDays to handle gaps in schedule
+			// Calculate start date for next chunk based on the chronologically last show
+			// Use last show's date + 1 day to avoid gaps in schedule
+			let nextStartDate;
+			if (shows.length > 0) {
+				// Find the chronologically last show (max date)
+				const lastShow = shows.reduce((latest, show) =>
+					show.start > latest.start ? show : latest
+				);
+				nextStartDate = new Date(lastShow.start);
+				nextStartDate.setUTCHours(0, 0, 0, 0);
+				nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
+			} else {
+				// Fallback to today + displayedDays if no shows loaded yet
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
-				const nextStartDate = new Date(today);
+				nextStartDate = new Date(today);
 				nextStartDate.setDate(today.getDate() + displayedDays);
+			}
 
-				// Load next chunk
-				const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
+			// Guard: Don't load the same date twice
+			const nextStartDateStr = nextStartDate.toISOString().split('T')[0];
+			if (lastLoadedDate === nextStartDateStr) {
+				hasMore = false;
+				loadingMore = false;
+				loadingPromise = null;
+				return;
+			}
+			lastLoadedDate = nextStartDateStr;
+
+			// Load next chunk
+			const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
 
 				// Always increment displayedDays, even if chunk is empty (to skip gaps)
 				displayedDays += CHUNK_SIZE_DAYS;
@@ -152,8 +197,11 @@
 				} else {
 					// Reset empty chunk counter when we find shows
 					consecutiveEmptyChunks = 0;
+					// Filter out any duplicates (by id) before appending
+					const existingIds = new Set(shows.map(s => s.id));
+					const uniqueNewShows = newShows.filter(show => !existingIds.has(show.id));
 					// Append new shows to existing list
-					shows = [...shows, ...newShows];
+					shows = [...shows, ...uniqueNewShows];
 				}
 			} catch (e) {
 				console.error('[LoadMore] Error:', e);
@@ -197,21 +245,40 @@
 						hasPastShows = false;
 					}
 				} else {
+					// Determine which container is active (visible, not hidden by CSS)
+					// Check scrollHeight to see which one is actually being used
+					const activeContainer =
+						desktopScrollContainer && desktopScrollContainer.scrollHeight > 0
+							? desktopScrollContainer
+							: mobileScrollContainer;
+
+					if (!activeContainer || activeContainer.scrollHeight === 0) {
+						console.error('[LoadPast] No active container!');
+						return;
+					}
+
 					// Save current scroll position before prepending
-					const oldScrollHeight = scrollContainer?.scrollHeight || 0;
-					const oldScrollTop = scrollContainer?.scrollTop || 0;
+					const oldScrollHeight = activeContainer.scrollHeight;
+					const oldScrollTop = activeContainer.scrollTop;
 
 					// PREPEND past shows to beginning of array
 					shows = [...pastShows, ...shows];
 
-					// Wait for DOM to update, then adjust scroll position to maintain visual position
+					// Await DOM update and immediately adjust scroll before browser paint
 					await tick();
-					if (scrollContainer) {
-						const newScrollHeight = scrollContainer.scrollHeight;
-						const heightDifference = newScrollHeight - oldScrollHeight;
-						// Adjust scroll position by the amount of content added
-						scrollContainer.scrollTop = oldScrollTop + heightDifference;
-						// IntersectionObserver will handle animations as elements scroll into view
+
+					// Adjust scroll FIRST before any other DOM queries
+					const newScrollHeight = activeContainer.scrollHeight;
+					const heightDifference = newScrollHeight - oldScrollHeight;
+					activeContainer.scrollTop = oldScrollTop + heightDifference;
+
+					// THEN add reveal-up class (this doesn't affect layout)
+					const daySections = activeContainer.querySelectorAll('[data-day-shows]');
+					const prependedSectionCount = pastShows.length;
+					for (let i = 0; i < Math.min(prependedSectionCount, daySections.length); i++) {
+						if (!daySections[i].classList.contains('reveal-up')) {
+							daySections[i].classList.add('reveal-up');
+						}
 					}
 				}
 			} catch (e) {
@@ -244,67 +311,133 @@
 		}
 	});
 
-	// Debug state
-	let debugInfo = $state({
-		observerSetup: false,
-		observerFired: 0,
-		loadTriggered: 0,
-		isIntersecting: false
-	});
 
-	// Setup Intersection Observer for infinite scroll when loadTrigger becomes available
+	// Setup infinite scroll with IntersectionObserver for mobile
 	$effect(() => {
-		if (!monitorMode && loadTrigger && scrollContainer) {
-			debugInfo.observerSetup = true;
-			console.log('[InfiniteScroll] Setting up observer for loadTrigger', {
-				scrollContainerHeight: scrollContainer.clientHeight,
-				scrollContainerScrollHeight: scrollContainer.scrollHeight,
-				loadTriggerExists: !!loadTrigger
-			});
+		if (!monitorMode && mobileScrollContainer && mobileLoadTrigger && !loading) {
 			const observer = new IntersectionObserver(
 				(entries) => {
-					debugInfo.observerFired++;
-					debugInfo.isIntersecting = entries[0].isIntersecting;
-					console.log('[InfiniteScroll] Observer fired:', {
-						isIntersecting: entries[0].isIntersecting,
-						loadingMore,
-						hasMore,
-						fireCount: debugInfo.observerFired
+					// Use untrack to prevent reactive dependencies in callback
+					untrack(() => {
+						if (entries[0].isIntersecting && !loadingMore && hasMore) {
+							loadMoreShows();
+						}
 					});
-					if (entries[0].isIntersecting && !loadingMore && hasMore) {
-						debugInfo.loadTriggered++;
-						console.log('[InfiniteScroll] Loading more shows...');
-						loadMoreShows();
-					}
 				},
 				{
-					root: scrollContainer,
-					rootMargin: '500px'
+					root: mobileScrollContainer,
+					rootMargin: '2000px',
+					threshold: [0, 0.1, 1.0]
 				}
 			);
-			observer.observe(loadTrigger);
+			observer.observe(mobileLoadTrigger);
 
-			return () => observer.disconnect();
+			return () => {
+				observer.disconnect();
+			};
 		}
 	});
 
-	// Setup Intersection Observer for loading past shows (bidirectional scroll)
+	// Setup infinite scroll with IntersectionObserver for desktop
 	$effect(() => {
-		if (!monitorMode && topLoadTrigger && scrollContainer) {
+		if (!monitorMode && desktopScrollContainer && desktopLoadTrigger && !loading) {
 			const observer = new IntersectionObserver(
 				(entries) => {
-					if (entries[0].isIntersecting && !loadingMore && hasPastShows) {
-						loadPastShows();
-					}
+					// Use untrack to prevent reactive dependencies in callback
+					untrack(() => {
+						if (entries[0].isIntersecting && !loadingMore && hasMore) {
+							loadMoreShows();
+						}
+					});
 				},
 				{
-					root: scrollContainer,
-					rootMargin: '500px'
+					root: desktopScrollContainer,
+					rootMargin: '2000px',
+					threshold: [0, 0.1, 1.0]
 				}
 			);
-			observer.observe(topLoadTrigger);
+			observer.observe(desktopLoadTrigger);
 
 			return () => {
+				observer.disconnect();
+			};
+		}
+	});
+
+
+	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
+	$effect(() => {
+		if (!monitorMode && mobileTopLoadTrigger && mobileScrollContainer) {
+			let lastScrollTop = mobileScrollContainer.scrollTop;
+			let isScrollingUp = false;
+
+			// Track scroll direction continuously
+			const handleScroll = () => {
+				const currentScrollTop = mobileScrollContainer?.scrollTop || 0;
+				isScrollingUp = currentScrollTop < lastScrollTop;
+				lastScrollTop = currentScrollTop;
+			};
+
+			mobileScrollContainer.addEventListener('scroll', handleScroll);
+
+			const observer = new IntersectionObserver(
+				(entries) => {
+					untrack(() => {
+						// Only load when scrolling UP (not down)
+						if (entries[0].isIntersecting && isScrollingUp && !loadingMore && hasPastShows) {
+							loadPastShows();
+						}
+					});
+				},
+				{
+					root: mobileScrollContainer,
+					rootMargin: '10px',
+					threshold: [0, 0.1, 1.0]
+				}
+			);
+			observer.observe(mobileTopLoadTrigger);
+
+			return () => {
+				mobileScrollContainer?.removeEventListener('scroll', handleScroll);
+				observer.disconnect();
+			};
+		}
+	});
+
+	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Desktop
+	$effect(() => {
+		if (!monitorMode && desktopTopLoadTrigger && desktopScrollContainer) {
+			let lastScrollTop = desktopScrollContainer.scrollTop;
+			let isScrollingUp = false;
+
+			// Track scroll direction continuously
+			const handleScroll = () => {
+				const currentScrollTop = desktopScrollContainer?.scrollTop || 0;
+				isScrollingUp = currentScrollTop < lastScrollTop;
+				lastScrollTop = currentScrollTop;
+			};
+
+			desktopScrollContainer.addEventListener('scroll', handleScroll);
+
+			const observer = new IntersectionObserver(
+				(entries) => {
+					untrack(() => {
+						// Only load when scrolling UP (not down)
+						if (entries[0].isIntersecting && isScrollingUp && !loadingMore && hasPastShows) {
+							loadPastShows();
+						}
+					});
+				},
+				{
+					root: desktopScrollContainer,
+					rootMargin: '10px',
+					threshold: [0, 0.1, 1.0]
+				}
+			);
+			observer.observe(desktopTopLoadTrigger);
+
+			return () => {
+				desktopScrollContainer?.removeEventListener('scroll', handleScroll);
 				observer.disconnect();
 			};
 		}
@@ -333,6 +466,7 @@
 				consecutiveEmptyChunks = 0;
 				hasMore = true;
 				hasPastShows = true;
+				lastLoadedDate = null;
 
 				// Reload shows for manual mode (14 forward, 7 back)
 				fetchShowsFromDB(14, 7).then((newShows) => {
@@ -746,12 +880,13 @@
 						{canGoPrev}
 						{canGoNext}
 						{weekOffset}
+						{monitorMode}
 						on:openMenu={() => (mobileNavOpen = true)}
 						on:prev={prevWeek}
 						on:next={nextWeek}
 						on:today={goToToday}
 					/>
-					<main class="relative z-10 flex-1 overflow-hidden px-3 py-3">
+					<main class="relative z-10 flex-1 min-h-0 px-3 py-3">
 						<ShowsColumn
 							{groupedShows}
 							{loading}
@@ -768,12 +903,12 @@
 							isCurrentWeek={true}
 							{loadingMore}
 							{hasMore}
-							bind:loadTrigger
+							bind:loadTrigger={mobileLoadTrigger}
 							{hasPastShows}
-							bind:topLoadTrigger
+							bind:topLoadTrigger={mobileTopLoadTrigger}
 							{pastDaysLoaded}
 							bind:visibleShowIds
-							bind:scrollContainer
+							bind:scrollContainer={mobileScrollContainer}
 						/>
 					</main>
 				</div>
@@ -891,6 +1026,7 @@
 					{canGoPrev}
 					{canGoNext}
 					{weekOffset}
+					{monitorMode}
 					on:openMenu={() => (mobileNavOpen = true)}
 					on:prev={prevWeek}
 					on:next={nextWeek}
@@ -919,12 +1055,12 @@
 								isCurrentWeek={true}
 								{loadingMore}
 								{hasMore}
-								bind:loadTrigger
+								bind:loadTrigger={mobileLoadTrigger}
 								{hasPastShows}
-								bind:topLoadTrigger
+								bind:topLoadTrigger={mobileTopLoadTrigger}
 								{pastDaysLoaded}
 								bind:visibleShowIds
-								bind:scrollContainer
+								bind:scrollContainer={mobileScrollContainer}
 							/>
 						</div>
 					{/key}
@@ -951,71 +1087,45 @@
 					on:today={goToToday}
 					on:toggleMonitor={toggleMonitorMode}
 				/>
-				<!-- Shows column with transition -->
-				<div class="relative overflow-hidden">
-					{#key weekOffset}
-						<div
-							in:fly={{ x: direction > 0 ? 100 : -100, duration: 200, easing: cubicOut }}
-							out:fade={{ duration: 100 }}
-							class="absolute inset-0"
-						>
-							<ShowsColumn
-								{groupedShows}
-								{loading}
-								{error}
-								{dayHeadingClass}
-								{timeClass}
-								{titleClass}
-								{highlightedShowIds}
-								{theme}
-								{monitorMode}
-								{pastShowIds}
-								{firstUpcomingShowId}
-								isCurrentWeek={true}
-								{loadingMore}
-								{hasMore}
-								bind:loadTrigger
-								{hasPastShows}
-								bind:topLoadTrigger
-								{pastDaysLoaded}
-								bind:visibleShowIds
-								bind:scrollContainer
-							/>
-						</div>
-					{/key}
+				<!-- Shows column (no transition in manual mode - persistent for infinite scroll) -->
+				<div class="relative h-full overflow-hidden">
+					<ShowsColumn
+						{groupedShows}
+						{loading}
+						{error}
+						{dayHeadingClass}
+						{timeClass}
+						{titleClass}
+						{highlightedShowIds}
+						{theme}
+						{monitorMode}
+						{pastShowIds}
+						{firstUpcomingShowId}
+						isCurrentWeek={true}
+						{loadingMore}
+						{hasMore}
+						bind:loadTrigger={desktopLoadTrigger}
+						{hasPastShows}
+						bind:topLoadTrigger={desktopTopLoadTrigger}
+						{pastDaysLoaded}
+						bind:visibleShowIds
+						bind:scrollContainer={desktopScrollContainer}
+					/>
 				</div>
-				<!-- Images column with transition -->
-				<div class="relative overflow-hidden">
-					{#key weekOffset}
-						<div
-							in:fly={{ x: direction > 0 ? 100 : -100, duration: 200, easing: cubicOut }}
-							out:fade={{ duration: 100 }}
-							class="absolute inset-0"
-						>
-							<ImagesColumn
-								{nextShow}
-								shows={weekShows}
-								nextShowId={nextShow?.id}
-								{theme}
-								{isPastWeek}
-								{visibleShowIds}
-								{monitorMode}
-							/>
-						</div>
-					{/key}
+				<!-- Images column (no transition in manual mode - persistent for smooth poster updates) -->
+				<div class="relative h-full overflow-hidden">
+					<ImagesColumn
+						{nextShow}
+						shows={weekShows}
+						nextShowId={nextShow?.id}
+						{theme}
+						{isPastWeek}
+						{visibleShowIds}
+						{monitorMode}
+					/>
 				</div>
 			</main>
 		</div>
 	{/if}
 
-<!-- Debug Overlay -->
-<div class="fixed bottom-2 left-2 z-50 rounded bg-black/90 p-2 text-xs text-white font-mono">
-	<div>Observer Setup: {debugInfo.observerSetup ? '✓' : '✗'}</div>
-	<div>Observer Fired: {debugInfo.observerFired}x</div>
-	<div>Load Triggered: {debugInfo.loadTriggered}x</div>
-	<div>IsIntersecting: {debugInfo.isIntersecting ? 'YES' : 'NO'}</div>
-	<div>LoadingMore: {loadingMore ? 'YES' : 'NO'}</div>
-	<div>HasMore: {hasMore ? 'YES' : 'NO'}</div>
-	<div>DisplayedDays: {displayedDays}</div>
-</div>
 </div>

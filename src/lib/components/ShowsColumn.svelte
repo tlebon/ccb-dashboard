@@ -309,6 +309,7 @@
 			!monitorMode &&
 			scrollContainer &&
 			!loading &&
+			!loadingMore && // Don't auto-scroll during infinite scroll loads
 			isCurrentWeek &&
 			firstUpcomingShowId !== lastScrolledForShowId
 		) {
@@ -544,9 +545,9 @@
 
 	<section
 		bind:this={scrollContainer}
-		onscroll={handleScrollWithSnap}
+		onscroll={handleScroll}
 		class="reveal-up max-h-full space-y-3 overflow-x-hidden overflow-y-auto pr-2 transition-opacity delay-200 duration-200"
-		style="opacity: {contentVisible ? 1 : 0}"
+		style="opacity: {contentVisible ? 1 : 0}; scrollbar-width: none; -ms-overflow-style: none;"
 	>
 		{#if loading}
 			<p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">
@@ -697,3 +698,10 @@
 		{/if}
 	</section>
 </div>
+
+<style>
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	section::-webkit-scrollbar {
+		display: none;
+	}
+</style>
