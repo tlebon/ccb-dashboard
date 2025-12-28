@@ -5,6 +5,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { fetchShowsFromDB, type Show } from '$lib/utils/icalParser';
+	import { createScrollDirectionTracker, createScrollObserver } from '$lib/utils/scrollObserver';
 	import BrandingColumn from '$lib/components/BrandingColumn.svelte';
 	import ShowsColumn from '$lib/components/ShowsColumn.svelte';
 	import ImagesColumn from '$lib/components/ImagesColumn.svelte';
@@ -311,25 +312,23 @@
 		}
 	});
 
-	// Setup infinite scroll with IntersectionObserver for mobile
+	// Setup infinite scroll with IntersectionObserver for mobile (scroll down to load future shows)
+	// rootMargin: 2000px = start loading when user is 2000px away from bottom
+	// This creates a smooth infinite scroll experience by preloading before user reaches the end
 	$effect(() => {
 		if (!monitorMode && mobileScrollContainer && mobileLoadTrigger && !loading) {
-			const observer = new IntersectionObserver(
-				(entries) => {
-					// Use untrack to prevent reactive dependencies in callback
+			const observer = createScrollObserver(
+				mobileLoadTrigger,
+				mobileScrollContainer,
+				() => {
 					untrack(() => {
-						if (entries[0].isIntersecting && !loadingMore && hasMore) {
+						if (!loadingMore && hasMore) {
 							loadMoreShows();
 						}
 					});
 				},
-				{
-					root: mobileScrollContainer,
-					rootMargin: '2000px',
-					threshold: [0, 0.1, 1.0]
-				}
+				'2000px' // Preload distance before trigger
 			);
-			observer.observe(mobileLoadTrigger);
 
 			return () => {
 				observer.disconnect();
@@ -337,25 +336,23 @@
 		}
 	});
 
-	// Setup infinite scroll with IntersectionObserver for desktop
+	// Setup infinite scroll with IntersectionObserver for desktop (scroll down to load future shows)
+	// rootMargin: 2000px = start loading when user is 2000px away from bottom
+	// This creates a smooth infinite scroll experience by preloading before user reaches the end
 	$effect(() => {
 		if (!monitorMode && desktopScrollContainer && desktopLoadTrigger && !loading) {
-			const observer = new IntersectionObserver(
-				(entries) => {
-					// Use untrack to prevent reactive dependencies in callback
+			const observer = createScrollObserver(
+				desktopLoadTrigger,
+				desktopScrollContainer,
+				() => {
 					untrack(() => {
-						if (entries[0].isIntersecting && !loadingMore && hasMore) {
+						if (!loadingMore && hasMore) {
 							loadMoreShows();
 						}
 					});
 				},
-				{
-					root: desktopScrollContainer,
-					rootMargin: '2000px',
-					threshold: [0, 0.1, 1.0]
-				}
+				'2000px' // Preload distance before trigger
 			);
-			observer.observe(desktopLoadTrigger);
 
 			return () => {
 				observer.disconnect();
@@ -364,78 +361,58 @@
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
+	// rootMargin: 10px = small margin to avoid false triggers when scrolling down
+	// Scroll direction tracking ensures we only load when user intentionally scrolls up
 	$effect(() => {
 		if (!monitorMode && mobileTopLoadTrigger && mobileScrollContainer) {
-			let lastScrollTop = mobileScrollContainer.scrollTop;
-			let isScrollingUp = false;
+			const scrollTracker = createScrollDirectionTracker(mobileScrollContainer);
+			mobileScrollContainer.addEventListener('scroll', scrollTracker.handleScroll);
 
-			// Track scroll direction continuously
-			const handleScroll = () => {
-				const currentScrollTop = mobileScrollContainer?.scrollTop || 0;
-				isScrollingUp = currentScrollTop < lastScrollTop;
-				lastScrollTop = currentScrollTop;
-			};
-
-			mobileScrollContainer.addEventListener('scroll', handleScroll);
-
-			const observer = new IntersectionObserver(
-				(entries) => {
+			const observer = createScrollObserver(
+				mobileTopLoadTrigger,
+				mobileScrollContainer,
+				() => {
 					untrack(() => {
 						// Only load when scrolling UP (not down)
-						if (entries[0].isIntersecting && isScrollingUp && !loadingMore && hasPastShows) {
+						if (scrollTracker.getDirection() && !loadingMore && hasPastShows) {
 							loadPastShows();
 						}
 					});
 				},
-				{
-					root: mobileScrollContainer,
-					rootMargin: '10px',
-					threshold: [0, 0.1, 1.0]
-				}
+				'10px' // Small margin to avoid false triggers
 			);
-			observer.observe(mobileTopLoadTrigger);
 
 			return () => {
-				mobileScrollContainer?.removeEventListener('scroll', handleScroll);
+				mobileScrollContainer?.removeEventListener('scroll', scrollTracker.handleScroll);
 				observer.disconnect();
 			};
 		}
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Desktop
+	// rootMargin: 10px = small margin to avoid false triggers when scrolling down
+	// Scroll direction tracking ensures we only load when user intentionally scrolls up
 	$effect(() => {
 		if (!monitorMode && desktopTopLoadTrigger && desktopScrollContainer) {
-			let lastScrollTop = desktopScrollContainer.scrollTop;
-			let isScrollingUp = false;
+			const scrollTracker = createScrollDirectionTracker(desktopScrollContainer);
+			desktopScrollContainer.addEventListener('scroll', scrollTracker.handleScroll);
 
-			// Track scroll direction continuously
-			const handleScroll = () => {
-				const currentScrollTop = desktopScrollContainer?.scrollTop || 0;
-				isScrollingUp = currentScrollTop < lastScrollTop;
-				lastScrollTop = currentScrollTop;
-			};
-
-			desktopScrollContainer.addEventListener('scroll', handleScroll);
-
-			const observer = new IntersectionObserver(
-				(entries) => {
+			const observer = createScrollObserver(
+				desktopTopLoadTrigger,
+				desktopScrollContainer,
+				() => {
 					untrack(() => {
 						// Only load when scrolling UP (not down)
-						if (entries[0].isIntersecting && isScrollingUp && !loadingMore && hasPastShows) {
+						if (scrollTracker.getDirection() && !loadingMore && hasPastShows) {
 							loadPastShows();
 						}
 					});
 				},
-				{
-					root: desktopScrollContainer,
-					rootMargin: '10px',
-					threshold: [0, 0.1, 1.0]
-				}
+				'10px' // Small margin to avoid false triggers
 			);
-			observer.observe(desktopTopLoadTrigger);
 
 			return () => {
-				desktopScrollContainer?.removeEventListener('scroll', handleScroll);
+				desktopScrollContainer?.removeEventListener('scroll', scrollTracker.handleScroll);
 				observer.disconnect();
 			};
 		}

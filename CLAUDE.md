@@ -123,6 +123,85 @@ vi.mock('@vercel/blob', () => ({
 }));
 ```
 
+### Manual Browser Testing with Playwright
+
+For complex UI behaviors that are difficult to test with Vitest (like infinite scroll, scroll position, animations), use Playwright for browser automation testing.
+
+**Installation:**
+
+Playwright is included in devDependencies. No additional setup needed.
+
+**Writing Playwright Test Scripts:**
+
+Create standalone `.mjs` scripts for manual testing scenarios. These are debugging tools, NOT automated tests.
+
+**Example: Testing Infinite Scroll**
+
+```javascript
+// test-scroll-behavior.mjs
+import { chromium } from 'playwright';
+
+const browser = await chromium.launch({ headless: false });
+const page = await browser.newPage();
+await page.goto('http://localhost:5173');
+
+// Wait for initial load
+await page.waitForTimeout(2000);
+
+// Test scroll down (load future shows)
+console.log('=== Testing scroll down ===');
+const scrollContainer = await page.locator('.shows-column-container').first();
+await scrollContainer.evaluate(el => el.scrollTop = el.scrollHeight);
+await page.waitForTimeout(1000);
+
+// Test scroll up (load past shows)
+console.log('=== Testing scroll up ===');
+await scrollContainer.evaluate(el => el.scrollTop = 0);
+await page.waitForTimeout(1000);
+
+// Capture state
+const state = await page.evaluate(() => ({
+	scrollTop: document.querySelector('.shows-column-container').scrollTop,
+	showCount: document.querySelectorAll('[data-day-shows]').length
+}));
+console.log('Final state:', state);
+
+await browser.close();
+```
+
+**Running Playwright Tests:**
+
+```bash
+# Start dev server first
+pnpm dev
+
+# In another terminal, run your test script
+node test-scroll-behavior.mjs
+```
+
+**Common Testing Patterns:**
+
+- **Scroll position verification**: Check `scrollTop` before/after operations
+- **DOM state inspection**: Count elements, verify visibility
+- **Animation verification**: Wait for transitions, check computed styles
+- **Event simulation**: Scroll, click, touch events
+- **Console logging**: Capture browser console output with `page.on('console')`
+
+**When to Use Playwright:**
+
+- Testing scroll behavior and infinite scroll
+- Verifying visual regressions
+- Testing touch interactions on mobile
+- Debugging IntersectionObserver issues
+- Checking animation timing and transitions
+
+**Important Notes:**
+
+- Playwright scripts are for manual testing/debugging only
+- Do NOT commit Playwright scripts to the repository
+- Use for one-off debugging, then delete when done
+- For automated tests, use Vitest with `@testing-library/svelte`
+
 ## Key Data Files
 
 - `src/lib/utils/houseShowTeams.ts` - House team rotation logic (which teams perform which Fridays)
