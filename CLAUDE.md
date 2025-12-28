@@ -151,12 +151,12 @@ await page.waitForTimeout(2000);
 // Test scroll down (load future shows)
 console.log('=== Testing scroll down ===');
 const scrollContainer = await page.locator('.shows-column-container').first();
-await scrollContainer.evaluate(el => el.scrollTop = el.scrollHeight);
+await scrollContainer.evaluate((el) => (el.scrollTop = el.scrollHeight));
 await page.waitForTimeout(1000);
 
 // Test scroll up (load past shows)
 console.log('=== Testing scroll up ===');
-await scrollContainer.evaluate(el => el.scrollTop = 0);
+await scrollContainer.evaluate((el) => (el.scrollTop = 0));
 await page.waitForTimeout(1000);
 
 // Capture state

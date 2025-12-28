@@ -99,7 +99,9 @@ describe('createScrollObserver', () => {
 				this.options = options;
 				this.root = options.root || null;
 				this.rootMargin = options.rootMargin || '0px';
-				this.thresholds = Array.isArray(options.threshold) ? options.threshold : [options.threshold || 0];
+				this.thresholds = Array.isArray(options.threshold)
+					? options.threshold
+					: [options.threshold || 0];
 			}
 		} as any;
 	});
@@ -143,7 +145,7 @@ describe('createScrollObserver', () => {
 		createScrollObserver(trigger, container, callback);
 
 		// Wait for async callback
-		await new Promise(resolve => setTimeout(resolve, 10));
+		await new Promise((resolve) => setTimeout(resolve, 10));
 
 		expect(callback).toHaveBeenCalled();
 	});
