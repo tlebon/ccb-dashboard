@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
 	getFridayOfMonth,
 	getHouseShowTeams,
@@ -106,9 +106,8 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should handle edge case: exact start date for Handshake', () => {
-			const _teams = getHouseShowTeams('2025-01-01'); // Start date (Wednesday)
-			// This is a Wednesday, so would need to be 1st or 4th Friday to include Handshake
 			// Jan 1, 2025 is a Wednesday (not a Friday)
+			// This test verifies the date math for determining Friday of month
 			const fridayOfMonth = Math.ceil(1 / 7); // 1
 			expect(fridayOfMonth).toBe(1);
 		});
@@ -208,6 +207,10 @@ describe('houseShowTeams', () => {
 	});
 
 	describe('getUpcomingHouseShowDates', () => {
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
 		it('should return 5 upcoming dates for Brace Brace by default', () => {
 			const dates = getUpcomingHouseShowDates('brace-brace');
 			expect(dates).toHaveLength(5);
@@ -225,6 +228,9 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should return correct number based on count parameter', () => {
+			// Use a fixed date to avoid flakiness as time passes
+			vi.setSystemTime(new Date('2025-01-01'));
+
 			expect(getUpcomingHouseShowDates('thunderclap', 3)).toHaveLength(3);
 			expect(getUpcomingHouseShowDates('handshake', 10)).toHaveLength(10);
 		});

@@ -1,6 +1,5 @@
 import { put, head, type PutCommandOptions } from '@vercel/blob';
 import { createHash } from 'crypto';
-import { env } from '$env/dynamic/private';
 
 /**
  * Generate a consistent blob path from an image URL

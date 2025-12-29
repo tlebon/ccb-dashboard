@@ -27,16 +27,6 @@
 		}
 	});
 
-	// Helper: Get Monday (start of week) for a given date
-	function getWeekStart(date: Date): Date {
-		const d = new Date(date);
-		d.setHours(0, 0, 0, 0);
-		const dayOfWeek = d.getDay(); // 0 (Sun) - 6 (Sat)
-		const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
-		d.setDate(d.getDate() - daysSinceMonday);
-		return d;
-	}
-
 	// Filter shows for next week only (Monday to Sunday after this week)
 	// Week definition: Monday = start, Sunday = end (shows run Wed-Sun)
 	function getNextWeekRange() {

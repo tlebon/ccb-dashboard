@@ -1,0 +1,28 @@
+#!/bin/bash
+# Pre-commit hook that runs tests, type check, and formatting
+# Install: ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Format code
+echo "📝 Running prettier..."
+pnpm prettier --write . --loglevel warn
+
+# Type check (Svelte)
+echo "🔍 Running Svelte type check..."
+pnpm check
+
+# Type check (TypeScript)
+echo "🔍 Running TypeScript check..."
+pnpm tsc --noEmit
+
+# Run tests
+echo "🧪 Running tests..."
+pnpm test
+
+# Add formatted files to staging
+git add -u
+
+echo "✅ All pre-commit checks passed!"

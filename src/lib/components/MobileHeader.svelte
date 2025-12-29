@@ -6,6 +6,7 @@
 	export let canGoPrev: boolean = false;
 	export let canGoNext: boolean = true;
 	export let weekOffset: number = 0;
+	export let monitorMode: boolean = false; // In manual nav mode (infinite scroll), hide week nav
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -45,60 +46,76 @@
 		<img src="/cropped-CCB-Logos_white_LG.png" alt="CCB" class="h-8 w-8 object-contain" />
 	</div>
 
-	<!-- Center: Week Label + Today button -->
-	<div class="flex flex-col items-center">
-		<div
-			class="text-center text-xs tracking-[0.2em] uppercase
+	<!-- Center: Week Label + Today button (only in monitor mode) -->
+	{#if monitorMode}
+		<div class="flex flex-col items-center">
+			<div
+				class="text-center text-xs tracking-[0.2em] uppercase
                 {theme === 'orange'
-				? 'text-[var(--nw-neon-yellow)]'
-				: 'text-[var(--tw-electric-cyan)]'}"
-			style="font-family: var(--font-mono);"
-		>
-			{weekLabel}
-		</div>
-		{#if weekOffset !== 0}
-			<button
-				on:click={() => dispatch('today')}
-				class="text-[9px] tracking-wider uppercase transition-all
-               {theme === 'orange'
-					? 'text-white/50 hover:text-[var(--nw-neon-yellow)]'
-					: 'text-white/50 hover:text-[var(--tw-electric-cyan)]'}"
+					? 'text-[var(--nw-neon-yellow)]'
+					: 'text-[var(--tw-electric-cyan)]'}"
 				style="font-family: var(--font-mono);"
 			>
-				↩ Today
-			</button>
-		{/if}
-	</div>
+				{weekLabel}
+			</div>
+			{#if weekOffset !== 0}
+				<button
+					on:click={() => dispatch('today')}
+					class="text-[9px] tracking-wider uppercase transition-all
+               {theme === 'orange'
+						? 'text-white/50 hover:text-[var(--nw-neon-yellow)]'
+						: 'text-white/50 hover:text-[var(--tw-electric-cyan)]'}"
+					style="font-family: var(--font-mono);"
+				>
+					↩ Today
+				</button>
+			{/if}
+		</div>
 
-	<!-- Right: Navigation Arrows -->
-	<div class="flex items-center gap-0">
-		<button
-			on:click={() => dispatch('prev')}
-			disabled={!canGoPrev}
-			class="flex h-10 w-10 items-center justify-center text-lg transition-all
+		<!-- Right: Navigation Arrows -->
+		<div class="flex items-center gap-0">
+			<button
+				on:click={() => dispatch('prev')}
+				disabled={!canGoPrev}
+				class="flex h-10 w-10 items-center justify-center text-lg transition-all
              {canGoPrev
-				? theme === 'orange'
-					? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
-					: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'
-				: 'cursor-not-allowed text-white/20'}"
-			style="font-family: var(--font-mono);"
-			aria-label="Previous week"
-		>
-			←
-		</button>
-		<button
-			on:click={() => dispatch('next')}
-			disabled={!canGoNext}
-			class="flex h-10 w-10 items-center justify-center text-lg transition-all
+					? theme === 'orange'
+						? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
+						: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'
+					: 'cursor-not-allowed text-white/20'}"
+				style="font-family: var(--font-mono);"
+				aria-label="Previous week"
+			>
+				←
+			</button>
+			<button
+				on:click={() => dispatch('next')}
+				disabled={!canGoNext}
+				class="flex h-10 w-10 items-center justify-center text-lg transition-all
              {canGoNext
-				? theme === 'orange'
-					? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
-					: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'
-				: 'cursor-not-allowed text-white/20'}"
-			style="font-family: var(--font-mono);"
-			aria-label="Next week"
-		>
-			→
-		</button>
-	</div>
+					? theme === 'orange'
+						? 'text-[var(--nw-neon-yellow)] hover:bg-[var(--nw-neon-yellow)]/10'
+						: 'text-[var(--tw-electric-cyan)] hover:bg-[var(--tw-electric-cyan)]/10'
+					: 'cursor-not-allowed text-white/20'}"
+				style="font-family: var(--font-mono);"
+				aria-label="Next week"
+			>
+				→
+			</button>
+		</div>
+	{:else}
+		<!-- Manual nav mode: show title -->
+		<div class="flex flex-1 items-center justify-center">
+			<div
+				class="neon-glow text-center font-bold tracking-[0.12em] uppercase
+                {theme === 'orange'
+					? 'text-[var(--nw-neon-yellow)]'
+					: 'text-[var(--tw-electric-cyan)]'}"
+				style="font-family: var(--font-display); font-size: 14px; letter-spacing: 0.15em;"
+			>
+				CCB Dashboard
+			</div>
+		</div>
+		<div class="w-10"></div>
+	{/if}
 </header>

@@ -560,7 +560,7 @@
 			</div>
 		{:else if modalOpen === 'teamOverlap'}
 			<div class="space-y-4">
-				{#each data.teamPairings as pairing, i}
+				{#each data.teamPairings as pairing}
 					{@const width = (pairing.sharedMembers / maxSharedMembers) * 100}
 					<div class="group">
 						<div class="mb-1 flex items-center justify-between">

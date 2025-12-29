@@ -70,11 +70,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		const days = daysParam ? parseInt(daysParam, 10) : 14;
 		const pastDays = pastDaysParam ? parseInt(pastDaysParam, 10) : 0;
 
-		// Get current date in YYYY-MM-DD format
-		const today = new Date();
-		const todayStr = today.toISOString().split('T')[0];
-
 		// Calculate start date
+		const today = new Date();
 		let startDate: Date;
 		if (startDateParam) {
 			// Validate startDate format (YYYY-MM-DD) and bounds

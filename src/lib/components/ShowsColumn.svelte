@@ -295,6 +295,7 @@
 			}, CONTENT_VISIBILITY_FALLBACK_MS);
 			return () => clearTimeout(timeout);
 		}
+		return undefined;
 	});
 
 	// Track when we should scroll - once per data load
@@ -309,6 +310,7 @@
 			!monitorMode &&
 			scrollContainer &&
 			!loading &&
+			!loadingMore && // Don't auto-scroll during infinite scroll loads
 			isCurrentWeek &&
 			firstUpcomingShowId !== lastScrolledForShowId
 		) {
@@ -338,11 +340,6 @@
 		proximityAbove: 80,
 		proximityBelow: 100
 	});
-
-	function handleScrollWithSnap() {
-		handleScroll();
-		scrollSnap.onScroll();
-	}
 
 	onMount(() => {
 		setTimeout(checkOverflow, 500);
@@ -425,6 +422,7 @@
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
 						// Add reveal-up class when element enters viewport
+						// The animation will handle opacity transition from 0 to 1
 						entry.target.classList.add('reveal-up');
 						// Unobserve after animating (one-time animation)
 						observer.unobserve(entry.target);
@@ -543,9 +541,9 @@
 
 	<section
 		bind:this={scrollContainer}
-		onscroll={handleScrollWithSnap}
+		onscroll={handleScroll}
 		class="reveal-up max-h-full space-y-3 overflow-x-hidden overflow-y-auto pr-2 transition-opacity delay-200 duration-200"
-		style="opacity: {contentVisible ? 1 : 0}"
+		style="opacity: {contentVisible ? 1 : 0}; scrollbar-width: none; -ms-overflow-style: none;"
 	>
 		{#if loading}
 			<p class="text-center text-xl font-bold text-white" style="font-family: var(--font-display);">
@@ -578,10 +576,11 @@
 				<div bind:this={topLoadTrigger} class="h-1 opacity-0" data-load-trigger-top="true"></div>
 			{/if}
 
-			{#each groupedShows as week, weekIndex (week.weekLabel)}
-				{#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
+			{#each groupedShows as week (week.weekLabel)}
+				{#each Object.entries(week.days) as [day, dayShows] (day)}
 					{@const dayShowIds = dayShows.map((s) => s.id)}
-					<div style="opacity: 0;" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
+					<!-- md:opacity-0 only on desktop - animations were breaking on mobile -->
+					<div class="md:opacity-0" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
 						<!-- Day heading with brutalist style -->
 						<div class="relative mb-2">
 							<h2
@@ -603,7 +602,7 @@
 
 						<!-- Shows list -->
 						<ul class="space-y-1.5">
-							{#each dayShows as show, j (show.id)}
+							{#each dayShows as show (show.id)}
 								{@const isHighlighted = highlightedShowIds.includes(show.id)}
 								{@const isPast = pastShowIds.includes(show.id)}
 								<li class="group" data-show-id={show.id}>
@@ -696,3 +695,10 @@
 		{/if}
 	</section>
 </div>
+
+<style>
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	section::-webkit-scrollbar {
+		display: none;
+	}
+</style>

@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { proxyImageUrl } from '$lib/utils/imageProxy';
-	import { isHouseShow, getHouseShowTeams, type HouseTeam } from '$lib/utils/houseShowTeams';
+	import { isHouseShow, getHouseShowTeams } from '$lib/utils/houseShowTeams';
 	import { safeLinkifyText } from '$lib/utils/linkify';
 	import { parsePerformersFromDescription } from '$lib/utils/parsePerformers';
 	import QuickNav from '$lib/components/QuickNav.svelte';

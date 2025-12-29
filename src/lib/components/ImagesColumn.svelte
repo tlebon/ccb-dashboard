@@ -12,12 +12,35 @@
 	export let monitorMode: boolean = false; // In monitor mode, don't filter carousel
 	import ShowCarousel from './ShowCarousel.svelte';
 
-	// Filter carousel shows to only visible shows in manual mode
-	$: carouselShows = monitorMode
-		? shows // Monitor mode: show all shows
-		: visibleShowIds.length === 0
-			? shows.filter((show) => new Date(show.start) > new Date()) // No tracking yet: show only upcoming shows
-			: shows.filter((show) => visibleShowIds.includes(show.id)); // Manual mode: show only visible shows
+	// Memoization prevents poster flickering during infinite scroll
+	// Problem: When prepending past shows, 'shows' array ref changes but visibleShowIds doesn't
+	// Solution: Only recalculate when visibleShowIds actually changes (value comparison, not ref)
+	// Note: Cannot use $derived.by() because it would still react to 'shows' changes
+	// This manual approach only depends on visibleShowIds values, ignoring shows array ref
+	let prevVisibleShowIdsSet: Set<string> = new Set();
+	let cachedCarouselShows: Show[] = [];
+
+	$: {
+		// Check if visibleShowIds values changed (order-independent comparison using Set)
+		const currentSet = new Set(visibleShowIds);
+		const idsChanged =
+			currentSet.size !== prevVisibleShowIdsSet.size ||
+			[...currentSet].some((id) => !prevVisibleShowIdsSet.has(id));
+
+		if (idsChanged) {
+			if (monitorMode) {
+				cachedCarouselShows = shows;
+			} else if (visibleShowIds.length === 0) {
+				cachedCarouselShows = shows.filter((show) => new Date(show.start) > new Date());
+			} else {
+				// Use Set for O(1) lookup instead of O(n) .includes()
+				cachedCarouselShows = shows.filter((show) => currentSet.has(show.id));
+			}
+			prevVisibleShowIdsSet = currentSet;
+		}
+	}
+
+	$: carouselShows = cachedCarouselShows;
 
 	// Format show title - add team names for House Show
 	function getDisplayTitle(show: Show): string {

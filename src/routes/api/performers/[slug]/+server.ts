@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getPerformerWithStats, getPerformerBySlug, getPerformerTeams } from '$lib/db';
+import { getPerformerWithStats, getPerformerTeams } from '$lib/db';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { slug } = params;
