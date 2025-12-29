@@ -15,6 +15,8 @@
 	// Memoization prevents poster flickering during infinite scroll
 	// Problem: When prepending past shows, 'shows' array ref changes but visibleShowIds doesn't
 	// Solution: Only recalculate when visibleShowIds actually changes (value comparison, not ref)
+	// Note: Cannot use $derived.by() because it would still react to 'shows' changes
+	// This manual approach only depends on visibleShowIds values, ignoring shows array ref
 	let prevVisibleShowIds: string[] = [];
 	let cachedCarouselShows: Show[] = [];
 

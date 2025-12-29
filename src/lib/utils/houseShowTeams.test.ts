@@ -208,6 +208,10 @@ describe('houseShowTeams', () => {
 	});
 
 	describe('getUpcomingHouseShowDates', () => {
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
 		it('should return 5 upcoming dates for Brace Brace by default', () => {
 			const dates = getUpcomingHouseShowDates('brace-brace');
 			expect(dates).toHaveLength(5);
@@ -230,8 +234,6 @@ describe('houseShowTeams', () => {
 
 			expect(getUpcomingHouseShowDates('thunderclap', 3)).toHaveLength(3);
 			expect(getUpcomingHouseShowDates('handshake', 10)).toHaveLength(10);
-
-			vi.useRealTimers();
 		});
 
 		it('should return dates in chronological order', () => {
