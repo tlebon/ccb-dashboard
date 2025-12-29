@@ -295,6 +295,7 @@
 			}, CONTENT_VISIBILITY_FALLBACK_MS);
 			return () => clearTimeout(timeout);
 		}
+		return undefined;
 	});
 
 	// Track when we should scroll - once per data load
@@ -339,11 +340,6 @@
 		proximityAbove: 80,
 		proximityBelow: 100
 	});
-
-	function handleScrollWithSnap() {
-		handleScroll();
-		scrollSnap.onScroll();
-	}
 
 	onMount(() => {
 		setTimeout(checkOverflow, 500);
@@ -580,8 +576,8 @@
 				<div bind:this={topLoadTrigger} class="h-1 opacity-0" data-load-trigger-top="true"></div>
 			{/if}
 
-			{#each groupedShows as week, weekIndex (week.weekLabel)}
-				{#each Object.entries(week.days) as [day, dayShows], dayIndex (day)}
+			{#each groupedShows as week (week.weekLabel)}
+				{#each Object.entries(week.days) as [day, dayShows] (day)}
 					{@const dayShowIds = dayShows.map((s) => s.id)}
 					<!-- md:opacity-0 only on desktop - animations were breaking on mobile -->
 					<div class="md:opacity-0" data-day-shows={dayShowIds.join(',')} data-day-key={day}>
@@ -606,7 +602,7 @@
 
 						<!-- Shows list -->
 						<ul class="space-y-1.5">
-							{#each dayShows as show, j (show.id)}
+							{#each dayShows as show (show.id)}
 								{@const isHighlighted = highlightedShowIds.includes(show.id)}
 								{@const isPast = pastShowIds.includes(show.id)}
 								<li class="group" data-show-id={show.id}>

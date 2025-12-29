@@ -15,7 +15,6 @@
 	let shows: Show[] = [];
 	let loading = true;
 	let error: string | null = null;
-	let logoError = false;
 
 	onMount(async () => {
 		try {

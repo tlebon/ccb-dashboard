@@ -3,7 +3,7 @@
 	import type { Show } from '$lib/utils/icalParser';
 	import { proxyImageUrl } from '$lib/utils/imageProxy';
 	import { isHouseShow, formatHouseShowTeams } from '$lib/utils/houseShowTeams';
-	import { fly, fade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 
 	export let shows: Show[] = [];

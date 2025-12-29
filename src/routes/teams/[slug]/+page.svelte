@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { getHouseTeamBySlug } from '$lib/utils/houseShowTeams';
 	import QuickNav from '$lib/components/QuickNav.svelte';

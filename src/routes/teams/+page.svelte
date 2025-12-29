@@ -16,7 +16,6 @@
 
 	let teams: Team[] = [];
 	let loading = true;
-	let filter: 'all' | 'house' | 'indie' | 'other' = 'all';
 
 	onMount(async () => {
 		const res = await fetch('/api/teams');
@@ -25,7 +24,6 @@
 		loading = false;
 	});
 
-	$: filteredTeams = filter === 'all' ? teams : teams.filter((t) => t.type === filter);
 	$: houseTeams = teams.filter((t) => t.type === 'house' && !t.is_retired);
 	$: retiredHouseTeams = teams.filter((t) => t.type === 'house' && t.is_retired);
 	$: indieTeams = teams.filter((t) => t.type === 'indie');
@@ -35,12 +33,6 @@
 		const date = new Date(dateStr);
 		return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 	}
-
-	const typeLabels: Record<string, string> = {
-		house: 'House Team',
-		indie: 'Indie Team',
-		other: 'Team'
-	};
 </script>
 
 <svelte:head>

@@ -17,14 +17,15 @@
 	// Solution: Only recalculate when visibleShowIds actually changes (value comparison, not ref)
 	// Note: Cannot use $derived.by() because it would still react to 'shows' changes
 	// This manual approach only depends on visibleShowIds values, ignoring shows array ref
-	let prevVisibleShowIds: string[] = [];
+	let prevVisibleShowIdsSet: Set<string> = new Set();
 	let cachedCarouselShows: Show[] = [];
 
 	$: {
-		// Check if visibleShowIds values changed (not just reference)
+		// Check if visibleShowIds values changed (order-independent comparison using Set)
+		const currentSet = new Set(visibleShowIds);
 		const idsChanged =
-			visibleShowIds.length !== prevVisibleShowIds.length ||
-			visibleShowIds.some((id, i) => id !== prevVisibleShowIds[i]);
+			currentSet.size !== prevVisibleShowIdsSet.size ||
+			[...currentSet].some((id) => !prevVisibleShowIdsSet.has(id));
 
 		if (idsChanged) {
 			if (monitorMode) {
@@ -32,9 +33,10 @@
 			} else if (visibleShowIds.length === 0) {
 				cachedCarouselShows = shows.filter((show) => new Date(show.start) > new Date());
 			} else {
-				cachedCarouselShows = shows.filter((show) => visibleShowIds.includes(show.id));
+				// Use Set for O(1) lookup instead of O(n) .includes()
+				cachedCarouselShows = shows.filter((show) => currentSet.has(show.id));
 			}
-			prevVisibleShowIds = [...visibleShowIds];
+			prevVisibleShowIdsSet = currentSet;
 		}
 	}
 

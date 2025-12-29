@@ -63,7 +63,6 @@
 	let initialTheme: 'blue' | 'orange' = Math.random() < 0.5 ? 'blue' : 'orange'; // Random theme on load
 	let monitorThemeOffset = $state(0); // Tracks theme rotation in monitor mode
 	let interval: ReturnType<typeof setInterval>;
-	let initialized = $state(false);
 
 	// Show data
 	let shows = $state<Show[]>([]);
@@ -105,7 +104,6 @@
 		if (!isNaN(parsed) && parsed >= MIN_WEEKS && parsed < MAX_WEEKS && parsed !== weekOffset) {
 			weekOffset = parsed;
 		}
-		initialized = true;
 	});
 
 	// Update URL when week changes (adds to browser history)
@@ -321,6 +319,7 @@
 				observer.disconnect();
 			};
 		}
+		return undefined;
 	});
 
 	// Setup infinite scroll with IntersectionObserver for desktop (scroll down to load future shows)
@@ -343,6 +342,7 @@
 				observer.disconnect();
 			};
 		}
+		return undefined;
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
@@ -371,6 +371,7 @@
 				observer.disconnect();
 			};
 		}
+		return undefined;
 	});
 
 	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Desktop
@@ -399,6 +400,7 @@
 				observer.disconnect();
 			};
 		}
+		return undefined;
 	});
 
 	onDestroy(() => {

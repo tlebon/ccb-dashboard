@@ -92,7 +92,7 @@
 
 			<!-- Performers list -->
 			<div class="grid grid-cols-1 gap-1 md:grid-cols-2 lg:grid-cols-3">
-				{#each displayPerformers as performer, i (performer.id)}
+				{#each displayPerformers as performer (performer.id)}
 					<a
 						href="/performers/{performer.slug}"
 						class="group flex flex-col gap-1 border-l-4 border-[var(--tw-electric-cyan)]/40 px-3 py-3

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getAllTeams, getTeamsByType, searchTeams } from '$lib/db';
+import { getTeamsByType, searchTeams } from '$lib/db';
 import { db } from '$lib/db/client';
 
 export const GET: RequestHandler = async ({ url }) => {

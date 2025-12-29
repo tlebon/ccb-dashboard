@@ -106,9 +106,8 @@ describe('houseShowTeams', () => {
 		});
 
 		it('should handle edge case: exact start date for Handshake', () => {
-			const _teams = getHouseShowTeams('2025-01-01'); // Start date (Wednesday)
-			// This is a Wednesday, so would need to be 1st or 4th Friday to include Handshake
 			// Jan 1, 2025 is a Wednesday (not a Friday)
+			// This test verifies the date math for determining Friday of month
 			const fridayOfMonth = Math.ceil(1 / 7); // 1
 			expect(fridayOfMonth).toBe(1);
 		});

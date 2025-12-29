@@ -65,12 +65,6 @@ export const GET: RequestHandler = async ({ url }) => {
 
 			return normalized;
 		}
-
-		// Get display title (preserves original casing from first occurrence)
-		function getDisplayTitle(normalizedKey: string, titleMap: Map<string, string>): string {
-			return titleMap.get(normalizedKey) || normalizedKey;
-		}
-
 		// Generate slug from title
 		function generateSlug(title: string): string {
 			return title
