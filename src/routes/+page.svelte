@@ -1,7 +1,9 @@
 <script lang="ts">
+	/**
+	 * CCB Dashboard - Main Home Page
+	 * Refactored to use Desktop/Mobile components with shared state management
+	 */
 	import { onMount, onDestroy, tick, untrack } from 'svelte';
-	import { fly, fade } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { fetchShowsFromDB, type Show } from '$lib/utils/icalParser';
@@ -11,93 +13,90 @@
 		INFINITE_SCROLL_PRELOAD_DISTANCE,
 		SCROLL_DIRECTION_MARGIN
 	} from '$lib/utils/scrollObserver';
-	import BrandingColumn from '$lib/components/BrandingColumn.svelte';
-	import ShowsColumn from '$lib/components/ShowsColumn.svelte';
-	import ImagesColumn from '$lib/components/ImagesColumn.svelte';
-	import MobileHeader from '$lib/components/MobileHeader.svelte';
+
+	// Phase 1 utilities
+	import {
+		getWeekRange,
+		findNextWeekWithShows,
+		findPrevWeekWithShows,
+		MAX_WEEKS,
+		MIN_WEEKS
+	} from '$lib/utils/weekCalculations';
+	import { groupShowsByWeek } from '$lib/utils/showGrouping';
+	import { getTheme, getResponsiveSizes, getLayoutStyle } from '$lib/utils/themeSizing';
+	import {
+		shouldLoadMore,
+		shouldLoadPast,
+		calculatePastDaysToLoad,
+		CHUNK_SIZE_DAYS,
+		MAX_LOAD_DAYS,
+		MAX_PAST_DAYS
+	} from '$lib/utils/infiniteScrollState';
+
+	// Components
 	import MobileNav from '$lib/components/MobileNav.svelte';
+	import MobileHomePage from '$lib/components/MobileHomePage.svelte';
+	import DesktopHomePage from '$lib/components/DesktopHomePage.svelte';
 
-	// Week grouping interface for infinite scroll animation
-	interface WeekGroup {
-		weekLabel: string;
-		startDate: Date;
-		days: Record<string, Show[]>;
-	}
+	// ============================================================================
+	// CONSTANTS
+	// ============================================================================
+	const ROTATE_MS = 30000; // Auto-rotate interval (30s)
+	const MAX_EMPTY_CHUNKS = 3; // Stop loading after 3 consecutive empty responses
+	const INITIAL_PAST_DAYS = 3; // Days of past shows to load initially
+	const INITIAL_FUTURE_DAYS = 21; // Days of future shows to load initially
+	const MONITOR_FUTURE_DAYS = 60; // Days ahead to load in monitor mode
+	const MONITOR_PAST_DAYS = 28; // Days back to load in monitor mode
 
-	let mobileNavOpen = false;
-
-	// Swipe gesture handling for mobile
-	let touchStartX = 0;
-	let touchStartY = 0;
-	const SWIPE_THRESHOLD = 50; // Minimum distance for swipe
-	const SWIPE_ANGLE_THRESHOLD = 30; // Max vertical movement to count as horizontal swipe
-
-	function handleTouchStart(e: TouchEvent) {
-		touchStartX = e.touches[0].clientX;
-		touchStartY = e.touches[0].clientY;
-	}
-
-	function handleTouchEnd(e: TouchEvent) {
-		const touchEndX = e.changedTouches[0].clientX;
-		const touchEndY = e.changedTouches[0].clientY;
-		const deltaX = touchEndX - touchStartX;
-		const deltaY = Math.abs(touchEndY - touchStartY);
-
-		// Only trigger if horizontal swipe and not too much vertical movement
-		if (Math.abs(deltaX) > SWIPE_THRESHOLD && deltaY < SWIPE_ANGLE_THRESHOLD) {
-			if (deltaX > 0 && canGoPrev) {
-				// Swipe right = previous week
-				prevWeek();
-			} else if (deltaX < 0 && canGoNext) {
-				// Swipe left = next week
-				nextWeek();
-			}
-		}
-	}
-
-	// Week offset: 0 = this week, 1 = next week, 2 = week after, etc.
+	// ============================================================================
+	// UI STATE
+	// ============================================================================
+	let mobileNavOpen = $state(false);
 	let weekOffset = $state(0);
 	let monitorMode = $state(false);
 	let direction = $state(1); // 1 = forward, -1 = backward (for animation)
-	let isManualNav = $state(true); // Track if navigation was manual (click) vs auto (monitor mode) - start true so first click is smooth
-	let initialTheme: 'blue' | 'orange' = Math.random() < 0.5 ? 'blue' : 'orange'; // Random theme on load
+	let isManualNav = $state(true); // Track if navigation was manual vs auto
+	let initialTheme: 'blue' | 'orange' = Math.random() < 0.5 ? 'blue' : 'orange';
 	let monitorThemeOffset = $state(0); // Tracks theme rotation in monitor mode
 	let interval: ReturnType<typeof setInterval>;
 
-	// Show data
+	// ============================================================================
+	// DATA & LOADING STATE
+	// ============================================================================
 	let shows = $state<Show[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	// Infinite scroll state (for manual mode only)
-	let displayedDays = $state(21); // Days loaded so far (matches initial load of 21 days)
+	// ============================================================================
+	// INFINITE SCROLL STATE (Manual Mode Only)
+	// ============================================================================
+	let displayedDays = $state(21); // Days loaded so far
 	let loadingMore = $state(false);
 	let hasMore = $state(true);
-	// Infinite scroll triggers - separate for mobile/desktop since they're different DOM elements
-	let mobileLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile bottom trigger
-	let desktopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop bottom trigger
-	let mobileTopLoadTrigger = $state<HTMLDivElement | null>(null); // Mobile top trigger
-	let desktopTopLoadTrigger = $state<HTMLDivElement | null>(null); // Desktop top trigger
 
-	// Scroll containers - separate for mobile/desktop since CSS shows only one at a time
+	// Infinite scroll triggers - separate for mobile/desktop
+	let mobileLoadTrigger = $state<HTMLDivElement | null>(null);
+	let desktopLoadTrigger = $state<HTMLDivElement | null>(null);
+	let mobileTopLoadTrigger = $state<HTMLDivElement | null>(null);
+	let desktopTopLoadTrigger = $state<HTMLDivElement | null>(null);
+
+	// Scroll containers - separate for mobile/desktop
 	let mobileScrollContainer = $state<HTMLElement | null>(null);
 	let desktopScrollContainer = $state<HTMLElement | null>(null);
 
 	let consecutiveEmptyChunks = $state(0); // Track empty responses to know when to stop
-	let lastLoadedDate = $state<string | null>(null); // Track last date we tried to load to prevent duplicates
+	let lastLoadedDate = $state<string | null>(null); // Prevent duplicate loads
 
 	// Bidirectional scroll state (past shows)
-	let pastDaysLoaded = $state(0); // How many days into past we've loaded
-	let hasPastShows = $state(true); // Whether more past shows exist
+	let pastDaysLoaded = $state(0);
+	let hasPastShows = $state(true);
 
-	// Viewport tracking for poster sync (manual mode only)
-	let visibleShowIds = $state<string[]>([]); // IDs of shows currently visible in viewport (populated by ShowsColumn)
+	// Viewport tracking for poster sync
+	let visibleShowIds = $state<string[]>([]);
 
-	const ROTATE_MS = 30000; // Auto-rotate interval
-	const MAX_WEEKS = 8; // Maximum weeks to show ahead
-	const MIN_WEEKS = -4; // Maximum weeks to show behind (negative = past)
-
-	// Sync week from URL (reacts to URL changes including back navigation)
+	// ============================================================================
+	// URL SYNC
+	// ============================================================================
 	$effect(() => {
 		const urlWeek = $page.url.searchParams.get('week');
 		const parsed = urlWeek ? parseInt(urlWeek, 10) : 0;
@@ -106,7 +105,6 @@
 		}
 	});
 
-	// Update URL when week changes (adds to browser history)
 	function updateUrl(week: number) {
 		const url = new URL(window.location.href);
 		if (week === 0) {
@@ -117,24 +115,13 @@
 		goto(url.pathname + url.search, { noScroll: true });
 	}
 
-	// Load more shows (for infinite scroll)
-	// Single loading lock to prevent concurrent array modifications from both directions
+	// ============================================================================
+	// DATA LOADING
+	// ============================================================================
 	let loadingPromise: Promise<void> | null = null;
 
-	// Infinite scroll constants
-	const CHUNK_SIZE_DAYS = 14; // Load shows in 14-day chunks
-	const MAX_LOAD_DAYS = 90; // Maximum days to load (stop after 90 days or 3 empty chunks)
-	const MAX_EMPTY_CHUNKS = 3; // Stop after 3 consecutive empty chunks
-	const MAX_PAST_DAYS = 28; // Load up to 4 weeks of past shows
-
-	// Initial load constants
-	const INITIAL_PAST_DAYS = 3; // Days of past shows to load initially
-	const INITIAL_FUTURE_DAYS = 21; // Days of future shows to load initially
-	const MONITOR_FUTURE_DAYS = 60; // Days ahead to load in monitor mode
-	const MONITOR_PAST_DAYS = 28; // Days back to load in monitor mode
-
 	async function loadMoreShows() {
-		if (loadingPromise || !hasMore || monitorMode) {
+		if (!shouldLoadMore(hasMore, loadingMore, monitorMode)) {
 			return;
 		}
 
@@ -142,25 +129,20 @@
 			try {
 				loadingMore = true;
 
-				// Calculate start date for next chunk based on the chronologically last show
-				// Use last show's date + 1 day to avoid gaps in schedule
-				let nextStartDate;
+				// Calculate start date for next chunk
+				let nextStartDate: Date;
 				if (shows.length > 0) {
-					// Shows are sorted chronologically (ORDER BY date, time from API)
-					// Last element is the chronologically latest show
 					const lastShow = shows[shows.length - 1];
 					nextStartDate = new Date(lastShow.start);
 					nextStartDate.setUTCHours(0, 0, 0, 0);
 					nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
 				} else {
-					// Fallback to today + displayedDays if no shows loaded yet
 					const today = new Date();
 					today.setHours(0, 0, 0, 0);
 					nextStartDate = new Date(today);
 					nextStartDate.setDate(today.getDate() + displayedDays);
 				}
 
-				// Guard: Don't load the same date twice
 				const nextStartDateStr = nextStartDate.toISOString().split('T')[0];
 				if (lastLoadedDate === nextStartDateStr) {
 					hasMore = false;
@@ -170,25 +152,20 @@
 				}
 				lastLoadedDate = nextStartDateStr;
 
-				// Load next chunk
-				const newShows = await fetchShowsFromDB(CHUNK_SIZE_DAYS, 0, nextStartDate);
+				const daysToLoad = CHUNK_SIZE_DAYS;
+				const newShows = await fetchShowsFromDB(daysToLoad, 0, nextStartDate);
 
-				// Always increment displayedDays, even if chunk is empty (to skip gaps)
-				displayedDays += CHUNK_SIZE_DAYS;
+				displayedDays += daysToLoad;
 
 				if (newShows.length === 0) {
 					consecutiveEmptyChunks += 1;
-					// Stop only after multiple consecutive empty chunks OR reaching max days
 					if (consecutiveEmptyChunks >= MAX_EMPTY_CHUNKS || displayedDays >= MAX_LOAD_DAYS) {
 						hasMore = false;
 					}
 				} else {
-					// Reset empty chunk counter when we find shows
 					consecutiveEmptyChunks = 0;
-					// Filter out any duplicates (by id) before appending
 					const existingIds = new Set(shows.map((s) => s.id));
 					const uniqueNewShows = newShows.filter((show) => !existingIds.has(show.id));
-					// Append new shows to existing list
 					shows = [...shows, ...uniqueNewShows];
 				}
 			} catch (e) {
@@ -202,9 +179,8 @@
 		await loadingPromise;
 	}
 
-	// Load past shows (for bidirectional scroll)
-	async function loadPastShows() {
-		if (loadingPromise || !hasPastShows || monitorMode) {
+	async function loadPastShows(isScrollingUp: boolean = true) {
+		if (!shouldLoadPast(hasPastShows, loadingMore, monitorMode, isScrollingUp)) {
 			return;
 		}
 
@@ -212,29 +188,24 @@
 			try {
 				loadingMore = true;
 
-				// Calculate how many more days we can load (cap at MAX_PAST_DAYS total)
-				const daysToLoad = Math.min(CHUNK_SIZE_DAYS, MAX_PAST_DAYS - pastDaysLoaded);
+				const daysToLoad = calculatePastDaysToLoad(pastDaysLoaded);
 
 				if (daysToLoad <= 0) {
 					hasPastShows = false;
 					return;
 				}
 
-				// Load next chunk of past shows
-				// pastDays parameter is how far back to START (current + days to load)
 				const startOffset = pastDaysLoaded + daysToLoad;
 				const pastShows = await fetchShowsFromDB(daysToLoad, startOffset);
 
 				pastDaysLoaded += daysToLoad;
 
 				if (pastShows.length === 0) {
-					// No shows found, but still mark as loaded to prevent infinite retries
 					if (pastDaysLoaded >= MAX_PAST_DAYS) {
 						hasPastShows = false;
 					}
 				} else {
-					// Determine which container is active (visible, not hidden by CSS)
-					// Check scrollHeight to see which one is actually being used
+					// Preserve scroll position when prepending shows
 					const activeContainer =
 						desktopScrollContainer && desktopScrollContainer.scrollHeight > 0
 							? desktopScrollContainer
@@ -245,22 +216,18 @@
 						return;
 					}
 
-					// Save current scroll position before prepending
 					const oldScrollHeight = activeContainer.scrollHeight;
 					const oldScrollTop = activeContainer.scrollTop;
 
-					// PREPEND past shows to beginning of array
 					shows = [...pastShows, ...shows];
 
-					// Await DOM update and immediately adjust scroll before browser paint
 					await tick();
 
-					// Adjust scroll FIRST before any other DOM queries
 					const newScrollHeight = activeContainer.scrollHeight;
 					const heightDifference = newScrollHeight - oldScrollHeight;
 					activeContainer.scrollTop = oldScrollTop + heightDifference;
 
-					// THEN add reveal-up class (this doesn't affect layout)
+					// Add reveal animation to prepended shows
 					const daySections = activeContainer.querySelectorAll('[data-day-shows]');
 					const prependedSectionCount = pastShows.length;
 					for (let i = 0; i < Math.min(prependedSectionCount, daySections.length); i++) {
@@ -280,14 +247,14 @@
 		await loadingPromise;
 	}
 
+	// ============================================================================
+	// LIFECYCLE: INITIAL LOAD
+	// ============================================================================
 	onMount(async () => {
 		try {
-			// In manual mode (infinite scroll): fetch initial batch
-			// In monitor mode: fetch enough shows to cover multiple weeks (future and past)
 			if (monitorMode) {
 				shows = await fetchShowsFromDB(MONITOR_FUTURE_DAYS, MONITOR_PAST_DAYS);
 			} else {
-				// Load minimal past + enough forward to get past holiday gaps
 				shows = await fetchShowsFromDB(INITIAL_FUTURE_DAYS, INITIAL_PAST_DAYS);
 				pastDaysLoaded = INITIAL_PAST_DAYS;
 				displayedDays = INITIAL_FUTURE_DAYS;
@@ -299,7 +266,15 @@
 		}
 	});
 
-	// Setup infinite scroll with IntersectionObserver for mobile (scroll down to load future shows)
+	onDestroy(() => {
+		if (interval) clearInterval(interval);
+	});
+
+	// ============================================================================
+	// INFINITE SCROLL OBSERVERS
+	// ============================================================================
+
+	// Mobile - future shows
 	$effect(() => {
 		if (!monitorMode && mobileScrollContainer && mobileLoadTrigger && !loading) {
 			const observer = createScrollObserver(
@@ -322,7 +297,7 @@
 		return undefined;
 	});
 
-	// Setup infinite scroll with IntersectionObserver for desktop (scroll down to load future shows)
+	// Desktop - future shows
 	$effect(() => {
 		if (!monitorMode && desktopScrollContainer && desktopLoadTrigger && !loading) {
 			const observer = createScrollObserver(
@@ -345,8 +320,7 @@
 		return undefined;
 	});
 
-	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Mobile
-	// Scroll direction tracking ensures we only load when user intentionally scrolls up
+	// Mobile - past shows
 	$effect(() => {
 		if (!monitorMode && mobileTopLoadTrigger && mobileScrollContainer) {
 			const scrollTracker = createScrollDirectionTracker(mobileScrollContainer);
@@ -357,9 +331,9 @@
 				mobileScrollContainer,
 				() => {
 					untrack(() => {
-						// Only load when scrolling UP (not down)
-						if (scrollTracker.getDirection() && !loadingMore && hasPastShows) {
-							loadPastShows();
+						const isScrollingUp = scrollTracker.getDirection();
+						if (isScrollingUp && !loadingMore && hasPastShows) {
+							loadPastShows(isScrollingUp);
 						}
 					});
 				},
@@ -374,8 +348,7 @@
 		return undefined;
 	});
 
-	// Setup Intersection Observer for loading past shows (bidirectional scroll) - Desktop
-	// Scroll direction tracking ensures we only load when user intentionally scrolls up
+	// Desktop - past shows
 	$effect(() => {
 		if (!monitorMode && desktopTopLoadTrigger && desktopScrollContainer) {
 			const scrollTracker = createScrollDirectionTracker(desktopScrollContainer);
@@ -386,9 +359,9 @@
 				desktopScrollContainer,
 				() => {
 					untrack(() => {
-						// Only load when scrolling UP (not down)
-						if (scrollTracker.getDirection() && !loadingMore && hasPastShows) {
-							loadPastShows();
+						const isScrollingUp = scrollTracker.getDirection();
+						if (isScrollingUp && !loadingMore && hasPastShows) {
+							loadPastShows(isScrollingUp);
 						}
 					});
 				},
@@ -403,50 +376,47 @@
 		return undefined;
 	});
 
-	onDestroy(() => {
-		if (interval) clearInterval(interval);
-	});
-
-	// Auto-rotate when in monitor mode (skips empty weeks)
+	// ============================================================================
+	// MONITOR MODE AUTO-ROTATION
+	// ============================================================================
 	let prevMonitorModeForRotate = false;
 	$effect(() => {
 		if (monitorMode !== prevMonitorModeForRotate) {
 			prevMonitorModeForRotate = monitorMode;
 
-			// Reload data when switching modes (monitor needs more date range)
 			if (monitorMode) {
-				// Switch to monitor mode: load 60 future days and 28 past days
-				fetchShowsFromDB(60, 28).then((newShows) => {
+				// Entering monitor mode - load extended range
+				fetchShowsFromDB(MONITOR_FUTURE_DAYS, MONITOR_PAST_DAYS).then((newShows) => {
 					shows = newShows;
 				});
 			} else {
-				// Switching back to manual mode: reset infinite scroll state
-				displayedDays = 14;
-				pastDaysLoaded = 7;
+				// Exiting monitor mode - reset to manual mode defaults
+				displayedDays = INITIAL_FUTURE_DAYS;
+				pastDaysLoaded = INITIAL_PAST_DAYS;
 				consecutiveEmptyChunks = 0;
 				hasMore = true;
 				hasPastShows = true;
 				lastLoadedDate = null;
 
-				// Reload shows for manual mode (14 forward, 7 back)
-				fetchShowsFromDB(14, 7).then((newShows) => {
+				fetchShowsFromDB(INITIAL_FUTURE_DAYS, INITIAL_PAST_DAYS).then((newShows) => {
 					shows = newShows;
 				});
 			}
 
+			// Setup/teardown auto-rotation interval
 			if (interval) clearInterval(interval);
 			if (monitorMode) {
 				interval = setInterval(() => {
-					const next = findNextWeekWithShows(weekOffset);
+					const next = findNextWeekWithShows(weekOffset, shows, MAX_WEEKS, true);
 					if (next !== null) {
 						direction = 1;
-						isManualNav = false; // Auto-rotate uses full page transition
-						monitorThemeOffset++; // Alternate theme each rotation
+						isManualNav = false;
+						monitorThemeOffset++;
 						weekOffset = next;
 						updateUrl(weekOffset);
 					} else {
-						// Wrap around: find first week with shows
-						const first = findNextWeekWithShows(-1);
+						// Loop back to first week with shows
+						const first = findNextWeekWithShows(-1, shows, MAX_WEEKS, true);
 						if (first !== null && first !== weekOffset) {
 							direction = 1;
 							isManualNav = false;
@@ -460,33 +430,11 @@
 		}
 	});
 
-	// Check if a week offset has any shows
-	function weekHasShows(offset: number): boolean {
-		const range = getWeekRange(offset);
-		return shows.some((show) => {
-			const showDate = new Date(show.start);
-			return showDate >= range.startDate && showDate <= range.endDate;
-		});
-	}
-
-	// Find next week with shows
-	function findNextWeekWithShows(from: number): number | null {
-		for (let i = from + 1; i < MAX_WEEKS; i++) {
-			if (weekHasShows(i)) return i;
-		}
-		return null;
-	}
-
-	// Find previous week with shows
-	function findPrevWeekWithShows(from: number): number | null {
-		for (let i = from - 1; i >= MIN_WEEKS; i--) {
-			if (weekHasShows(i)) return i;
-		}
-		return null;
-	}
-
+	// ============================================================================
+	// NAVIGATION FUNCTIONS
+	// ============================================================================
 	function nextWeek() {
-		const next = findNextWeekWithShows(weekOffset);
+		const next = findNextWeekWithShows(weekOffset, shows, MAX_WEEKS, monitorMode);
 		if (next !== null) {
 			direction = 1;
 			isManualNav = true;
@@ -496,17 +444,13 @@
 	}
 
 	function prevWeek() {
-		const prev = findPrevWeekWithShows(weekOffset);
+		const prev = findPrevWeekWithShows(weekOffset, shows, MIN_WEEKS, monitorMode);
 		if (prev !== null) {
 			direction = -1;
 			isManualNav = true;
 			weekOffset = prev;
 			updateUrl(weekOffset);
 		}
-	}
-
-	function toggleMonitorMode() {
-		monitorMode = !monitorMode;
 	}
 
 	function goToToday() {
@@ -516,221 +460,42 @@
 		updateUrl(0);
 	}
 
-	// Calculate date range for current week offset
-	function getWeekRange(offset: number) {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-
-		if (offset === 0) {
-			// This week: from Monday of current week
-			const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-			const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
-			const weekStart = new Date(today);
-			weekStart.setDate(today.getDate() - daysSinceMonday);
-			weekStart.setHours(0, 0, 0, 0);
-
-			// In monitor mode: show full week (Monday-Sunday)
-			// In manual mode: show through today + 4 days (for browsing context)
-			const endDate = new Date(weekStart);
-			if (monitorMode) {
-				// Full week: Sunday is 6 days after Monday
-				endDate.setDate(weekStart.getDate() + 6);
-			} else {
-				// Manual mode: show past shows + upcoming few days
-				endDate.setTime(today.getTime());
-				endDate.setDate(today.getDate() + 4);
-			}
-			endDate.setHours(23, 59, 59, 999);
-			return { startDate: weekStart, endDate, label: 'This Week' };
-		} else if (offset > 0) {
-			// Future weeks: Calculate the Monday of week N
-			const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-			const daysUntilNextMonday = (8 - dayOfWeek) % 7 || 7;
-			const weekStart = new Date(today);
-			weekStart.setDate(today.getDate() + daysUntilNextMonday + (offset - 1) * 7);
-			weekStart.setHours(0, 0, 0, 0);
-
-			const weekEnd = new Date(weekStart);
-			weekEnd.setDate(weekStart.getDate() + 6);
-			weekEnd.setHours(23, 59, 59, 999);
-
-			// Format date range for label
-			const startStr = weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-			const endStr = weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-			const label = offset === 1 ? 'Next Week' : `${startStr} - ${endStr}`;
-
-			return { startDate: weekStart, endDate: weekEnd, label };
-		} else {
-			// Past weeks (negative offset): Calculate the Monday of that past week
-			const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-			// Days since last Monday (if today is Monday, it's 0)
-			const daysSinceMonday = (dayOfWeek + 6) % 7;
-			const thisMonday = new Date(today);
-			thisMonday.setDate(today.getDate() - daysSinceMonday);
-
-			// Go back N weeks from this Monday
-			const weekStart = new Date(thisMonday);
-			weekStart.setDate(thisMonday.getDate() + offset * 7);
-			weekStart.setHours(0, 0, 0, 0);
-
-			const weekEnd = new Date(weekStart);
-			weekEnd.setDate(weekStart.getDate() + 6);
-			weekEnd.setHours(23, 59, 59, 999);
-
-			// Format date range for label
-			const startStr = weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-			const endStr = weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-			const label = offset === -1 ? 'Last Week' : `${startStr} - ${endStr}`;
-
-			return { startDate: weekStart, endDate: weekEnd, label };
-		}
+	function toggleMonitorMode() {
+		monitorMode = !monitorMode;
 	}
 
-	let weekRange = $derived(getWeekRange(weekOffset));
-
-	// Current time for past show detection (reactive)
+	// ============================================================================
+	// DERIVED COMPUTATIONS
+	// ============================================================================
+	let weekRange = $derived(getWeekRange(weekOffset, monitorMode));
 	let currentTime = $derived(new Date());
 
-	// Filter shows based on mode
 	let weekShows = $derived(
 		monitorMode
-			? // Monitor mode: filter by week range
-				shows.filter((show) => {
+			? shows.filter((show) => {
 					const showDate = new Date(show.start);
 					return showDate >= weekRange.startDate && showDate <= weekRange.endDate;
 				})
-			: // Manual mode (infinite scroll): show all loaded shows (past and future)
-				shows
+			: shows
 	);
 
-	// In monitor mode, filter out shows that have already started
 	let displayShows = $derived(
 		monitorMode ? weekShows.filter((show) => new Date(show.start) > currentTime) : weekShows
 	);
 
-	// Track IDs of shows that have passed their start time (for greying out in manual mode)
 	let pastShowIds = $derived(
 		weekShows.filter((show) => new Date(show.start) <= currentTime).map((show) => show.id)
 	);
 
-	// Find the first upcoming show (for auto-scroll in manual mode)
 	let firstUpcomingShow = $derived.by(() => {
 		const upcoming = weekShows
 			.filter((show) => new Date(show.start) > currentTime)
 			.sort((a, b) => +new Date(a.start) - +new Date(b.start));
-
 		return upcoming[0];
 	});
+
 	let firstUpcomingShowId = $derived(firstUpcomingShow?.id ?? null);
 
-	// Helper: Get Monday (start of week) for a given date
-	function getWeekStart(date: Date): Date {
-		const d = new Date(date);
-		d.setHours(0, 0, 0, 0);
-		const dayOfWeek = d.getDay(); // 0 (Sun) - 6 (Sat)
-		const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
-		d.setDate(d.getDate() - daysSinceMonday);
-		return d;
-	}
-
-	// Helper: Generate week label based on distance from today
-	function getWeekLabel(weekStart: Date, today: Date): string {
-		const todayWeekStart = getWeekStart(today);
-		const diffMs = weekStart.getTime() - todayWeekStart.getTime();
-		const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
-
-		if (diffWeeks === 0) return 'This Week';
-		if (diffWeeks === 1) return 'Next Week';
-		if (diffWeeks === -1) return 'Last Week';
-
-		// Format as date range for other weeks
-		const weekEnd = new Date(weekStart);
-		weekEnd.setDate(weekStart.getDate() + 6);
-
-		const startMonth = weekStart.toLocaleDateString(undefined, { month: 'short' });
-		const startDay = weekStart.getDate();
-		const endMonth = weekEnd.toLocaleDateString(undefined, { month: 'short' });
-		const endDay = weekEnd.getDate();
-
-		if (startMonth === endMonth) {
-			return `${startMonth} ${startDay}-${endDay}`;
-		} else {
-			return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
-		}
-	}
-
-	// Group shows by week, then by day within each week
-	function groupShowsByWeek(shows: Show[]): WeekGroup[] {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-
-		// Group shows by week
-		const showsByWeek = new Map<string, Show[]>();
-
-		for (const show of shows) {
-			const showDate = new Date(show.start);
-			const weekStart = getWeekStart(showDate);
-			const weekKey = weekStart.toISOString();
-
-			if (!showsByWeek.has(weekKey)) {
-				showsByWeek.set(weekKey, []);
-			}
-			showsByWeek.get(weekKey)!.push(show);
-		}
-
-		// Convert to WeekGroup format
-		const weeks: WeekGroup[] = [];
-		for (const [weekKey, weekShows] of showsByWeek) {
-			const weekStart = new Date(weekKey);
-			const weekLabel = getWeekLabel(weekStart, today);
-			const days = groupShowsByDay(weekShows, false); // Don't filter by current week here
-
-			weeks.push({ weekLabel, startDate: weekStart, days });
-		}
-
-		// Sort by week start date
-		return weeks.sort((a, b) => +a.startDate - +b.startDate);
-	}
-
-	let groupedShows = $derived(groupShowsByWeek(displayShows));
-
-	function groupShowsByDay(shows: Show[], isCurrentWeek = false) {
-		const groups: Record<string, Show[]> = {};
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-
-		// For current week, calculate Monday of this week
-		const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-		const daysSinceMonday = (dayOfWeek + 6) % 7; // Monday = 0, Sunday = 6
-		const weekStart = new Date(today);
-		weekStart.setDate(today.getDate() - daysSinceMonday);
-		weekStart.setHours(0, 0, 0, 0);
-
-		for (const show of shows) {
-			const date = new Date(show.start);
-			date.setHours(0, 0, 0, 0);
-
-			if (isCurrentWeek) {
-				// Include shows from Monday of current week through today + 4 days
-				const endDate = new Date(today);
-				endDate.setDate(today.getDate() + 4);
-				endDate.setHours(23, 59, 59, 999);
-
-				if (date < weekStart || date > endDate) continue;
-			}
-
-			const dayKey = date.toLocaleDateString(undefined, {
-				weekday: 'long',
-				month: 'long',
-				day: 'numeric'
-			});
-			if (!groups[dayKey]) groups[dayKey] = [];
-			groups[dayKey].push(show);
-		}
-		return groups;
-	}
-
-	// Find next show
 	let now = $derived(new Date());
 	let nextShow = $derived(
 		weekShows
@@ -739,70 +504,38 @@
 	);
 	let highlightedShowIds = $derived(weekShows.filter((s) => s.imageUrl).map((s) => s.id));
 
-	// Font sizing: Fixed for manual mode (infinite scroll), dynamic for monitor mode
-	let dayCount = $derived(groupedShows.length); // Number of weeks
+	let groupedShows = $derived(groupShowsByWeek(displayShows));
+
+	let dayCount = $derived(groupedShows.length);
 	let totalShows = $derived(weekShows.length);
 
-	// In manual mode (infinite scroll), use fixed consistent sizes
-	// In monitor mode, use dynamic sizing based on content
-	let dayHeadingClass = $derived(
-		monitorMode
-			? totalShows > 20
-				? 'text-xl'
-				: totalShows > 15
-					? 'text-2xl'
-					: dayCount < 5
-						? 'text-3xl'
-						: 'text-2xl'
-			: 'text-2xl' // Fixed size for infinite scroll
-	);
-	let timeClass = $derived(
-		monitorMode
-			? totalShows > 20
-				? 'text-lg'
-				: totalShows > 15
-					? 'text-xl'
-					: dayCount < 5
-						? 'text-2xl'
-						: 'text-xl'
-			: 'text-xl' // Fixed size for infinite scroll
-	);
-	let titleClass = $derived(
-		monitorMode
-			? totalShows > 20
-				? 'text-base'
-				: totalShows > 15
-					? 'text-lg'
-					: dayCount < 5
-						? 'text-xl'
-						: 'text-lg'
-			: 'text-lg' // Fixed size for infinite scroll
-	);
+	// Responsive sizing (uses Phase 1 utility)
+	let responsiveSizes = $derived(getResponsiveSizes(monitorMode, totalShows, dayCount));
+	let dayHeadingClass = $derived(responsiveSizes.dayHeadingClass);
+	let timeClass = $derived(responsiveSizes.timeClass);
+	let titleClass = $derived(responsiveSizes.titleClass);
 
-	// Theme: random on load for manual nav, alternates in monitor mode
-	let theme = $derived(
-		isManualNav
-			? initialTheme
-			: ((monitorThemeOffset % 2 === 0
-					? initialTheme
-					: initialTheme === 'blue'
-						? 'orange'
-						: 'blue') as 'blue' | 'orange')
+	// Theme (uses Phase 1 utility)
+	let theme = $derived(getTheme(isManualNav, initialTheme, monitorThemeOffset));
+
+	// Layout style (uses Phase 1 utility)
+	let isNextWeekStyle = $derived(getLayoutStyle(isManualNav, monitorThemeOffset));
+
+	let prevWeekOffset = $derived(
+		shows.length ? findPrevWeekWithShows(weekOffset, shows, MIN_WEEKS, monitorMode) : null
 	);
-
-	// Layout style only changes in monitor mode (affects column order)
-	let isNextWeekStyle = $derived(!isManualNav && monitorThemeOffset % 2 === 1);
-
-	// Navigation availability (based on whether there are weeks with shows)
-	// Note: explicit dependency on `shows` to recompute when data loads
-	let prevWeekOffset = $derived(shows.length ? findPrevWeekWithShows(weekOffset) : null);
-	let nextWeekOffset = $derived(shows.length ? findNextWeekWithShows(weekOffset) : null);
+	let nextWeekOffset = $derived(
+		shows.length ? findNextWeekWithShows(weekOffset, shows, MAX_WEEKS, monitorMode) : null
+	);
 	let canGoPrev = $derived(!loading && prevWeekOffset !== null);
 	let canGoNext = $derived(!loading && nextWeekOffset !== null);
-	let prevWeekLabel = $derived(prevWeekOffset !== null ? getWeekRange(prevWeekOffset).label : '');
-	let nextWeekLabel = $derived(nextWeekOffset !== null ? getWeekRange(nextWeekOffset).label : '');
+	let prevWeekLabel = $derived(
+		prevWeekOffset !== null ? getWeekRange(prevWeekOffset, monitorMode).label : ''
+	);
+	let nextWeekLabel = $derived(
+		nextWeekOffset !== null ? getWeekRange(nextWeekOffset, monitorMode).label : ''
+	);
 
-	// Past week detection (negative offset means past)
 	let isPastWeek = $derived(weekOffset < 0);
 </script>
 
@@ -813,278 +546,78 @@
 <!-- Mobile Navigation Sidebar -->
 <MobileNav bind:open={mobileNavOpen} {theme} on:close={() => (mobileNavOpen = false)} />
 
-<div class="relative h-screen w-full overflow-hidden bg-black">
-	<!-- Monitor mode: full page transitions -->
-	{#if !isManualNav}
-		{#key weekOffset}
-			<div
-				in:fly={{ x: direction > 0 ? 400 : -400, duration: 600, easing: cubicOut, delay: 100 }}
-				out:fly={{ x: direction > 0 ? -400 : 400, duration: 500, easing: cubicOut }}
-				class="absolute inset-0 box-border flex h-screen max-h-screen flex-col overflow-hidden text-white
-               {theme === 'orange'
-					? 'bg-gradient-to-br from-[var(--nw-deep-purple)] via-black to-[var(--nw-burning-orange)]'
-					: 'bg-gradient-to-br from-[var(--tw-midnight)] via-black to-[var(--tw-deep-purple)]'}"
-			>
-				<!-- Grain texture overlay -->
-				<div class="grain-overlay"></div>
+<!-- Main container with theme background -->
+<div
+	class="absolute inset-0 box-border flex h-screen max-h-screen flex-col overflow-hidden text-white {theme ===
+	'orange'
+		? 'bg-gradient-to-br from-[var(--nw-deep-purple)] via-black to-[var(--nw-burning-orange)]'
+		: 'bg-gradient-to-br from-[var(--tw-midnight)] via-black to-[var(--tw-deep-purple)]'}"
+>
+	<!-- Grain texture overlay -->
+	<div class="grain-overlay"></div>
 
-				<!-- Mobile Layout with swipe support (visible on small screens) -->
-				<div
-					class="flex h-full flex-col md:hidden"
-					on:touchstart={handleTouchStart}
-					on:touchend={handleTouchEnd}
-				>
-					<MobileHeader
-						{theme}
-						weekLabel={weekRange.label}
-						{canGoPrev}
-						{canGoNext}
-						{weekOffset}
-						{monitorMode}
-						on:openMenu={() => (mobileNavOpen = true)}
-						on:prev={prevWeek}
-						on:next={nextWeek}
-						on:today={goToToday}
-					/>
-					<main class="relative z-10 min-h-0 flex-1 px-3 py-3">
-						<ShowsColumn
-							{groupedShows}
-							{loading}
-							{error}
-							dayHeadingClass="text-xl"
-							timeClass="text-base"
-							titleClass="text-sm"
-							{highlightedShowIds}
-							{theme}
-							monitorMode={false}
-							showInlineImages={true}
-							{pastShowIds}
-							{firstUpcomingShowId}
-							isCurrentWeek={true}
-							{loadingMore}
-							{hasMore}
-							bind:loadTrigger={mobileLoadTrigger}
-							{hasPastShows}
-							bind:topLoadTrigger={mobileTopLoadTrigger}
-							{pastDaysLoaded}
-							bind:visibleShowIds
-							bind:scrollContainer={mobileScrollContainer}
-						/>
-					</main>
-				</div>
+	<!-- Mobile layout (visible only on small screens) -->
+	<MobileHomePage
+		bind:weekOffset
+		{theme}
+		{groupedShows}
+		{loading}
+		{error}
+		{weekRange}
+		{canGoPrev}
+		{canGoNext}
+		{highlightedShowIds}
+		{pastShowIds}
+		{firstUpcomingShowId}
+		{loadingMore}
+		{hasMore}
+		{hasPastShows}
+		{pastDaysLoaded}
+		bind:visibleShowIds
+		bind:mobileLoadTrigger
+		bind:mobileTopLoadTrigger
+		bind:mobileScrollContainer
+		onPrevWeek={prevWeek}
+		onNextWeek={nextWeek}
+		onToday={goToToday}
+		onOpenMenu={() => (mobileNavOpen = true)}
+	/>
 
-				<!-- Desktop Layout (visible on md+ screens) -->
-				<main
-					class="relative z-10 mx-auto hidden min-h-0 w-full flex-1 grid-cols-1 items-stretch gap-3 px-3 py-4 md:grid"
-					style="grid-template-columns: {isNextWeekStyle
-						? '3.5fr 3.5fr 2.7fr'
-						: '2.7fr 3.5fr 3.5fr'};"
-				>
-					{#if isNextWeekStyle}
-						<!-- Next week style: Images, Shows, Branding -->
-						<ImagesColumn
-							{nextShow}
-							shows={weekShows}
-							nextShowId={nextShow?.id}
-							upFirst={true}
-							{theme}
-							{isPastWeek}
-							{visibleShowIds}
-							{monitorMode}
-						/>
-						<ShowsColumn
-							{groupedShows}
-							{loading}
-							{error}
-							{dayHeadingClass}
-							{timeClass}
-							{titleClass}
-							{highlightedShowIds}
-							{theme}
-							{monitorMode}
-							{pastShowIds}
-							{firstUpcomingShowId}
-							isCurrentWeek={weekOffset === 0}
-						/>
-						<BrandingColumn
-							{theme}
-							{monitorMode}
-							weekLabel={weekRange.label}
-							{canGoPrev}
-							{canGoNext}
-							{weekOffset}
-							{prevWeekLabel}
-							{nextWeekLabel}
-							on:prev={prevWeek}
-							on:next={nextWeek}
-							on:today={goToToday}
-							on:toggleMonitor={toggleMonitorMode}
-						/>
-					{:else}
-						<!-- This week style: Branding, Shows, Images -->
-						<BrandingColumn
-							{theme}
-							{monitorMode}
-							weekLabel={weekRange.label}
-							{canGoPrev}
-							{canGoNext}
-							{weekOffset}
-							{prevWeekLabel}
-							{nextWeekLabel}
-							on:prev={prevWeek}
-							on:next={nextWeek}
-							on:today={goToToday}
-							on:toggleMonitor={toggleMonitorMode}
-						/>
-						<ShowsColumn
-							{groupedShows}
-							{loading}
-							{error}
-							{dayHeadingClass}
-							{timeClass}
-							{titleClass}
-							{highlightedShowIds}
-							{theme}
-							{monitorMode}
-							{pastShowIds}
-							{firstUpcomingShowId}
-							isCurrentWeek={weekOffset === 0}
-						/>
-						<ImagesColumn
-							{nextShow}
-							shows={weekShows}
-							nextShowId={nextShow?.id}
-							{theme}
-							{isPastWeek}
-							{visibleShowIds}
-							{monitorMode}
-						/>
-					{/if}
-				</main>
-			</div>
-		{/key}
-	{:else}
-		<!-- Manual nav: stable layout with content transitions -->
-		<div
-			class="absolute inset-0 box-border flex h-screen max-h-screen flex-col overflow-hidden text-white
-             {theme === 'orange'
-				? 'bg-gradient-to-br from-[var(--nw-deep-purple)] via-black to-[var(--nw-burning-orange)]'
-				: 'bg-gradient-to-br from-[var(--tw-midnight)] via-black to-[var(--tw-deep-purple)]'}"
-		>
-			<!-- Grain texture overlay -->
-			<div class="grain-overlay"></div>
-
-			<!-- Mobile Layout with swipe support (visible on small screens) -->
-			<div
-				class="flex h-full flex-col md:hidden"
-				on:touchstart={handleTouchStart}
-				on:touchend={handleTouchEnd}
-			>
-				<MobileHeader
-					{theme}
-					weekLabel={weekRange.label}
-					{canGoPrev}
-					{canGoNext}
-					{weekOffset}
-					{monitorMode}
-					on:openMenu={() => (mobileNavOpen = true)}
-					on:prev={prevWeek}
-					on:next={nextWeek}
-					on:today={goToToday}
-				/>
-				<main class="relative z-10 flex-1 overflow-hidden px-3 py-3">
-					{#key weekOffset}
-						<div
-							in:fly={{ x: direction > 0 ? 100 : -100, duration: 200, easing: cubicOut }}
-							out:fade={{ duration: 100 }}
-							class="h-full"
-						>
-							<ShowsColumn
-								{groupedShows}
-								{loading}
-								{error}
-								dayHeadingClass="text-xl"
-								timeClass="text-base"
-								titleClass="text-sm"
-								{highlightedShowIds}
-								{theme}
-								monitorMode={false}
-								showInlineImages={true}
-								{pastShowIds}
-								{firstUpcomingShowId}
-								isCurrentWeek={true}
-								{loadingMore}
-								{hasMore}
-								bind:loadTrigger={mobileLoadTrigger}
-								{hasPastShows}
-								bind:topLoadTrigger={mobileTopLoadTrigger}
-								{pastDaysLoaded}
-								bind:visibleShowIds
-								bind:scrollContainer={mobileScrollContainer}
-							/>
-						</div>
-					{/key}
-				</main>
-			</div>
-
-			<!-- Desktop Layout (visible on md+ screens) -->
-			<main
-				class="relative z-10 mx-auto hidden min-h-0 w-full flex-1 grid-cols-1 items-stretch gap-3 px-3 py-4 md:grid"
-				style="grid-template-columns: 2.7fr 3.5fr 3.5fr;"
-			>
-				<!-- Branding stays on left, stable -->
-				<BrandingColumn
-					{theme}
-					{monitorMode}
-					weekLabel={weekRange.label}
-					{canGoPrev}
-					{canGoNext}
-					{weekOffset}
-					{prevWeekLabel}
-					{nextWeekLabel}
-					on:prev={prevWeek}
-					on:next={nextWeek}
-					on:today={goToToday}
-					on:toggleMonitor={toggleMonitorMode}
-				/>
-				<!-- Shows column (no transition in manual mode - persistent for infinite scroll) -->
-				<div class="relative h-full overflow-hidden">
-					<ShowsColumn
-						{groupedShows}
-						{loading}
-						{error}
-						{dayHeadingClass}
-						{timeClass}
-						{titleClass}
-						{highlightedShowIds}
-						{theme}
-						{monitorMode}
-						{pastShowIds}
-						{firstUpcomingShowId}
-						isCurrentWeek={true}
-						{loadingMore}
-						{hasMore}
-						bind:loadTrigger={desktopLoadTrigger}
-						{hasPastShows}
-						bind:topLoadTrigger={desktopTopLoadTrigger}
-						{pastDaysLoaded}
-						bind:visibleShowIds
-						bind:scrollContainer={desktopScrollContainer}
-					/>
-				</div>
-				<!-- Images column (no transition in manual mode - persistent for smooth poster updates) -->
-				<div class="relative h-full overflow-hidden">
-					<ImagesColumn
-						{nextShow}
-						shows={weekShows}
-						nextShowId={nextShow?.id}
-						{theme}
-						{isPastWeek}
-						{visibleShowIds}
-						{monitorMode}
-					/>
-				</div>
-			</main>
-		</div>
-	{/if}
+	<!-- Desktop layout (visible on md+ screens) -->
+	<DesktopHomePage
+		bind:weekOffset
+		{theme}
+		{groupedShows}
+		{weekShows}
+		{loading}
+		{error}
+		{monitorMode}
+		{isNextWeekStyle}
+		{direction}
+		{weekRange}
+		{canGoPrev}
+		{canGoNext}
+		{prevWeekLabel}
+		{nextWeekLabel}
+		{highlightedShowIds}
+		{pastShowIds}
+		{firstUpcomingShowId}
+		{nextShow}
+		{isPastWeek}
+		{dayHeadingClass}
+		{timeClass}
+		{titleClass}
+		{loadingMore}
+		{hasMore}
+		{hasPastShows}
+		{pastDaysLoaded}
+		bind:visibleShowIds
+		bind:desktopLoadTrigger
+		bind:desktopTopLoadTrigger
+		bind:desktopScrollContainer
+		onPrevWeek={prevWeek}
+		onNextWeek={nextWeek}
+		onToday={goToToday}
+		onToggleMonitor={toggleMonitorMode}
+	/>
 </div>
