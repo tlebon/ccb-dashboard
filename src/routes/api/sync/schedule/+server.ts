@@ -189,6 +189,30 @@ export const GET: RequestHandler = async ({ request, url }) => {
 						return;
 					}
 
+					// Update description if we have a full one and current is truncated
+					if (lineup.fullDescription && lineup.fullDescription.length > 200) {
+						// Get current description
+						const currentShow = await db.execute({
+							sql: 'SELECT description FROM shows WHERE id = ?',
+							args: [showId]
+						});
+
+						const currentDesc = currentShow.rows[0]?.description as string | null;
+
+						// Update if current description is null, empty, or truncated (ends with ...)
+						if (
+							!currentDesc ||
+							currentDesc.length < 200 ||
+							currentDesc.endsWith('...') ||
+							currentDesc.endsWith('...\\n')
+						) {
+							await db.execute({
+								sql: 'UPDATE shows SET description = ? WHERE id = ?',
+								args: [lineup.fullDescription, showId]
+							});
+						}
+					}
+
 					// Add performers
 					for (const performerName of lineup.performers) {
 						try {

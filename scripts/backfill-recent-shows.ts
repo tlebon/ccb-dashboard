@@ -64,15 +64,18 @@ async function main() {
 	console.log(`Backfilling lineups for July-Dec 2025 shows (up to ${limit})...\\n`);
 
 	// Get shows from July-Dec 2025 without lineups
-	const result = await db.execute(`
-		SELECT s.id, s.title, s.date, s.url
-		FROM shows s
-		WHERE s.url IS NOT NULL
-		AND s.date BETWEEN '2025-07-01' AND '2025-12-30'
-		AND s.id NOT IN (SELECT DISTINCT show_id FROM show_appearances)
-		ORDER BY s.date DESC
-		LIMIT ${limit}
-	`);
+	const result = await db.execute({
+		sql: `
+			SELECT s.id, s.title, s.date, s.url
+			FROM shows s
+			WHERE s.url IS NOT NULL
+			AND s.date BETWEEN '2025-07-01' AND '2025-12-30'
+			AND s.id NOT IN (SELECT DISTINCT show_id FROM show_appearances)
+			ORDER BY s.date DESC
+			LIMIT ?
+		`,
+		args: [limit]
+	});
 
 	const shows = result.rows.map((row) => ({
 		id: Number(row.id),

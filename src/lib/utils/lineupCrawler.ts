@@ -9,6 +9,7 @@ export interface LineupData {
 	performers: string[];
 	hosts: string[];
 	rawContent: string;
+	fullDescription?: string; // Full description text from event page
 }
 
 /**
@@ -42,7 +43,7 @@ export function parseLineupFromHTML(html: string, debug = false): LineupData {
 			}
 		}
 
-		// Get raw content for host detection
+		// Get raw content for host detection and full description
 		const contentDiv = root.querySelector('.tribe-events-single-event-description');
 		if (contentDiv) {
 			rawContent = contentDiv.text;
@@ -56,11 +57,20 @@ export function parseLineupFromHTML(html: string, debug = false): LineupData {
 			}
 		}
 
+		// Extract full description (cleaned up, trimmed, no extra whitespace)
+		const fullDescription = rawContent
+			.trim()
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line.length > 0)
+			.join('\n');
+
 		// Return early - we found structured data!
 		return {
 			performers: [...new Set(performers)].filter((n) => n.length > 0),
 			hosts: [...new Set(hosts)].filter((n) => n.length > 0),
-			rawContent
+			rawContent,
+			fullDescription: fullDescription.length > 0 ? fullDescription : undefined
 		};
 	}
 
@@ -105,11 +115,20 @@ export function parseLineupFromHTML(html: string, debug = false): LineupData {
 		}
 	}
 
+	// Extract full description (cleaned up, trimmed, no extra whitespace)
+	const fullDescription = rawContent
+		.trim()
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0)
+		.join('\n');
+
 	// Deduplicate
 	return {
 		performers: [...new Set(performers)].filter((n) => n.length > 0),
 		hosts: [...new Set(hosts)].filter((n) => n.length > 0),
-		rawContent
+		rawContent,
+		fullDescription: fullDescription.length > 0 ? fullDescription : undefined
 	};
 }
 

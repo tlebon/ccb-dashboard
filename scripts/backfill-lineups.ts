@@ -66,15 +66,18 @@ async function main() {
 	console.log(`Backfilling lineups for up to ${limit} shows...\n`);
 
 	// Get shows that have URLs but no lineup data
-	const result = await db.execute(`
-    SELECT s.id, s.title, s.date, s.url
-    FROM shows s
-    LEFT JOIN show_appearances sa ON s.id = sa.show_id
-    WHERE s.url IS NOT NULL
-      AND sa.id IS NULL
-    ORDER BY s.date DESC
-    LIMIT ${limit}
-  `);
+	const result = await db.execute({
+		sql: `
+      SELECT s.id, s.title, s.date, s.url
+      FROM shows s
+      LEFT JOIN show_appearances sa ON s.id = sa.show_id
+      WHERE s.url IS NOT NULL
+        AND sa.id IS NULL
+      ORDER BY s.date DESC
+      LIMIT ?
+    `,
+		args: [limit]
+	});
 
 	const shows = result.rows;
 	console.log(`Found ${shows.length} shows without lineups\n`);
