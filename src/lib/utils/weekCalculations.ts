@@ -30,6 +30,19 @@ export function getWeekStart(date: Date): Date {
 }
 
 /**
+ * Format a date range as a human-readable string
+ * @internal Helper function for formatting week ranges
+ * @param startDate - Start date of the range
+ * @param endDate - End date of the range
+ * @returns Formatted string like "Jan 1 - Jan 7" or "Dec 30 - Jan 5"
+ */
+function formatDateRange(startDate: Date, endDate: Date): string {
+	const startStr = startDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+	const endStr = endDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+	return `${startStr} - ${endStr}`;
+}
+
+/**
  * Generate week label based on distance from today
  * @param weekStart - Monday of the week to label
  * @param today - Today's date for comparison
@@ -104,9 +117,7 @@ export function getWeekRange(offset: number, monitorMode: boolean = false): Week
 		weekEnd.setHours(23, 59, 59, 999);
 
 		// Format date range for label
-		const startStr = weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-		const endStr = weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-		const label = offset === 1 ? 'Next Week' : `${startStr} - ${endStr}`;
+		const label = offset === 1 ? 'Next Week' : formatDateRange(weekStart, weekEnd);
 
 		return { startDate: weekStart, endDate: weekEnd, label };
 	} else {
@@ -127,9 +138,7 @@ export function getWeekRange(offset: number, monitorMode: boolean = false): Week
 		weekEnd.setHours(23, 59, 59, 999);
 
 		// Format date range for label
-		const startStr = weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-		const endStr = weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-		const label = offset === -1 ? 'Last Week' : `${startStr} - ${endStr}`;
+		const label = offset === -1 ? 'Last Week' : formatDateRange(weekStart, weekEnd);
 
 		return { startDate: weekStart, endDate: weekEnd, label };
 	}

@@ -1,11 +1,20 @@
 /**
  * Date and time formatting utilities
  * Provides consistent date formatting across the application
+ *
+ * IMPORTANT: Date Timezone Handling
+ * - All date strings are expected to be in ISO 8601 format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+ * - Dates without time (YYYY-MM-DD) are parsed as UTC midnight
+ * - Dates with time (ISO 8601 with Z or timezone) preserve the specified timezone
+ * - Display formatting uses en-GB locale for consistency across the application
+ *
+ * This matches the database storage format where dates are stored as UTC.
  */
 
 /**
  * Format date with full weekday and month names
- * @example "Monday, 1 January 2025"
+ * @param dateStr - ISO 8601 date string (YYYY-MM-DD or full ISO format)
+ * @example formatDateLong("2025-01-01") → "Monday, 1 January 2025"
  */
 export function formatDateLong(dateStr: string): string {
 	const date = new Date(dateStr);

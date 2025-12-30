@@ -23,7 +23,16 @@ export default defineConfig({
 			include: [
 				'src/lib/utils/houseShowTeams.ts',
 				'src/lib/utils/parsePerformers.ts',
-				'src/lib/db/shows.ts'
+				'src/lib/db/shows.ts',
+				// Phase 1 utilities (90%+ coverage target)
+				'src/lib/utils/analyticsData.ts',
+				'src/lib/utils/dateFormatters.ts',
+				'src/lib/utils/lineupGrouping.ts',
+				'src/lib/utils/weekCalculations.ts',
+				'src/lib/utils/showGrouping.ts',
+				'src/lib/utils/infiniteScrollState.ts',
+				'src/lib/utils/themeSizing.ts',
+				'src/lib/utils/autoScrollManager.ts'
 			],
 			exclude: [
 				'**/*.test.{js,ts}',

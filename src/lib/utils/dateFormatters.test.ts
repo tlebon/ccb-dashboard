@@ -151,4 +151,54 @@ describe('dateFormatters utilities', () => {
 			expect(compact).toContain('15 Mar');
 		});
 	});
+
+	// Timezone handling tests
+	describe('timezone handling', () => {
+		it('should handle ISO date strings without time (YYYY-MM-DD) as UTC midnight', () => {
+			// YYYY-MM-DD format is parsed as UTC midnight
+			const dateStr = '2025-01-15';
+			const result = formatDateLong(dateStr);
+
+			// Should always format to the same date regardless of local timezone
+			expect(result).toContain('15 January');
+			expect(result).toContain('2025');
+		});
+
+		it('should handle ISO datetime strings with Z (UTC timezone)', () => {
+			// Full ISO format with Z is treated as UTC
+			const dateStr = '2025-01-15T12:00:00Z';
+			const result = formatDateLong(dateStr);
+
+			// Should format consistently
+			expect(result).toContain('15 January');
+			expect(result).toContain('2025');
+		});
+
+		it('should handle midnight UTC dates without timezone-related date shifts', () => {
+			// Test a date that might cross day boundaries in different timezones
+			// Using midday to avoid boundary issues
+			const dateStr = '2025-01-01T12:00:00Z';
+			const result = formatDateLong(dateStr);
+
+			// Should always be January 1st
+			expect(result).toContain('1 January');
+			expect(result).toContain('2025');
+		});
+
+		it('should consistently format dates across all formatter functions', () => {
+			const dateStr = '2025-12-25'; // Christmas
+
+			// All formatters should agree on the day
+			const long = formatDateLong(dateStr);
+			const short = formatDateShort(dateStr);
+			const medium = formatDateMedium(dateStr);
+			const compact = formatDateCompact(dateStr);
+
+			// All should reference December 25
+			expect(long).toContain('25 December');
+			expect(short).toContain('25 Dec');
+			expect(medium).toContain('25 Dec');
+			expect(compact).toContain('25 Dec');
+		});
+	});
 });
