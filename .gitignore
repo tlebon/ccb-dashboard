@@ -29,3 +29,6 @@ coverage/
 
 # Internal documentation (not for public repo)
 docs/cloudflare-testing.md
+
+# Lineup data backups
+backups/
