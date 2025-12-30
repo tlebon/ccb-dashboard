@@ -3,6 +3,36 @@ import type { RequestHandler } from './$types';
 import { upsertShow } from '$lib/db';
 import { parse } from 'node-html-parser';
 import { cacheImagesToBlob } from '$lib/utils/imageCache';
+import { fetchLineupFromURL } from '$lib/utils/lineupCrawler';
+import { createClient } from '@libsql/client';
+
+/**
+ * Helper: Get or create a performer by name
+ */
+async function getOrCreatePerformer(
+	db: ReturnType<typeof createClient>,
+	name: string
+): Promise<number> {
+	const slug = name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+
+	const existing = await db.execute({
+		sql: 'SELECT id FROM performers WHERE slug = ? OR name = ?',
+		args: [slug, name]
+	});
+
+	if (existing.rows.length > 0) {
+		return existing.rows[0].id as number;
+	}
+
+	const result = await db.execute({
+		sql: 'INSERT INTO performers (name, slug) VALUES (?, ?)',
+		args: [name, slug]
+	});
+	return Number(result.lastInsertRowid);
+}
 
 /**
  * Sync shows by scraping CCB's schedule list page
@@ -18,6 +48,9 @@ export const GET: RequestHandler = async ({ request, url }) => {
 
 	// Check if we should also sync past events
 	const includePast = url.searchParams.get('includePast') === 'true';
+
+	// Check if we should crawl lineups (default: true)
+	const crawlLineups = url.searchParams.get('crawlLineups') !== 'false';
 
 	try {
 		let synced = 0;
@@ -82,12 +115,93 @@ export const GET: RequestHandler = async ({ request, url }) => {
 
 		console.log(`[Schedule] Sync complete: ${synced} synced, ${errors} errors`);
 
+		// Crawl lineups if enabled
+		let lineupsAdded = 0;
+		let performersAdded = 0;
+		if (crawlLineups) {
+			console.log(`[Schedule] Crawling lineups for ${allShows.length} shows...`);
+			const db = createClient({
+				url: process.env.TURSO_DATABASE_URL!,
+				authToken: process.env.TURSO_AUTH_TOKEN
+			});
+			const proxyUrl = process.env.VITE_PROXY_EVENT_URL;
+
+			// Process shows concurrently (3 at a time)
+			const CONCURRENCY = 3;
+			let idx = 0;
+
+			async function processNext(): Promise<void> {
+				if (idx >= allShows.length) return;
+				const show = allShows[idx++];
+
+				try {
+					// Check if show already has lineup
+					const showRecord = await db.execute({
+						sql: 'SELECT id FROM shows WHERE url = ?',
+						args: [show.url]
+					});
+
+					if (showRecord.rows.length === 0) return;
+					const showId = Number(showRecord.rows[0].id);
+
+					const existingLineup = await db.execute({
+						sql: 'SELECT COUNT(*) as count FROM show_appearances WHERE show_id = ?',
+						args: [showId]
+					});
+
+					if (Number(existingLineup.rows[0].count) > 0) {
+						// Already has lineup, skip
+						await processNext();
+						return;
+					}
+
+					// Fetch lineup from event page
+					const lineup = await fetchLineupFromURL(show.url, proxyUrl, false);
+					if (!lineup || lineup.performers.length === 0) {
+						await processNext();
+						return;
+					}
+
+					// Add performers
+					for (const performerName of lineup.performers) {
+						try {
+							const performerId = await getOrCreatePerformer(db, performerName);
+							const role = lineup.hosts.includes(performerName) ? 'host' : 'performer';
+
+							await db.execute({
+								sql: `INSERT INTO show_appearances (show_id, performer_id, role)
+                      VALUES (?, ?, ?)
+                      ON CONFLICT DO NOTHING`,
+								args: [showId, performerId, role]
+							});
+							performersAdded++;
+						} catch (e) {
+							console.warn(`[Schedule] Error adding performer "${performerName}":`, e);
+						}
+					}
+
+					lineupsAdded++;
+				} catch (e) {
+					console.warn(`[Schedule] Error processing lineup for "${show.title}":`, e);
+				}
+
+				await processNext();
+			}
+
+			await Promise.all(Array.from({ length: CONCURRENCY }, processNext));
+			console.log(
+				`[Schedule] Lineup crawling complete: ${lineupsAdded} lineups, ${performersAdded} performers`
+			);
+		}
+
 		return json({
 			success: true,
 			synced,
 			errors,
 			total: allShows.length,
 			images: cachedImages.size,
+			lineups: crawlLineups ? lineupsAdded : undefined,
+			performers: crawlLineups ? performersAdded : undefined,
 			timestamp: new Date().toISOString()
 		});
 	} catch (error) {

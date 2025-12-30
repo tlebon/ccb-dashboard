@@ -17,7 +17,10 @@ const NAME_LIST_PATTERNS = [
 	/performers?:\s*/i,
 	/starring:\s*/i,
 	/featuring:\s*/i,
-	/lineup:\s*/i
+	/lineup:\s*/i,
+	/They are\s+/i,
+	/The cast is\s+/i,
+	/With:\s*/i
 ];
 
 // Patterns for single/multiple person mentions (not followed by a long list)
