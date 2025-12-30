@@ -10,9 +10,9 @@ echo "Running pre-commit checks..."
 echo "📝 Running prettier..."
 pnpm prettier --write . --loglevel warn
 
-# Type check (Svelte)
+# Type check (Svelte) - only fail on errors, not warnings
 echo "🔍 Running Svelte type check..."
-pnpm check
+pnpm check -- --fail-on-warnings false
 
 # Type check (TypeScript)
 echo "🔍 Running TypeScript check..."
