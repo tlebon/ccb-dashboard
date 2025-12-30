@@ -1,4 +1,26 @@
 import { createClient } from '@libsql/client';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Load env vars
+function loadEnv() {
+	const envPath = path.join(process.cwd(), '.env');
+	if (fs.existsSync(envPath)) {
+		const content = fs.readFileSync(envPath, 'utf-8');
+		for (const line of content.split('\n')) {
+			const trimmed = line.trim();
+			if (trimmed && !trimmed.startsWith('#')) {
+				const [key, ...valueParts] = trimmed.split('=');
+				const value = valueParts.join('=').replace(/^["']|["']$/g, '');
+				if (key && !process.env[key]) {
+					process.env[key] = value;
+				}
+			}
+		}
+	}
+}
+
+loadEnv();
 
 const db = createClient({
 	url: process.env.TURSO_DATABASE_URL!,
