@@ -54,6 +54,11 @@ const SPECIAL_MAPPINGS: ShowTeamMapping[] = [
 		titlePattern: '%The Hedge%',
 		teamSlug: 'cuter-than-hedgehogs',
 		dateFilter: { dayOfWeek: 4 } // Thursdays only
+	},
+	// Improvylicious Jam is always hosted by Destiny's Step Child
+	{
+		titlePattern: '%Improvylicious%',
+		teamSlug: 'destinys-step-child'
 	}
 	// Truth Night rotates - need to handle separately with dates
 ];

@@ -24,7 +24,12 @@ const NAME_LIST_PATTERNS = [
 ];
 
 // Patterns for single/multiple person mentions (not followed by a long list)
-const SINGLE_PERSON_PATTERNS = [/[Hh]osted by:?\s*/, /[Cc]oached by\s*/];
+const SINGLE_PERSON_PATTERNS = [
+	/[Hh]osted by:?\s*/,
+	/[Cc]oached by\s*/,
+	/[Yy]our hosts?,\s*(?:esteemed )?(?:comedy )?performers?\s*/,
+	/[Hh]osts?:\s*/
+];
 
 /**
  * Check if a string looks like a person's name (not a description)

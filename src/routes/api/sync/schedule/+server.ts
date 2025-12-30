@@ -7,6 +7,33 @@ import { fetchLineupFromURL } from '$lib/utils/lineupCrawler';
 import { createClient } from '@libsql/client';
 
 /**
+ * Helper: Decode HTML entities in strings
+ */
+function decodeHTMLEntities(text: string): string {
+	const entities: Record<string, string> = {
+		'&lt;': '<',
+		'&gt;': '>',
+		'&quot;': '"',
+		'&#039;': "'",
+		'&apos;': "'",
+		'&#8217;': "'",
+		'&amp;': '&' // Must be last to avoid double-decoding
+	};
+
+	let decoded = text;
+	for (const [entity, char] of Object.entries(entities)) {
+		decoded = decoded.replace(new RegExp(entity, 'g'), char);
+	}
+
+	// Handle numeric entities like &#8217;
+	decoded = decoded.replace(/&#(\d+);/g, (_match, code) => {
+		return String.fromCharCode(parseInt(code));
+	});
+
+	return decoded;
+}
+
+/**
  * Helper: Get or create a performer by name
  */
 async function getOrCreatePerformer(
@@ -301,7 +328,12 @@ async function scrapeSchedulePage(baseUrl: string): Promise<{
 
 				const url = event.url;
 				const imageUrl = event.image;
-				const description = event.description?.replace(/<[^>]*>/g, '').trim();
+				// Decode HTML entities, then strip HTML tags
+				const description = event.description
+					? decodeHTMLEntities(event.description)
+							.replace(/<[^>]*>/g, '')
+							.trim()
+					: undefined;
 
 				// Parse startDate (e.g., "2026-01-02T20:00:00+01:00")
 				// Extract time directly from ISO string to avoid timezone issues
