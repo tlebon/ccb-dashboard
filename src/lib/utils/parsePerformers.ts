@@ -27,6 +27,37 @@ const NAME_LIST_PATTERNS = [
 const SINGLE_PERSON_PATTERNS = [/[Hh]osted by:?\s*/, /[Cc]oached by\s*/];
 
 /**
+ * Check if a string looks like a person's name (not a description)
+ */
+function looksLikePersonName(text: string): boolean {
+	// Exclude obvious non-names
+	const badPatterns = [
+		/\bteam\b/i,
+		/\bgroup\b/i,
+		/\bensemble\b/i,
+		/different/i,
+		/every week/i,
+		/various/i,
+		/rotating/i,
+		/\bthe\b/i, // Articles like "the"
+		/^(mix|blend|variety) of/i,
+		/\bmembers?\b/i
+	];
+
+	for (const pattern of badPatterns) {
+		if (pattern.test(text)) return false;
+	}
+
+	// Must be reasonable length
+	if (text.length > 50 || text.length < 2) return false;
+
+	// Should not contain parentheses or special chars (except hyphens and apostrophes)
+	if (/[()[\]{}]/.test(text)) return false;
+
+	return true;
+}
+
+/**
  * Split a string of names by comma and "and"
  */
 function splitNames(nameSection: string): string[] {
@@ -34,7 +65,7 @@ function splitNames(nameSection: string): string[] {
 		.split(/,\s*/)
 		.flatMap((part) => part.split(/\s+and\s+/))
 		.map((n) => n.trim().replace(/[.!?]+$/, '')) // Remove trailing punctuation
-		.filter((n) => n.length > 0 && !n.includes('(') && n.length < 50);
+		.filter((n) => n.length > 0 && looksLikePersonName(n));
 }
 
 /**
